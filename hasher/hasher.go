@@ -20,24 +20,43 @@ the Dockerfile with the SHA256 digest of the image.
 package hasher
 
 import (
+	"fmt"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 
+	wlParser "github.com/cremindes/whalelint/parser"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/crane"
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/moby/buildkit/frontend/dockerfile/instructions"
 	"github.com/moby/buildkit/frontend/dockerfile/parser"
 	"github.com/pkg/errors"
-	"github.com/slimtoolkit/slim/pkg/docker/dockerfile/reverse"
-	"github.com/slimtoolkit/slim/pkg/docker/dockerfile/spec"
 )
 
-var reSyntax = regexp.MustCompile(`(?i)#\s*syntax=(.*)`)
+var reSyntax = regexp.MustCompile(`(?i)syntax=(.*)`)
 
-// ReadFile reads the contents of the Dockerfile from disk and parses it into an
-// Abstract Syntax Tree (AST).
-func ReadFile(fsPath string) (*parser.Result, error) {
+/*
+ReadFile reads the contents of the Dockerfile from disk and parses it into an
+Abstract Syntax Tree (AST).
+
+----
+
+Arguments:
+
+  - fsPath (string): The path to the Dockerfile on disk.
+
+----
+
+Returns:
+
+  - *parser.Result: The raw parsed object of the Dockerfile.
+  - wlParser.RawDockerfileParser: The raw parsed object of the Dockerfile.
+  - []instructions.Stage: A list of stages parsed from the Dockerfile.
+  - error: An error object if something went wrong.
+*/
+func ReadFile(fsPath string) (*parser.Result, wlParser.RawDockerfileParser, []instructions.Stage, error) {
 	var (
 		f           *os.File
 		err         error
@@ -46,122 +65,155 @@ func ReadFile(fsPath string) (*parser.Result, error) {
 
 	f, err = os.Open(fsPath)
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "failed to parse Dockerfile")
+		return emptyResult, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
+			err,
+			"failed to open file",
+		)
 	}
 
 	defer f.Close()
 
-	result, err := parser.Parse(f)
+	dockerfile, err := parser.Parse(f)
 	if err != nil {
-		return result, errors.Wrap(err, "failed to parse Dockerfile")
+		return dockerfile, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
+			err,
+			"failed to parse Dockerfile",
+		)
 	}
 
-	return result, nil
-}
-
-// ParseIntoStruct parses the Abstract Syntax Tree (AST) into a struct with just
-// the information we care about.
-func ParseIntoStruct(ast *spec.Dockerfile, authenticator ...authn.Authenticator) ([]ImageRef, error) {
-	allLines := []ImageRef{}
-
-	allLines = append(allLines, parseSyntaxLines(ast, authenticator...)...)
-	allLines = append(allLines, parseFromLines(ast, authenticator...)...)
-
-	return allLines, nil
-}
-
-// RewriteLines uses the information from the Abstract Syntax Tree (AST) and the
-// SHA256 digest to rewrite the lines in the Dockerfile.
-func RewriteLines(ast *spec.Dockerfile, parsedStructs []ImageRef) []string {
-	return []string{}
-}
-
-// WriteFile takes the rewritten lines and writes them back to disk as a new
-// Dockerfile.
-func WriteFile(lines []string, outputPath string) error {
-	err := reverse.SaveDockerfileData(outputPath, lines)
+	stageList, _, err := instructions.Parse(dockerfile.AST)
 	if err != nil {
-		return errors.Wrap(err, "failed to write Dockerfile")
+		return dockerfile, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
+			err,
+			"failed to parse Dockerfile instructions",
+		)
 	}
 
-	return nil
+	err = wlParser.RawParser.ParseDockerfile(fsPath)
+	if err != nil {
+		return dockerfile, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
+			err,
+			"failed to parse Dockerfile instructions",
+		)
+	}
+
+	return dockerfile, wlParser.RawParser, stageList, nil
 }
 
-func parseSyntaxLines(ast *spec.Dockerfile, authenticator ...authn.Authenticator) []ImageRef {
-	syntaxLines := []ImageRef{}
+/*
+ModifyFromLines takes the raw parsed object of the Dockerfile and staging
+information, and performs a rewrite of the FROM lines in the Dockerfile to
+include the SHA256 digest of the image.
 
-	for l := range ast.Lines {
-		line := ast.Lines[l]
-		matches := reSyntax.FindStringSubmatch(line)
+----
 
-		if len(matches) > 1 {
-			syntaxLine := ImageRef{
-				StartLine: l + 1,
-				EndLine:   l + 1,
-				ImageTag:  matches[1],
-			}
+Arguments:
 
-			// Fake it for the syntax line
-			astCmd := Command{
-				Name: "#",
-				Args: []string{matches[1]},
-			}
+  - dockerfile (*parser.Result): The raw parsed object of the Dockerfile.
+  - rawParser (wlParser.RawDockerfileParser): The raw parsed object of the Dockerfile.
+  - stageList ([]instructions.Stage): A list of stages parsed from the Dockerfile.
 
-			digest, err := lookupImageDigest(matches[1], authenticator...)
-			if err != nil {
-				continue
-			}
+----
 
-			syntaxLine.ImageDigest = digest
-			syntaxLine.CommandAST = astCmd
-			syntaxLines = append(syntaxLines, syntaxLine)
+Returns:
+
+  - []string: The rewritten lines of the Dockerfile.
+  - error: An error object if something went wrong.
+*/
+func ModifyFromLines(
+	dockerfile *parser.Result,
+	rawParser wlParser.RawDockerfileParser,
+	stageList []instructions.Stage,
+) ([]string, error) {
+	lines := rawParser.ParseRawLineRange(dockerfile.AST.Location())
+	syntaxLines := buildKitSyntax(dockerfile)
+	offset := 1
+
+	if len(stageList) > 0 {
+		if len(stageList[0].Location) > 0 {
+			offset = stageList[0].Location[0].Start.Line
 		}
 	}
 
-	return syntaxLines
+	for i := range stageList {
+		stage := stageList[i]
+
+		loc := wlParser.RawParser.StringLocation(
+			stage.BaseName,
+			stage.Location,
+		)
+
+		startLine := loc[0]
+		startPos := loc[1]
+		endLine := loc[2]
+		endPos := loc[3]
+		idx := startLine - offset
+		ln := lines[idx]
+
+		if startLine != endLine {
+			return []string{}, errors.New("multi-line FROM statements are not supported")
+		}
+
+		digest, err := lookupImageDigest(stage.BaseName)
+		if err != nil {
+			continue
+		}
+
+		modifiedLn := ln[:startPos] + digest + ln[endPos:]
+		lines = slices.Replace(lines, idx, idx+1, modifiedLn)
+	}
+
+	return append(syntaxLines, lines...), nil
 }
 
-func parseFromLines(ast *spec.Dockerfile, authenticator ...authn.Authenticator) []ImageRef {
-	fromLines := []ImageRef{}
+/*
+WriteFile takes the rewritten lines and writes them back to disk as a new
+Dockerfile.
 
-	for i := range ast.Stages {
-		stage := ast.Stages[i]
-		instructions := stage.AllInstructions
+----
 
-		for j := range instructions {
-			instruction := instructions[j]
+Arguments:
 
-			if strings.EqualFold(instruction.Name, "FROM") {
-				fromLine := ImageRef{
-					StartLine: instruction.StartLine,
-					EndLine:   instruction.EndLine,
-				}
+  - lines ([]string): The rewritten lines of the Dockerfile.
+  - outputPath (string): The path to the new Dockerfile on disk.
 
-				astCmd := Command{
-					Name:  strings.ToUpper(instruction.Name),
-					Flags: instruction.Flags,
-					Args:  instruction.Args,
-				}
+----
 
-				if len(instruction.Args) > 0 {
-					fromLine.ImageTag = instruction.Args[0]
-				}
+Returns:
 
-				digest, err := lookupImageDigest(fromLine.ImageTag, authenticator...)
-				if err != nil {
-					continue
-				}
+  - int: The number of bytes written to the new Dockerfile.
+  - error: An error object if something went wrong.
+*/
+func WriteFile(lines []string, outputPath string) (int, error) {
+	var bites int
 
-				fromLine.ImageDigest = digest
-				fromLine.CommandAST = astCmd
-				fromLines = append(fromLines, fromLine)
-			}
+	fp, err := os.Create(outputPath)
+	if err != nil {
+		return bites, err
+	}
+
+	for i := range lines {
+		line := lines[i]
+
+		bites, err = fmt.Fprintln(fp, line)
+		if err != nil {
+			return bites, err
 		}
 	}
 
-	return fromLines
+	err = fp.Close()
+	if err != nil {
+		return bites, err
+	}
+
+	return bites, nil
 }
 
+/*
+lookupImageDigest performs the work of looking up the SHA256 digest for the
+image name. If the image name results in an error, the error is ignored and the
+digest replacement is skipped.
+*/
 func lookupImageDigest(imageName string, authenticator ...authn.Authenticator) (string, error) {
 	if strings.Contains(imageName, "@sha256:") {
 		return imageName, nil
@@ -183,6 +235,38 @@ func lookupImageDigest(imageName string, authenticator ...authn.Authenticator) (
 	}
 
 	return ref.Context().Digest(digest).String(), nil
+}
+
+/*
+buildKitSyntax performs the work of looking up the syntax= line (and any other
+comments before the first FROM line) in the Dockerfile. Performs the same SHA256
+digest lookup.
+*/
+func buildKitSyntax(dockerfile *parser.Result) []string {
+	var syntaxLines []string
+
+	// Comments above the first FROM line (might be syntax=).
+	if len(dockerfile.AST.Children) > 0 {
+		firstChild := dockerfile.AST.Children[0]
+
+		for i := range firstChild.PrevComment {
+			comment := firstChild.PrevComment[i]
+			matches := reSyntax.FindStringSubmatch(comment)
+
+			if len(matches) > 1 {
+				digest, err := lookupImageDigest(matches[1])
+				if err != nil {
+					continue
+				}
+
+				syntaxLines = append(syntaxLines, "# syntax="+digest)
+			} else {
+				syntaxLines = append(syntaxLines, "# "+comment)
+			}
+		}
+	}
+
+	return syntaxLines
 }
 
 // crane.WithAuth(&authn.Basic{

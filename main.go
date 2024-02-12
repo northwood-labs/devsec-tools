@@ -33,30 +33,28 @@ func main() {
 		SpewKeys: true,
 	}
 
-	ast, err := hasher.ReadFile("testdata/Dockerfile")
+	dockerfile, rawParser, stageList, err := hasher.ReadFile("testdata/Dockerfile")
 	if err != nil {
 		panic(err)
 	}
 
-	sp.Dump(ast)
+	err = rawParser.ParseDockerfile("testdata/Dockerfile")
+	if err != nil {
+		panic(err)
+	}
+
+	dockerfileLines, err := hasher.ModifyFromLines(dockerfile, rawParser, stageList)
+	if err != nil {
+		panic(err)
+	}
+
+	sp.Dump(dockerfileLines)
 	fmt.Println(HR)
-	fmt.Println(ast.AST.Dump())
 
-	// refs, err := hasher.ParseIntoStruct(ast)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	bites, err := hasher.WriteFile(dockerfileLines, "testdata/Dockerfile.rewritten")
+	if err != nil {
+		panic(err)
+	}
 
-	// for i := range refs {
-	// 	ref := refs[i]
-	// 	sp.Dump(ref)
-	// 	sp.Dump(ref.OriginalLine())
-	// 	sp.Dump(ref.RewriteLine())
-
-	// 	fmt.Println(HR)
-	// }
-
-	// // sp.Dump(hasher.RewriteLines(ast, refs))
-
-	// hasher.WriteFile(ast.Lines, "testdata/Dockerfile2")
+	fmt.Printf("Wrote %d bytes to testdata/Dockerfile.rewritten.\n", bites)
 }
