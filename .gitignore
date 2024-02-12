@@ -1,0 +1,12 @@
+_*.out
+_*.txt
+_cache_/*
+.dccache
+.infracost
+*.cache.json
+*.pprof
+*.test
+*.zip
+bin/
+callgrind.*
+dist/

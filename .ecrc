@@ -1,0 +1,22 @@
+{
+    "Exclude": [
+        "\\.bak$",
+        "\\.cache$",
+        "\\.dcignore$",
+        "\\.example$",
+        "\\.go$",
+        "\\.golangci.yml$",
+        "\\.goreleaser.yml$",
+        "\\.gotmpl$",
+        "\\.svg$",
+        "\\.terraform\\.lock\\.hcl$",
+        "\\.txt$",
+        "go\\.mod$",
+        "go\\.sum$",
+        "package-lock\\.json$",
+        "testdata"
+    ],
+    "IgnoreDefaults": true,
+    "SpacesAfterTabs": false,
+    "Verbose": false
+}

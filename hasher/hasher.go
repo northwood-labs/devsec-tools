@@ -1,14 +1,35 @@
+// Copyright 2024, Ryan Parman
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+/*
+Package hasher is a package that provides the ability to read a Dockerfile from
+disk, parse it into an Abstract Syntax Tree (AST), and then rewrite the lines in
+the Dockerfile with the SHA256 digest of the image.
+*/
 package hasher
 
 import (
+	"os"
 	"regexp"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/crane"
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/moby/buildkit/frontend/dockerfile/parser"
 	"github.com/pkg/errors"
-	"github.com/slimtoolkit/slim/pkg/docker/dockerfile/parser"
+	"github.com/slimtoolkit/slim/pkg/docker/dockerfile/reverse"
 	"github.com/slimtoolkit/slim/pkg/docker/dockerfile/spec"
 )
 
@@ -16,48 +37,61 @@ var reSyntax = regexp.MustCompile(`(?i)#\s*syntax=(.*)`)
 
 // ReadFile reads the contents of the Dockerfile from disk and parses it into an
 // Abstract Syntax Tree (AST).
-func ReadFile(fsPath string) (*spec.Dockerfile, error) {
-	spec, err := parser.FromFile(fsPath)
+func ReadFile(fsPath string) (*parser.Result, error) {
+	var (
+		f           *os.File
+		err         error
+		emptyResult = &parser.Result{}
+	)
+
+	f, err = os.Open(fsPath)
 	if err != nil {
-		return spec, errors.Wrap(err, "failed to parse Dockerfile")
+		return emptyResult, errors.Wrap(err, "failed to parse Dockerfile")
 	}
 
-	return spec, nil
+	defer f.Close()
+
+	result, err := parser.Parse(f)
+	if err != nil {
+		return result, errors.Wrap(err, "failed to parse Dockerfile")
+	}
+
+	return result, nil
 }
 
 // ParseIntoStruct parses the Abstract Syntax Tree (AST) into a struct with just
 // the information we care about.
-func ParseIntoStruct(spec *spec.Dockerfile, authenticator ...authn.Authenticator) ([]ImageRef, error) {
-	allLines := make([]ImageRef, 0)
+func ParseIntoStruct(ast *spec.Dockerfile, authenticator ...authn.Authenticator) ([]ImageRef, error) {
+	allLines := []ImageRef{}
 
-	syntaxLines, err := parseSyntaxLines(spec, authenticator...)
-	if err != nil {
-		return allLines, errors.Wrap(err, "failed to parse syntax lines")
-	}
-
-	fromLines, err := parseFromLines(spec, authenticator...)
-	if err != nil {
-		return allLines, errors.Wrap(err, "failed to parse FROM lines")
-	}
-
-	allLines = append(allLines, syntaxLines...)
-	allLines = append(allLines, fromLines...)
+	allLines = append(allLines, parseSyntaxLines(ast, authenticator...)...)
+	allLines = append(allLines, parseFromLines(ast, authenticator...)...)
 
 	return allLines, nil
 }
 
 // RewriteLines uses the information from the Abstract Syntax Tree (AST) and the
 // SHA256 digest to rewrite the lines in the Dockerfile.
-func RewriteLines() {}
+func RewriteLines(ast *spec.Dockerfile, parsedStructs []ImageRef) []string {
+	return []string{}
+}
 
-// WriteFile
-func WriteFile() {}
+// WriteFile takes the rewritten lines and writes them back to disk as a new
+// Dockerfile.
+func WriteFile(lines []string, outputPath string) error {
+	err := reverse.SaveDockerfileData(outputPath, lines)
+	if err != nil {
+		return errors.Wrap(err, "failed to write Dockerfile")
+	}
 
-func parseSyntaxLines(spec *spec.Dockerfile, authenticator ...authn.Authenticator) ([]ImageRef, error) {
+	return nil
+}
+
+func parseSyntaxLines(ast *spec.Dockerfile, authenticator ...authn.Authenticator) []ImageRef {
 	syntaxLines := []ImageRef{}
 
-	for l := range spec.Lines {
-		line := spec.Lines[l]
+	for l := range ast.Lines {
+		line := ast.Lines[l]
 		matches := reSyntax.FindStringSubmatch(line)
 
 		if len(matches) > 1 {
@@ -84,14 +118,14 @@ func parseSyntaxLines(spec *spec.Dockerfile, authenticator ...authn.Authenticato
 		}
 	}
 
-	return syntaxLines, nil
+	return syntaxLines
 }
 
-func parseFromLines(spec *spec.Dockerfile, authenticator ...authn.Authenticator) ([]ImageRef, error) {
+func parseFromLines(ast *spec.Dockerfile, authenticator ...authn.Authenticator) []ImageRef {
 	fromLines := []ImageRef{}
 
-	for i := range spec.Stages {
-		stage := spec.Stages[i]
+	for i := range ast.Stages {
+		stage := ast.Stages[i]
 		instructions := stage.AllInstructions
 
 		for j := range instructions {
@@ -125,7 +159,7 @@ func parseFromLines(spec *spec.Dockerfile, authenticator ...authn.Authenticator)
 		}
 	}
 
-	return fromLines, nil
+	return fromLines
 }
 
 func lookupImageDigest(imageName string, authenticator ...authn.Authenticator) (string, error) {
