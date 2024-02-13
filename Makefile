@@ -2,8 +2,7 @@
 # Running `make` will show the list of subcommands that will run.
 
 SHELL:=bash
-BINARY_NAME=hasher
-GOBIN=./bin
+BINARY_NAME=devsec-tools
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(dir $(mkfile_path))
 
@@ -62,7 +61,7 @@ install-tools-go:
 	$(GO) install github.com/google/osv-scanner/cmd/osv-scanner@v1
 	$(GO) install github.com/goph/licensei/cmd/licensei@latest
 	$(GO) install github.com/mdempsky/unconvert@latest
-	@ # $(GO) install github.com/nikolaydubina/go-binsize-treemap@latest
+	$(GO) install github.com/nikolaydubina/go-binsize-treemap@latest
 	$(GO) install github.com/nikolaydubina/go-cover-treemap@latest
 	$(GO) install github.com/nikolaydubina/smrcptr@latest
 	$(GO) install github.com/orlangure/gocovsh@latest
@@ -73,6 +72,7 @@ install-tools-go:
 	$(GO) install golang.org/x/tools/cmd/godoc@latest
 	$(GO) install golang.org/x/vuln/cmd/govulncheck@latest
 	$(GO) install gotest.tools/gotestsum@latest
+	$(GO) install github.com/spf13/cobra-cli@latest
 
 .PHONY: install-tools-mac
 ## install-tools-mac: [tools]* Install/upgrade the required tools for macOS, including Go packages.
@@ -112,7 +112,7 @@ install-hooks:
 tidy:
 	@ $(ECHO) " "
 	@ $(ECHO) "\033[1;33m=====> Tidy and download the Go dependencies...\033[0m"
-	$(GO) mod tidy -go=1.21 -v
+	$(GO) mod tidy -go=1.21.7 -v
 
 .PHONY: godeps
 ## godeps: [build] Updates go.mod and downloads dependencies.
@@ -122,12 +122,11 @@ godeps:
 	$(GO) get -d -u -t -v ./...
 
 .PHONY: build
-## build: [build]* Builds and installs the Terraform provider locally.
+## build: [build]* Builds and installs the binary locally.
 build: tidy
 	@ $(ECHO) " "
-	@ $(ECHO) "\033[1;33m=====> Building and installing the provider...\033[0m"
-	$(GO) build -a -ldflags="-s -w" -o $(GOBIN)/$(BINARY_NAME) .
-	@ ls -lahF $(GOBIN)/$(BINARY_NAME)
+	@ $(ECHO) "\033[1;33m=====> Building and installing locally...\033[0m"
+	$(GO) install -a -ldflags="-s -w" .
 
 #-------------------------------------------------------------------------------
 # Clean
@@ -163,23 +162,15 @@ docs: docs-cli
 docs-cli:
 	@ $(ECHO) " "
 	@ $(ECHO) "\033[1;33m=====> Displaying Go CLI documentation...\033[0m"
-	$(GO) doc -C ./hasher -all
+	@ find ./pkg/* -type d -exec $(GO) doc -all {} \;
 
 .PHONY: docs-serve
 ## docs-serve: [docs] Preview the Go library documentation as displayed on pkg.go.dev.
 docs-serve:
 	@ $(ECHO) " "
 	@ $(ECHO) "\033[1;33m=====> Displaying Go HTTP documentation...\033[0m"
-	open http://localhost:6060/pkg/github.com/northwood-labs/docker-image-digest
+	open http://localhost:6060/pkg/github.com/northwood-labs/devsec-tools/pkg/
 	godoc -index -links
-
-.PHONY: binsize
-## binsize: [docs] Analyze the size of the binary by Go package.
-binsize:
-	@ $(ECHO) " "
-	@ $(ECHO) "\033[1;33m=====> Displaying Go HTTP documentation...\033[0m"
-	$(GO) tool nm -size "$(GOBIN)/$(BINARY_NAME)" | go-binsize-treemap > binsize.svg
-	rsvg-convert --width=2000 --format=png --output="binsize.png" "binsize.svg"
 
 #-------------------------------------------------------------------------------
 # Linting

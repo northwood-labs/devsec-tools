@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-Package hasher is a package that provides the ability to read a Dockerfile from
-disk, parse it into an Abstract Syntax Tree (AST), and then rewrite the lines in
-the Dockerfile with the SHA256 digest of the image.
-*/
-package hasher
+package dockerfile_hasher
 
 import (
 	"fmt"
@@ -26,13 +21,14 @@ import (
 	"slices"
 	"strings"
 
-	wlParser "github.com/cremindes/whalelint/parser"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/crane"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/moby/buildkit/frontend/dockerfile/instructions"
 	"github.com/moby/buildkit/frontend/dockerfile/parser"
+	wlParser "github.com/northwood-labs/whalelint/parser"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 )
 
 var reSyntax = regexp.MustCompile(`(?i)syntax=(.*)`)
@@ -46,6 +42,7 @@ Abstract Syntax Tree (AST).
 Arguments:
 
   - fsPath (string): The path to the Dockerfile on disk.
+  - logger (...zerolog.Logger): An optional logger object using zerolog.
 
 ----
 
@@ -56,12 +53,20 @@ Returns:
   - []instructions.Stage: A list of stages parsed from the Dockerfile.
   - error: An error object if something went wrong.
 */
-func ReadFile(fsPath string) (*parser.Result, wlParser.RawDockerfileParser, []instructions.Stage, error) {
+func ReadFile(
+	fsPath string,
+	logger ...zerolog.Logger,
+) (*parser.Result, wlParser.RawDockerfileParser, []instructions.Stage, error) {
 	var (
 		f           *os.File
 		err         error
 		emptyResult = &parser.Result{}
 	)
+
+	zlog := zerolog.Nop()
+	if len(logger) > 0 {
+		zlog = logger[0]
+	}
 
 	f, err = os.Open(fsPath)
 	if err != nil {
@@ -71,7 +76,9 @@ func ReadFile(fsPath string) (*parser.Result, wlParser.RawDockerfileParser, []in
 		)
 	}
 
-	defer f.Close()
+	zlog.Debug().
+		Str("dockerfile", fsPath).
+		Msgf("Reading Dockerfile from %s", fsPath)
 
 	dockerfile, err := parser.Parse(f)
 	if err != nil {
@@ -81,6 +88,10 @@ func ReadFile(fsPath string) (*parser.Result, wlParser.RawDockerfileParser, []in
 		)
 	}
 
+	zlog.Debug().
+		Str("dockerfile", fsPath).
+		Msgf("Parsed %s successfully", fsPath)
+
 	stageList, _, err := instructions.Parse(dockerfile.AST)
 	if err != nil {
 		return dockerfile, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
@@ -89,11 +100,28 @@ func ReadFile(fsPath string) (*parser.Result, wlParser.RawDockerfileParser, []in
 		)
 	}
 
+	arr := zerolog.Arr()
+	for i := range stageList {
+		arr = arr.Str(stageList[i].BaseName + " AS " + stageList[i].Name)
+	}
+
+	zlog.Info().
+		Array("stages", arr).
+		Msgf("Discovered %d stages", len(stageList))
+
 	err = wlParser.RawParser.ParseDockerfile(fsPath)
 	if err != nil {
 		return dockerfile, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
 			err,
 			"failed to parse Dockerfile instructions",
+		)
+	}
+
+	err = f.Close()
+	if err != nil {
+		return dockerfile, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
+			err,
+			"failed to close file",
 		)
 	}
 
@@ -112,6 +140,7 @@ Arguments:
   - dockerfile (*parser.Result): The raw parsed object of the Dockerfile.
   - rawParser (wlParser.RawDockerfileParser): The raw parsed object of the Dockerfile.
   - stageList ([]instructions.Stage): A list of stages parsed from the Dockerfile.
+  - logger (...zerolog.Logger): An optional logger object using zerolog.
 
 ----
 
@@ -124,10 +153,16 @@ func ModifyFromLines(
 	dockerfile *parser.Result,
 	rawParser wlParser.RawDockerfileParser,
 	stageList []instructions.Stage,
+	logger ...zerolog.Logger,
 ) ([]string, error) {
 	lines := rawParser.ParseRawLineRange(dockerfile.AST.Location())
-	syntaxLines := buildKitSyntax(dockerfile)
+	syntaxLines := buildKitSyntax(dockerfile, logger...)
 	offset := 1
+
+	zlog := zerolog.Nop()
+	if len(logger) > 0 {
+		zlog = logger[0]
+	}
 
 	if len(stageList) > 0 {
 		if len(stageList[0].Location) > 0 {
@@ -159,6 +194,11 @@ func ModifyFromLines(
 			continue
 		}
 
+		zlog.Info().
+			Str("image", stage.BaseName).
+			Str("digest", digest).
+			Msgf("Found image digest for %s", stage.BaseName)
+
 		modifiedLn := ln[:startPos] + digest + ln[endPos:]
 		lines = slices.Replace(lines, idx, idx+1, modifiedLn)
 	}
@@ -175,7 +215,8 @@ Dockerfile.
 Arguments:
 
   - lines ([]string): The rewritten lines of the Dockerfile.
-  - outputPath (string): The path to the new Dockerfile on disk.
+  - outputPath (string): The path to the new Dockerfile on disk. If empty, will write to stdout.
+  - logger (...zerolog.Logger): An optional logger object using zerolog.
 
 ----
 
@@ -184,12 +225,27 @@ Returns:
   - int: The number of bytes written to the new Dockerfile.
   - error: An error object if something went wrong.
 */
-func WriteFile(lines []string, outputPath string) (int, error) {
-	var bites int
+func WriteFile(lines []string, outputPath string, logger ...zerolog.Logger) (int, error) {
+	var (
+		bites int
+		err   error
+	)
 
-	fp, err := os.Create(outputPath)
-	if err != nil {
-		return bites, err
+	zlog := zerolog.Nop()
+	if len(logger) > 0 {
+		zlog = logger[0]
+	}
+
+	// Default
+	fp := os.Stdout
+
+	if outputPath != "" {
+		zlog.Debug().Msgf("Writing updated Dockerfile to %s", outputPath)
+
+		fp, err = os.Create(outputPath)
+		if err != nil {
+			return bites, err
+		}
 	}
 
 	for i := range lines {
@@ -242,8 +298,13 @@ buildKitSyntax performs the work of looking up the syntax= line (and any other
 comments before the first FROM line) in the Dockerfile. Performs the same SHA256
 digest lookup.
 */
-func buildKitSyntax(dockerfile *parser.Result) []string {
+func buildKitSyntax(dockerfile *parser.Result, logger ...zerolog.Logger) []string {
 	var syntaxLines []string
+
+	zlog := zerolog.Nop()
+	if len(logger) > 0 {
+		zlog = logger[0]
+	}
 
 	// Comments above the first FROM line (might be syntax=).
 	if len(dockerfile.AST.Children) > 0 {
@@ -258,6 +319,11 @@ func buildKitSyntax(dockerfile *parser.Result) []string {
 				if err != nil {
 					continue
 				}
+
+				zlog.Info().
+					Str("image", matches[1]).
+					Str("digest", digest).
+					Msgf("Found image digest for %s", matches[1])
 
 				syntaxLines = append(syntaxLines, "# syntax="+digest)
 			} else {
