@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -30,7 +29,6 @@ import (
 var (
 	// Color text.
 	colorHeader = color.New(color.FgWhite, color.BgBlue, color.OpBold)
-	ctx         = context.Background()
 	logger      zerolog.Logger
 
 	fQuiet   bool
@@ -55,15 +53,6 @@ var (
 	}
 )
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(
 		&fVerbose, "verbose", "v", false, "Enable verbose output.",
@@ -75,21 +64,45 @@ func init() {
 	rootCmd.MarkFlagsMutuallyExclusive("verbose", "quiet")
 }
 
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
+}
+
 func getLogger(useJSON bool) zerolog.Logger {
 	var zlog zerolog.Logger
 
 	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
 		short := file
+
 		for i := len(file) - 1; i > 0; i-- {
 			if file[i] == '/' {
 				short = file[i+1:]
 				break
 			}
 		}
+
 		file = short
 
 		return file + ":" + strconv.Itoa(line)
 	}
+
+	output := zerolog.ConsoleWriter{
+		Out:        os.Stderr,
+		TimeFormat: zerolog.TimeFormatUnix,
+	}
+
+	output.FormatLevel = func(i any) string {
+		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
+	}
+
+	zlog = zerolog.New(output).With().
+		Timestamp().
+		Logger()
 
 	// JSON output
 	if useJSON {
@@ -98,19 +111,6 @@ func getLogger(useJSON bool) zerolog.Logger {
 			Timestamp().
 			Logger()
 	}
-
-	output := zerolog.ConsoleWriter{
-		Out:        os.Stderr,
-		TimeFormat: zerolog.TimeFormatUnix,
-	}
-
-	output.FormatLevel = func(i interface{}) string {
-		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-	}
-
-	zlog = zerolog.New(output).With().
-		Timestamp().
-		Logger()
 
 	zlog = zlog.Level(zerolog.InfoLevel)
 	if fQuiet {

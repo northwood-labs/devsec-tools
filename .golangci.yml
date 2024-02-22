@@ -1335,6 +1335,11 @@ issues:
         - gosec
       source: lint:allow_unhandled
 
+    - text: (G304)
+      linters:
+        - gosec
+      source: lint:allow_include_file
+
     - text: (G404)
       linters:
         - gosec

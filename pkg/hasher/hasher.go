@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package dockerfile_hasher
+package hasher
 
 import (
 	"fmt"
@@ -68,7 +68,7 @@ func ReadFile(
 		zlog = logger[0]
 	}
 
-	f, err = os.Open(fsPath)
+	f, err = os.Open(fsPath) // lint:allow_include_file
 	if err != nil {
 		return emptyResult, wlParser.RawDockerfileParser{}, []instructions.Stage{}, errors.Wrap(
 			err,
@@ -242,9 +242,9 @@ func WriteFile(lines []string, outputPath string, logger ...zerolog.Logger) (int
 	if outputPath != "" {
 		zlog.Debug().Msgf("Writing updated Dockerfile to %s", outputPath)
 
-		fp, err = os.Create(outputPath)
+		fp, err = os.Create(outputPath) // lint:allow_include_file
 		if err != nil {
-			return bites, err
+			return bites, errors.Wrap(err, "failed to open file pointer")
 		}
 	}
 
@@ -253,13 +253,13 @@ func WriteFile(lines []string, outputPath string, logger ...zerolog.Logger) (int
 
 		bites, err = fmt.Fprintln(fp, line)
 		if err != nil {
-			return bites, err
+			return bites, errors.Wrap(err, "failed to write lines to the file pointer")
 		}
 	}
 
 	err = fp.Close()
 	if err != nil {
-		return bites, err
+		return bites, errors.Wrap(err, "failed to close file pointer")
 	}
 
 	return bites, nil

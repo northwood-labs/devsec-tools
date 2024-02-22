@@ -12,11 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-Package dockerfile_hasher is a package that provides the ability to read a
-Dockerfile from disk, parse it into an Abstract Syntax Tree (AST), and then
-rewrite the lines in the Dockerfile with the SHA256 digest of the image.
+package main
 
-Supports logging with the https://github.com/rs/zerolog package.
-*/
-package dockerfile_hasher
+import (
+	"context"
+
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/northwood-labs/golang-utils/debug"
+)
+
+func main() {
+	lambda.Start(HandleRequest)
+}
+
+func HandleRequest(ctx context.Context, event any) error {
+	lctx, _ := lambdacontext.FromContext(ctx)
+
+	pp := debug.GetSpew()
+	pp.Dump(lctx)
+
+	return nil
+}

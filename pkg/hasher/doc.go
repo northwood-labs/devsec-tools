@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+/*
+Package hasher is a package that provides the ability to read a Dockerfile from
+disk, parse it into an Abstract Syntax Tree (AST), and then rewrite the lines in
+the Dockerfile with the SHA256 digest of the image.
 
-import "github.com/northwood-labs/devsec-tools/cmd"
-
-func main() {
-	cmd.Execute()
-}
+Supports logging with the https://github.com/rs/zerolog package.
+*/
+package hasher

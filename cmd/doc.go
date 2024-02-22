@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
-
-import "github.com/northwood-labs/devsec-tools/cmd"
-
-func main() {
-	cmd.Execute()
-}
+/*
+Package cmd is the entry points for the command-line interface (CLI) of the
+`devsec-tools` application. Each package in this directory is a sub-command of
+the CLI.
+*/
+package cmd

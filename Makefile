@@ -68,11 +68,12 @@ install-tools-go:
 	$(GO) install github.com/pelletier/go-toml/v2/cmd/tomljson@latest
 	$(GO) install github.com/quasilyte/go-consistent@latest
 	$(GO) install github.com/securego/gosec/v2/cmd/gosec@latest
+	$(GO) install github.com/spf13/cobra-cli@latest
 	$(GO) install golang.org/x/perf/cmd/benchstat@latest
 	$(GO) install golang.org/x/tools/cmd/godoc@latest
+	$(GO) install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
 	$(GO) install golang.org/x/vuln/cmd/govulncheck@latest
 	$(GO) install gotest.tools/gotestsum@latest
-	$(GO) install github.com/spf13/cobra-cli@latest
 
 .PHONY: install-tools-mac
 ## install-tools-mac: [tools]* Install/upgrade the required tools for macOS, including Go packages.

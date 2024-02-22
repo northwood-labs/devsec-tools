@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,7 @@ import (
 	"strings"
 
 	"github.com/lithammer/dedent"
-	hasher "github.com/northwood-labs/devsec-tools/pkg/dockerfile-hasher"
+	"github.com/northwood-labs/devsec-tools/pkg/hasher"
 	"github.com/spf13/cobra"
 )
 
@@ -44,7 +44,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			dockerfile, rawParser, stageList, err := hasher.ReadFile(fDockerfile, logger)
 			if err != nil {
-				panic(err)
+				logger.Fatal().Err(err).Msg("Failed to read/parse the Dockerfile.")
 			}
 
 			dockerfileLines, err := hasher.ModifyFromLines(
@@ -54,7 +54,7 @@ var (
 				logger,
 			)
 			if err != nil {
-				panic(err)
+				logger.Fatal().Err(err).Msg("Failed to modify the image references.")
 			}
 
 			outputStream := ""
@@ -64,7 +64,7 @@ var (
 
 			bites, err := hasher.WriteFile(dockerfileLines, outputStream, logger)
 			if err != nil {
-				panic(err)
+				logger.Fatal().Err(err).Msg("Failed to write the changes back to disk.")
 			}
 
 			logger.Info().Int("bytes", bites).Msgf("Wrote %d bytes.", bites)
@@ -80,7 +80,10 @@ func init() { // lint:allow_init
 		&fDockerfile, "dockerfile", "f", "Dockerfile", "Path to the Dockerfile to parse/rewrite.",
 	)
 
-	dockerfileHasherCmd.MarkFlagRequired("dockerfile")
+	err := dockerfileHasherCmd.MarkFlagRequired("dockerfile")
+	if err != nil {
+		logger.Fatal().Err(err).Msg("The --dockerfile flag was missing from the command.")
+	}
 
 	rootCmd.AddCommand(dockerfileHasherCmd)
 }
