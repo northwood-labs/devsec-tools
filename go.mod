@@ -1,6 +1,8 @@
 module github.com/northwood-labs/devsec-tools
 
-go 1.21.7
+go 1.22
+
+toolchain go1.22.0
 
 require (
 	github.com/aws/aws-lambda-go v1.46.0

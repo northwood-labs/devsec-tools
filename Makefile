@@ -112,7 +112,7 @@ install-hooks:
 tidy:
 	@ $(ECHO) " "
 	@ $(ECHO) "\033[1;33m=====> Tidy and download the Go dependencies...\033[0m"
-	$(GO) mod tidy -go=1.21.7 -v
+	$(GO) mod tidy -go=1.22 -v
 
 .PHONY: godeps
 ## godeps: [build] Updates go.mod and downloads dependencies.
@@ -126,7 +126,7 @@ godeps:
 build: tidy
 	@ $(ECHO) " "
 	@ $(ECHO) "\033[1;33m=====> Building and installing locally...\033[0m"
-	$(GO) install -a -ldflags="-s -w" .
+	$(GO) install -a -trimpath -ldflags="-s -w" .
 
 #-------------------------------------------------------------------------------
 # Clean
