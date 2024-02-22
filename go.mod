@@ -3,12 +3,14 @@ module github.com/northwood-labs/devsec-tools
 go 1.21.7
 
 require (
+	github.com/aws/aws-lambda-go v1.46.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.19.0
 	github.com/gookit/color v1.5.4
 	github.com/lithammer/dedent v1.1.0
 	github.com/moby/buildkit v0.12.5
 	github.com/northwood-labs/golang-utils/archstring v0.0.0-20230302161720-ec685e2f274a
+	github.com/northwood-labs/golang-utils/debug v0.0.0-20230302161720-ec685e2f274a
 	github.com/northwood-labs/golang-utils/exiterrorf v0.0.0-20230302161720-ec685e2f274a
 	github.com/northwood-labs/whalelint v0.3.0
 	github.com/pkg/errors v0.9.1
