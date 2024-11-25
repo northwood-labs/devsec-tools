@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package hasher
 
-import "github.com/northwood-labs/devsec-tools/cmd"
-
-func main() {
-	cmd.Execute()
-}
+// "github.com/google/go-cmp/cmp"

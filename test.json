@@ -1,0 +1,13 @@
+{
+  "domain": "https://ryanparman.com",
+  "ips": {
+    "2606:4700:3108::ac42:28d3": {
+      "http": {
+        "http1.1": true,
+        "http2": true,
+        "http3": true
+      },
+      "tls": {}
+    }
+  }
+}

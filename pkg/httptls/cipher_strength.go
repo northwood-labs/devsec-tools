@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package httptls
 
-import "github.com/northwood-labs/devsec-tools/cmd"
+type CipherStrength int
 
-func main() {
-	cmd.Execute()
+const (
+	// Cipher strength groupings
+	StrengthInsecure CipherStrength = iota
+	StrengthWeak
+	StrengthSecure
+	StrengthRecommended
+)
+
+var StrengthList = map[CipherStrength]string{
+	StrengthInsecure:    "Insecure",
+	StrengthWeak:        "Weak",
+	StrengthSecure:      "Secure",
+	StrengthRecommended: "Recommended",
 }
