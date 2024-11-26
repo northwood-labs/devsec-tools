@@ -33,16 +33,35 @@ const (
 
 	// The following are not assigned real values from the IANA.
 	SigNULL Signature = 0x0100
+
+	SigECCPWD  Signature = 0x0101
+	SigKRB5    Signature = 0x0102
+	SigPSK     Signature = 0x0103
+	SigSHA1    Signature = 0x0104
+	SigSHA1DSS Signature = 0x0105
+	SigSHA1RSA Signature = 0x0106
+	SigSHA256  Signature = 0x0107
+	SigSHA384  Signature = 0x0108
+	SigSM2     Signature = 0x0109
 )
 
 var AuthenticationList = map[Signature]string{
 	SigAnonymous: "Anonymous",
-	SigRSA:       "RSA",
 	SigDSA:       "NIST Digital Signature (DSA)",
+	SigECCPWD:    "ECCPWD",
 	SigECDSA:     "Elliptic Curve Digital Signature (ECDSA)",
 	SigED25519:   "Edwards-curve Digital Signature (ED25519)",
 	SigED448:     "Edwards-curve Digital Signature (ED448)",
 	SigGOST256:   "Russian GOST 256-bit",
 	SigGOST512:   "Russian GOST 512-bit",
+	SigKRB5:      "Kerberos",
 	SigNULL:      "NULL",
+	SigPSK:       "Pre-Shared Keys (PSK)",
+	SigRSA:       "RSA",
+	SigSHA1:      "Secure Hash Algorithm 1 (SHA-1)",
+	SigSHA1DSS:   "Secure Hash Algorithm 1 (SHA-1) with NIST DSS (SHA-1 DSS)",
+	SigSHA1RSA:   "Secure Hash Algorithm 1 (SHA-1) with RSA (SHA-1 RSA)",
+	SigSHA256:    "Secure Hash Algorithm 256 (SHA-256)",
+	SigSHA384:    "Secure Hash Algorithm 384 (SHA-384)",
+	SigSM2:       "ShangMi-2 (SM2)",
 }

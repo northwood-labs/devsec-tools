@@ -31,20 +31,20 @@ const (
 	// 0x00E0-0x00FF   Reserved for Private Use
 
 	// The following are not assigned real values from the IANA.
-	HashGOST Hash = 0x0100
-	HashNULL Hash = 0x0101
-	HashSM3  Hash = 0x0102
+	HashGOSTR Hash = 0x0100
+	HashNULL  Hash = 0x0101
+	HashSM3   Hash = 0x0102
 )
 
 var HashList = map[Hash]string{
 	HashNone:   "None",
 	HashMD5:    "MD5",
 	HashSHA1:   "SHA-1",
-	HashSHA224: "SHA-224",
-	HashSHA256: "SHA-256",
-	HashSHA384: "SHA-384",
-	HashSHA512: "SHA-512",
-	HashGOST:   "GOSTR341012",
+	HashSHA224: "SHA-2, 224 bits",
+	HashSHA256: "SHA-2, 256 bits",
+	HashSHA384: "SHA-2, 384 bits",
+	HashSHA512: "SHA-2, 512 bits",
+	HashGOSTR:  "GOST R 34.10-2012",
 	HashNULL:   "NULL",
-	HashSM3:    "SM3",
+	HashSM3:    "ShangMi-3 (SM3)",
 }

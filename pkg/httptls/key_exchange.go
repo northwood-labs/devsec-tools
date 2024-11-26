@@ -30,6 +30,7 @@ const (
 	KexPSK
 	KexRSA
 	KexSRP
+	KexSM2
 )
 
 var KeyExchangeList = map[KeyExchange]string{
@@ -45,4 +46,5 @@ var KeyExchangeList = map[KeyExchange]string{
 	KexPSK:     "Pre-Shared Keys (PSK)",
 	KexRSA:     "RSA",
 	KexSRP:     "Secure Remote Password (SRP)",
+	KexSM2:     "ShangMi-2 (SM2)",
 }
