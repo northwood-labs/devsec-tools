@@ -19,15 +19,20 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"time"
+	"sync"
 
 	"github.com/goware/urlx"
+	"golang.org/x/exp/maps"
 	"golang.org/x/net/http2"
 )
 
 const (
 	VersionSSL20 = 0x0002
 	VersionSSL30 = 0x0300
+	VersionTLS10 = 0x0301
+	VersionTLS11 = 0x0302
+	VersionTLS12 = 0x0303
+	VersionTLS13 = 0x0304
 )
 
 // getHost parses the provided domain name, and returns the host or (host +
@@ -60,254 +65,190 @@ func ResolveEndpointToIPs(domain string) ([]string, error) {
 	return addrs, nil
 }
 
-func TCPConnect(ip string, port int, timeout time.Duration) (bool, error) {
-	ipPort := net.JoinHostPort(ip, fmt.Sprintf("%d", port))
-
-	conn, err := net.DialTimeout("tcp", ipPort, timeout)
-	if err != nil {
-		return false, fmt.Errorf("could not dial %s within %s: %w", ipPort, timeout, err)
-	}
-
-	conn.Close()
-
-	return true, nil
-}
-
-func GetSupportedTLSVersions(domain string, port int) ([]TLSConnection, error) {
-	supportedVersions := []TLSConnection{}
-	ipPort := net.JoinHostPort(domain, fmt.Sprintf("%d", port))
-
-	for _, version := range []uint16{
-		0x0002, // SSL v2
-		0x0300, // SSL v3
-		0x0301, // TLS 1.0
-		0x0302, // TLS 1.1
-		0x0303, // TLS 1.2
-		0x0304, // TLS 1.3
-	} {
-		var (
-			cs     []uint16
-			suites []CipherData
-		)
-
-		// cs = maps.Keys(CipherList)
-
-		switch version {
-		case VersionSSL20, VersionSSL30:
-			// https://datatracker.ietf.org/doc/html/rfc6101#appendix-C
-			cs = []uint16{
-				0x0000, // TLS_NULL_WITH_NULL_NULL
-				0x0001, // TLS_RSA_WITH_NULL_MD5
-				0x0002, // TLS_RSA_WITH_NULL_SHA
-				0x0003, // TLS_RSA_EXPORT_WITH_RC4_40_MD5
-				0x0004, // TLS_RSA_WITH_RC4_128_MD5
-				0x0005, // TLS_RSA_WITH_RC4_128_SHA
-				0x0006, // TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
-				0x0007, // TLS_RSA_WITH_IDEA_CBC_SHA
-				0x0008, // TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
-				0x0009, // TLS_RSA_WITH_DES_CBC_SHA
-				0x000A, // TLS_RSA_WITH_3DES_EDE_CBC_SHA
-				0x000B, // TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA
-				0x000C, // TLS_DH_DSS_WITH_DES_CBC_SHA
-				0x000D, // TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA
-				0x000E, // TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA
-				0x000F, // TLS_DH_RSA_WITH_DES_CBC_SHA
-				0x0010, // TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA
-				0x0011, // TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA
-				0x0012, // TLS_DHE_DSS_WITH_DES_CBC_SHA
-				0x0013, // TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA
-				0x0014, // TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
-				0x0015, // TLS_DHE_RSA_WITH_DES_CBC_SHA
-				0x0016, // TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
-				0x0017, // TLS_DH_anon_EXPORT_WITH_RC4_40_MD5
-				0x0018, // TLS_DH_anon_WITH_RC4_128_MD5
-				0x0019, // TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA
-				0x001A, // TLS_DH_anon_WITH_DES_CBC_SHA
-				0x001B, // TLS_DH_anon_WITH_3DES_EDE_CBC_SHA
-				// TLS_FORTEZZA_KEA_WITH_NULL_SHA
-				// TLS_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA
-				// TLS_FORTEZZA_KEA_WITH_RC4_128_SHA
-			}
-		case tls.VersionTLS10, tls.VersionTLS11, tls.VersionTLS12:
-			// https://datatracker.ietf.org/doc/html/rfc2246/#appendix-C
-			// https://datatracker.ietf.org/doc/html/rfc4346/#appendix-C
-			// https://datatracker.ietf.org/doc/html/rfc5246/#appendix-C
-			cs = []uint16{
-				0x0000, // TLS_NULL_WITH_NULL_NULL
-				0x0001, // TLS_RSA_WITH_NULL_MD5
-				0x0002, // TLS_RSA_WITH_NULL_SHA
-				0x0003, // TLS_RSA_EXPORT_WITH_RC4_40_MD5
-				0x0004, // TLS_RSA_WITH_RC4_128_MD5
-				0x0005, // TLS_RSA_WITH_RC4_128_SHA
-				0x0006, // TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
-				0x0007, // TLS_RSA_WITH_IDEA_CBC_SHA
-				0x0008, // TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
-				0x0009, // TLS_RSA_WITH_DES_CBC_SHA
-				0x000A, // TLS_RSA_WITH_3DES_EDE_CBC_SHA
-				0x000B, // TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA
-				0x000C, // TLS_DH_DSS_WITH_DES_CBC_SHA
-				0x000D, // TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA
-				0x000E, // TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA
-				0x000F, // TLS_DH_RSA_WITH_DES_CBC_SHA
-				0x0010, // TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA
-				0x0011, // TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA
-				0x0012, // TLS_DHE_DSS_WITH_DES_CBC_SHA
-				0x0013, // TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA
-				0x0014, // TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
-				0x0015, // TLS_DHE_RSA_WITH_DES_CBC_SHA
-				0x0016, // TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
-				0x0017, // TLS_DH_anon_EXPORT_WITH_RC4_40_MD5
-				0x0018, // TLS_DH_anon_WITH_RC4_128_MD5
-				0x0019, // TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA
-				0x001A, // TLS_DH_anon_WITH_DES_CBC_SHA
-				0x001B, // TLS_DH_anon_WITH_3DES_EDE_CBC_SHA
-				0x002F, // TLS_RSA_WITH_AES_128_CBC_SHA
-				0x0030, // TLS_DH_DSS_WITH_AES_128_CBC_SHA
-				0x0031, // TLS_DH_RSA_WITH_AES_128_CBC_SHA
-				0x0032, // TLS_DHE_DSS_WITH_AES_128_CBC_SHA
-				0x0033, // TLS_DHE_RSA_WITH_AES_128_CBC_SHA
-				0x0034, // TLS_DH_anon_WITH_AES_128_CBC_SHA
-				0x0035, // TLS_RSA_WITH_AES_256_CBC_SHA
-				0x0036, // TLS_DH_DSS_WITH_AES_256_CBC_SHA
-				0x0037, // TLS_DH_RSA_WITH_AES_256_CBC_SHA
-				0x0038, // TLS_DHE_DSS_WITH_AES_256_CBC_SHA
-				0x0039, // TLS_DHE_RSA_WITH_AES_256_CBC_SHA
-				0x003A, // TLS_DH_anon_WITH_AES_256_CBC_SHA
-				0x003B, // TLS_RSA_WITH_NULL_SHA256
-				0x003C, // TLS_RSA_WITH_AES_128_CBC_SHA256
-				0x003D, // TLS_RSA_WITH_AES_256_CBC_SHA256
-				0x003E, // TLS_DH_DSS_WITH_AES_128_CBC_SHA256
-				0x003F, // TLS_DH_RSA_WITH_AES_128_CBC_SHA256
-				0x0040, // TLS_DHE_DSS_WITH_AES_128_CBC_SHA256
-				0x0067, // TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
-				0x0068, // TLS_DH_DSS_WITH_AES_256_CBC_SHA256
-				0x0069, // TLS_DH_RSA_WITH_AES_256_CBC_SHA256
-				0x006A, // TLS_DHE_DSS_WITH_AES_256_CBC_SHA256
-				0x006B, // TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
-				0x006C, // TLS_DH_anon_WITH_AES_128_CBC_SHA256
-				0x006D, // TLS_DH_anon_WITH_AES_256_CBC_SHA256
-			}
-		case tls.VersionTLS13:
-			// https://datatracker.ietf.org/doc/html/rfc8446/#appendix-B.4
-			cs = []uint16{
-				0x1301, // TLS_AES_128_GCM_SHA256
-				0x1302, // TLS_AES_256_GCM_SHA384
-				0x1303, // TLS_CHACHA20_POLY1305_SHA256
-				0x1304, // TLS_AES_128_CCM_SHA256
-				0x1305, // TLS_AES_128_CCM_8_SHA256
-			}
-		}
-
-		for c := range cs {
-			conf := &tls.Config{
-				InsecureSkipVerify: true,
-				MinVersion:         version,
-				MaxVersion:         version,
-				CipherSuites:       []uint16{uint16(c)},
-			}
-
-			conn, err := tls.Dial("tcp", ipPort, conf)
-			if err != nil {
-				continue
-			}
-
-			state := conn.ConnectionState()
-			conn.Close()
-
-			suite := CipherList[state.CipherSuite]
-			suite.Populate()
-
-			suites = append(suites, suite)
-		}
-
-		switch version {
-		case VersionSSL20:
-			if len(suites) > 0 {
-				supportedVersions = append(supportedVersions, TLSConnection{
-					Version:      "SSLv2",
-					CipherSuites: suites,
-				})
-			}
-		case VersionSSL30:
-			if len(suites) > 0 {
-				supportedVersions = append(supportedVersions, TLSConnection{
-					Version:      "SSLv3",
-					CipherSuites: suites,
-				})
-			}
-		case tls.VersionTLS10:
-			if len(suites) > 0 {
-				supportedVersions = append(supportedVersions, TLSConnection{
-					Version:      "TLS v1.0",
-					CipherSuites: suites,
-				})
-			}
-		case tls.VersionTLS11:
-			if len(suites) > 0 {
-				supportedVersions = append(supportedVersions, TLSConnection{
-					Version:      "TLS v1.1",
-					CipherSuites: suites,
-				})
-			}
-		case tls.VersionTLS12:
-			if len(suites) > 0 {
-				supportedVersions = append(supportedVersions, TLSConnection{
-					Version:      "TLS v1.2",
-					CipherSuites: suites,
-				})
-			}
-		case tls.VersionTLS13:
-			if len(suites) > 0 {
-				supportedVersions = append(supportedVersions, TLSConnection{
-					Version:      "TLS v1.3",
-					CipherSuites: suites,
-				})
-			}
-		}
-	}
-
-	return supportedVersions, nil
-}
-
-func GetSupportedHTTPVersions(domain string) ([]string, error) {
-	supportedVersions := []string{}
+func GetSupportedHTTPVersions(domain string) (Connection, error) {
+	httpConn := Connection{}
 
 	// Check HTTP/1.1 support
-	client := &http.Client{
-		Timeout: 1 * time.Second,
-	}
+	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", domain, nil)
 	if err != nil {
-		return supportedVersions, fmt.Errorf("could not create HTTP request: %w", err)
+		return httpConn, fmt.Errorf("could not create HTTP request: %w", err)
 	}
 
 	resp, err := client.Do(req)
 	if err == nil {
-		supportedVersions = append(supportedVersions, "HTTP/1.1")
+		httpConn.HTTP11 = true
 		resp.Body.Close()
 	}
 
 	// Check HTTP/2 support
 	client = &http.Client{
-		Timeout:   1 * time.Second,
 		Transport: &http2.Transport{},
 	}
-
 	req, err = http.NewRequest("GET", domain, nil)
 	if err != nil {
-		return supportedVersions, fmt.Errorf("could not create HTTP request: %w", err)
+		return httpConn, fmt.Errorf("could not create HTTP request: %w", err)
 	}
 
 	resp, err = client.Do(req)
 	if err == nil && resp.ProtoMajor == 2 {
-		supportedVersions = append(supportedVersions, "HTTP/2")
+		httpConn.HTTP2 = true
 		resp.Body.Close()
+	}
+
+	return httpConn, nil
+}
+
+
+func GetSupportedTLSVersions(domain string, port int) ([]TLSConnection, error) {
+	var wg sync.WaitGroup
+
+	supportedVersions := []TLSConnection{}
+	ipPort := net.JoinHostPort(domain, fmt.Sprintf("%d", port))
+	results := make(chan TLSConnection)
+
+	for _, version := range []uint16{
+		VersionSSL20, // SSL v2
+		VersionSSL30, // SSL v3
+		VersionTLS10, // TLS 1.0
+		VersionTLS11, // TLS 1.1
+		VersionTLS12, // TLS 1.2
+		VersionTLS13, // TLS 1.3
+	} {
+		wg.Add(1)
+		go func(version uint16) {
+			defer wg.Done()
+			var (
+				cs     []uint16
+				suites []CipherData
+			)
+
+			cs = maps.Keys(CipherList)
+
+			switch version {
+			case VersionSSL20, VersionSSL30:
+				// https://datatracker.ietf.org/doc/html/rfc6101#appendix-C
+				cs = []uint16{
+					0x0000, // TLS_NULL_WITH_NULL_NULL
+					0x0001, // TLS_RSA_WITH_NULL_MD5
+					0x0002, // TLS_RSA_WITH_NULL_SHA
+					0x0003, // TLS_RSA_EXPORT_WITH_RC4_40_MD5
+					0x0004, // TLS_RSA_WITH_RC4_128_MD5
+					0x0005, // TLS_RSA_WITH_RC4_128_SHA
+					0x0006, // TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
+					0x0007, // TLS_RSA_WITH_IDEA_CBC_SHA
+					0x0008, // TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
+					0x0009, // TLS_RSA_WITH_DES_CBC_SHA
+					0x000A, // TLS_RSA_WITH_3DES_EDE_CBC_SHA
+					0x000B, // TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA
+					0x000C, // TLS_DH_DSS_WITH_DES_CBC_SHA
+					0x000D, // TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA
+					0x000E, // TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA
+					0x000F, // TLS_DH_RSA_WITH_DES_CBC_SHA
+					0x0010, // TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA
+					0x0011, // TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA
+					0x0012, // TLS_DHE_DSS_WITH_DES_CBC_SHA
+					0x0013, // TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA
+					0x0014, // TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
+					0x0015, // TLS_DHE_RSA_WITH_DES_CBC_SHA
+					0x0016, // TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
+					0x0017, // TLS_DH_anon_EXPORT_WITH_RC4_40_MD5
+					0x0018, // TLS_DH_anon_WITH_RC4_128_MD5
+					0x0019, // TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA
+					0x001A, // TLS_DH_anon_WITH_DES_CBC_SHA
+					0x001B, // TLS_DH_anon_WITH_3DES_EDE_CBC_SHA
+					// TLS_FORTEZZA_KEA_WITH_NULL_SHA
+					// TLS_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA
+					// TLS_FORTEZZA_KEA_WITH_RC4_128_SHA
+				}
+			case tls.VersionTLS10, tls.VersionTLS11, tls.VersionTLS12:
+				// https://datatracker.ietf.org/doc/html/rfc2246/#appendix-C
+				// https://datatracker.ietf.org/doc/html/rfc4346/#appendix-C
+				// https://datatracker.ietf.org/doc/html/rfc5246/#appendix-C
+				cs = maps.Keys(CipherList)
+			case tls.VersionTLS13:
+				// https://datatracker.ietf.org/doc/html/rfc8446/#appendix-B.4
+				cs = []uint16{
+					0x1301, // TLS_AES_128_GCM_SHA256
+					0x1302, // TLS_AES_256_GCM_SHA384
+					0x1303, // TLS_CHACHA20_POLY1305_SHA256
+					0x1304, // TLS_AES_128_CCM_SHA256
+					0x1305, // TLS_AES_128_CCM_8_SHA256
+				}
+			}
+
+			var innerWg sync.WaitGroup
+			innerResults := make(chan CipherData)
+
+			for _, c := range cs {
+				innerWg.Add(1)
+				go func(c uint16) {
+					defer innerWg.Done()
+
+					conf := &tls.Config{
+						InsecureSkipVerify: true,
+						MinVersion:         version,
+						MaxVersion:         version,
+						CipherSuites:       []uint16{c},
+					}
+
+					conn, err := tls.Dial("tcp", ipPort, conf)
+					if err != nil {
+						return
+					}
+
+					state := conn.ConnectionState()
+					conn.Close()
+
+					suite := CipherList[state.CipherSuite]
+					suite.Populate()
+
+					innerResults <- suite
+				}(c)
+			}
+
+			go func() {
+				innerWg.Wait()
+				close(innerResults)
+			}()
+
+			for suite := range innerResults {
+				suites = append(suites, suite)
+			}
+
+			if len(suites) > 0 {
+				var versionStr string
+				switch version {
+				case VersionSSL20:
+					versionStr = "SSLv2"
+				case VersionSSL30:
+					versionStr = "SSLv3"
+				case tls.VersionTLS10:
+					versionStr = "TLS v1.0"
+				case tls.VersionTLS11:
+					versionStr = "TLS v1.1"
+				case tls.VersionTLS12:
+					versionStr = "TLS v1.2"
+				case tls.VersionTLS13:
+					versionStr = "TLS v1.3"
+				}
+				results <- TLSConnection{
+					Version:      versionStr,
+					CipherSuites: suites,
+				}
+			}
+		}(version)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	for result := range results {
+		supportedVersions = append(supportedVersions, result)
 	}
 
 	return supportedVersions, nil
 }
-
-// o.SupportedSuites = append(o.SupportedSuites, fmt.Sprintf("Unknown, 0x%x", suite))
-// o.SupportedCurves = append(o.SupportedCurves, fmt.Sprintf("Unknown, 0x%x", curve))
-// o.SupportedPoints = append(o.SupportedPoints, fmt.Sprintf("0x%x", point))

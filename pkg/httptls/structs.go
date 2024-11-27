@@ -25,15 +25,24 @@ type (
 		Hostname string `json:"hostname"`
 
 		// TLSConnections represents the TLS connections that the connection advertises.
-		TLSConnections []TLSConnection `json:"tlsConnections"`
+		TLSConnections []TLSConnection `json:"tlsConnections,omitempty"`
+
+		// HTTP11 represents whether or not the connection supports HTTP/1.1.
+		HTTP11 bool `json:"http11"`
+
+		// HTTP2 represents whether or not the connection supports HTTP/2.
+		HTTP2 bool `json:"http2"`
+
+		// HTTP3 represents whether or not the connection supports HTTP/3.
+		HTTP3 bool `json:"http3"`
 	}
 
 	TLSConnection struct {
 		// Version represents the version of TLS.
-		Version string `json:"version"`
+		Version string `json:"version,omitempty"`
 
 		// CipherSuite represents the cipher suites that the connection advertises.
-		CipherSuites []CipherData `json:"cipherSuites"`
+		CipherSuites []CipherData `json:"cipherSuites,omitempty"`
 	}
 )
 
