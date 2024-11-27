@@ -20,32 +20,60 @@ import (
 )
 
 type (
+	Connection struct {
+		// Hostname represents the hostname of the connection.
+		Hostname string `json:"hostname"`
+
+		// TLSConnections represents the TLS connections that the connection advertises.
+		TLSConnections []TLSConnection `json:"tlsConnections"`
+	}
+
 	TLSConnection struct {
 		// Version represents the version of TLS.
 		Version string `json:"version"`
 
 		// CipherSuite represents the cipher suites that the connection advertises.
 		CipherSuites []CipherData `json:"cipherSuites"`
-
-		// ECH represents whether or not the server supports Encrypted Client Hello.
-		ECH bool `json:"ech"`
 	}
 )
 
 func (c *CipherData) Populate() {
+	c.URL = fmt.Sprintf(LinkCSInfo, c.IANAName)
 	c.Strength = StrengthList[c.strength]
 	c.KeyExchange = KeyExchangeList[c.keyExchange]
 	c.Authentication = AuthenticationList[c.authentication]
 	c.EncryptionAlgo = EncryptionAlgoList[c.encryptionAlgo]
 	c.Hash = HashList[c.hash]
 
-	for i := range c.problems {
-		p := c.problems[i]
-
+	if problem, ok := ProblemList["kex"][c.keyExchange]; ok {
 		c.Problems = append(c.Problems, ProblemData{
-			Type:        ProblemTypeList[p],
-			Description: ProblemList[p],
-			URLs:        append(ProblemURLList[p], fmt.Sprintf(LinkCSInfo, c.IANAName)),
+			Class:       "kex",
+			Description: problem.Description,
+			URLs:        problem.URLs,
+		})
+	}
+
+	if problem, ok := ProblemList["authsig"][c.authentication]; ok {
+		c.Problems = append(c.Problems, ProblemData{
+			Class:       "authsig",
+			Description: problem.Description,
+			URLs:        problem.URLs,
+		})
+	}
+
+	if problem, ok := ProblemList["encryption"][c.encryptionAlgo]; ok {
+		c.Problems = append(c.Problems, ProblemData{
+			Class:       "encryption",
+			Description: problem.Description,
+			URLs:        problem.URLs,
+		})
+	}
+
+	if problem, ok := ProblemList["hash"][c.hash]; ok {
+		c.Problems = append(c.Problems, ProblemData{
+			Class:       "hash",
+			Description: problem.Description,
+			URLs:        problem.URLs,
 		})
 	}
 }

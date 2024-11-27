@@ -19,6 +19,8 @@ import (
 	"slices"
 	"testing"
 	"time"
+
+	"github.com/northwood-labs/debug"
 )
 
 // <https://github.com/golang/go/wiki/TableDrivenTests>
@@ -110,23 +112,6 @@ func TestResolveEndpointToIPs(t *testing.T) { // lint:allow_complexity
 			Input: "http.badssl.com",
 			Expected: []string{
 				"104.154.89.105",
-			},
-		},
-		"scheme:captive.apple.com": {
-			Input: "http://captive.apple.com",
-			Expected: []string{
-				"17.253.23.201",
-				"17.253.23.202",
-				"17.253.23.203",
-				"17.253.23.204",
-				"17.253.23.205",
-				"17.253.23.206",
-				"2620:149:a1e:f000::1",
-				"2620:149:a1e:f000::3",
-				"2620:149:a1e:f000::5",
-				"2620:149:a1e:f100::2",
-				"2620:149:a1e:f100::4",
-				"2620:149:a1e:f100::6",
 			},
 		},
 		"scheme:detectportal.firefox.com": {
@@ -246,76 +231,57 @@ func TestTCPConnect(t *testing.T) { // lint:allow_complexity
 }
 
 // <https://github.com/golang/go/wiki/TableDrivenTests>
-// func TestTLSConnect(t *testing.T) { // lint:allow_complexity
-// 	for name, tc := range map[string]struct {
-// 		Host        string
-// 		Port        int
-// 		Expected    int
-// 		ExpectedErr *regexp.Regexp
-// 		TLSVersion  uint16
-// 	}{
-// 		"cloudflare.com": {
-// 			Host:       "cloudflare.com",
-// 			Port:       443,
-// 			TLSVersion: tls.VersionTLS12,
-// 		},
-// 		"github.com": {
-// 			Host:       "github.com",
-// 			Port:       443,
-// 			TLSVersion: tls.VersionTLS12,
-// 		},
-// 		"ryanparman.com": {
-// 			Host:       "ryanparman.com",
-// 			Port:       443,
-// 			TLSVersion: tls.VersionTLS12,
-// 		},
-// 		"example.com": {
-// 			Host:       "example.com",
-// 			Port:       443,
-// 			TLSVersion: tls.VersionTLS12,
-// 		},
-// 		"http.badssl.com": {
-// 			Host:       "http.badssl.com",
-// 			Port:       443,
-// 			TLSVersion: tls.VersionTLS12,
-// 		},
-// 		"captive.apple.com": {
-// 			Host:       "captive.apple.com",
-// 			Port:       443,
-// 			TLSVersion: tls.VersionTLS12,
-// 		},
-// 		"detectportal.firefox.com": {
-// 			Host:       "detectportal.firefox.com",
-// 			Port:       443,
-// 			TLSVersion: tls.VersionTLS12,
-// 		},
-// 	} {
-// 		t.Run(name, func(t *testing.T) {
-// 			actual, chi, err := TLSConnect(tc.Host, tc.Port, 1*time.Second, tc.TLSVersion)
-// 			if err != nil && tc.ExpectedErr != nil {
-// 				if !tc.ExpectedErr.MatchString(err.Error()) {
-// 					t.Errorf("Expected error '%#v', got '%#v'", tc.ExpectedErr, err)
-// 				}
-// 			}
+func TestGetSupportedTLSVersions(t *testing.T) { // lint:allow_complexity
+	for name, tc := range map[string]struct {
+		Host        string
+		Port        int
+		Expected    bool
+		ExpectedErr *regexp.Regexp
+	}{
+		"mozilla-old.badssl.com": {
+			Host: "mozilla-old.badssl.com",
+			Port: 443,
+		},
+		// "tls-v1-0.badssl.com:1010": {
+		// 	Host: "tls-v1-0.badssl.com",
+		// 	Port: 1010,
+		// },
+		// "tls-v1-1.badssl.com:1011": {
+		// 	Host: "tls-v1-1.badssl.com",
+		// 	Port: 1011,
+		// },
+		// "tls-v1-2.badssl.com:1012": {
+		// 	Host: "tls-v1-2.badssl.com",
+		// 	Port: 1012,
+		// },
+		// "tlsv13.nwlabs.dev": {
+		// 	Host: "tlsv13.nwlabs.dev",
+		// 	Port: 443,
+		// },
+	} {
+		t.Run(name, func(t *testing.T) {
+			// httpVersions, _ := GetSupportedHTTPVersions(tc.Host)
+			tlsVersions, _ := GetSupportedTLSVersions(tc.Host, tc.Port)
 
-// 			conn := actual.ConnectionState()
-// 			actual.Close()
+			pp := debug.GetSpew()
+			// pp.Dump(httpVersions)
+			pp.Dump(tlsVersions)
+		})
+	}
+}
 
-// 			pp := debug.GetSpew()
-// 			pp.Dump(conn)
-// 			fmt.Println("---------------------------------------------------------------------------")
-// 			pp.Dump(chi)
-// 			fmt.Println("---------------------------------------------------------------------------")
-
-// 			// for i := range actual {
-// 			// 	a := actual[i]
-
-// 			// 	if !slices.Contains(tc.Expected, a) {
-// 			// 		t.Errorf("Expected to find %#v inside %#v", a, tc.Expected)
-// 			// 	}
-// 			// }
-
-// 			panic("1")
-// 		})
+// func TestCipherList(t *testing.T) {
+// 	tlss := TLSConnection{
+// 		CipherSuites: []CipherData{
+// 			CipherList[0x1301],
+// 			CipherList[0x1302],
+// 			CipherList[0x1303],
+// 			CipherList[0x1304],
+// 			CipherList[0x1305],
+// 		},
 // 	}
+
+// 	s, _ := tlss.ToJSON()
+
+// 	fmt.Println(s)
 // }

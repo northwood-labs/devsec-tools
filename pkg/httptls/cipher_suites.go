@@ -26,6 +26,9 @@ type CipherData struct {
 	// GNU-TLS library.
 	GNUTLSName string `json:"gnutlsName,omitempty"`
 
+	// URL is a link to the Cipher Suite's information page.
+	URL string `json:"url,omitempty"`
+
 	// Strength is a string representation of the strength of the cipher
 	// suite.
 	Strength string `json:"strength"`
@@ -54,7 +57,6 @@ type CipherData struct {
 	authentication Signature
 	encryptionAlgo EncryptionAlgo
 	hash           Hash
-	problems       []Problem
 }
 
 // https://ciphersuite.info/cs/?singlepage=true
