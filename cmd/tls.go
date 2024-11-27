@@ -20,7 +20,6 @@ import (
 	"os"
 
 	clihelpers "github.com/northwood-labs/cli-helpers"
-	"github.com/northwood-labs/debug"
 	"github.com/northwood-labs/devsec-tools/pkg/httptls"
 	"github.com/spf13/cobra"
 )
@@ -59,8 +58,8 @@ var tlsCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		pp := debug.GetSpew()
-		pp.Dump(result)
+		// pp := debug.GetSpew()
+		// pp.Dump(result)
 
 		t := NewTable("TLS Version", "Cipher Suites", "Strength")
 
