@@ -87,12 +87,16 @@ func (c *CipherData) Populate() {
 	}
 }
 
-func (t *TLSConnection) ToJSON() (string, error) {
-	for i := range t.CipherSuites {
-		t.CipherSuites[i].Populate()
+func (c *Connection) ToJSON() (string, error) {
+	for i := range c.TLSConnections {
+		tlsConn := c.TLSConnections[i]
+
+		for j := range tlsConn.CipherSuites {
+			tlsConn.CipherSuites[j].Populate()
+		}
 	}
 
-	b, err := json.Marshal(t)
+	b, err := json.Marshal(c)
 
 	return string(b), err
 }

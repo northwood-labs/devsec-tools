@@ -22,6 +22,8 @@ import (
 	"sync"
 
 	"github.com/goware/urlx"
+	"github.com/quic-go/quic-go"
+	"github.com/quic-go/quic-go/http3"
 	"golang.org/x/exp/maps"
 	"golang.org/x/net/http2"
 )
@@ -66,40 +68,135 @@ func ResolveEndpointToIPs(domain string) ([]string, error) {
 }
 
 func GetSupportedHTTPVersions(domain string) (Connection, error) {
-	httpConn := Connection{}
-
-	// Check HTTP/1.1 support
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", domain, nil)
-	if err != nil {
-		return httpConn, fmt.Errorf("could not create HTTP request: %w", err)
+    httpConn := Connection{
+		Hostname: domain,
 	}
+    errors := make(chan error, 2)
 
-	resp, err := client.Do(req)
-	if err == nil {
-		httpConn.HTTP11 = true
-		resp.Body.Close()
-	}
+	var wg sync.WaitGroup
 
-	// Check HTTP/2 support
-	client = &http.Client{
-		Transport: &http2.Transport{},
-	}
-	req, err = http.NewRequest("GET", domain, nil)
-	if err != nil {
-		return httpConn, fmt.Errorf("could not create HTTP request: %w", err)
-	}
+	results := make(chan struct {
+        version string
+        supported bool
+    }, 2)
 
-	resp, err = client.Do(req)
-	if err == nil && resp.ProtoMajor == 2 {
-		httpConn.HTTP2 = true
-		resp.Body.Close()
-	}
+    // Check HTTP/1.1 support
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
 
-	return httpConn, nil
+        client := &http.Client{}
+
+		req, err := http.NewRequest("GET", domain, nil)
+        if err != nil {
+            errors <- fmt.Errorf("could not create HTTP/1.1 request: %w", err)
+            return
+        }
+
+        resp, err := client.Do(req)
+        if err == nil {
+            results <- struct {
+                version string
+                supported bool
+            }{"HTTP/1.1", true}
+            resp.Body.Close()
+        } else {
+            results <- struct {
+                version string
+                supported bool
+            }{"HTTP/1.1", false}
+        }
+    }()
+
+    // Check HTTP/2 support
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+
+		client := &http.Client{
+            Transport: &http2.Transport{},
+        }
+
+		req, err := http.NewRequest("GET", domain, nil)
+        if err != nil {
+            errors <- fmt.Errorf("could not create HTTP/2 request: %w", err)
+            return
+        }
+
+        resp, err := client.Do(req)
+        if err == nil && resp.ProtoMajor == 2 {
+            results <- struct {
+                version string
+                supported bool
+            }{"HTTP/2", true}
+            resp.Body.Close()
+        } else {
+            results <- struct {
+                version string
+                supported bool
+            }{"HTTP/2", false}
+        }
+    }()
+
+    // Check HTTP/3 support
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+
+		tr := &http3.Transport{
+			TLSClientConfig: &tls.Config{},  // set a TLS client config, if desired
+			QUICConfig:      &quic.Config{}, // QUIC connection options
+		}
+		defer tr.Close()
+
+		client := &http.Client{
+			Transport: tr,
+		}
+
+		req, err := http.NewRequest("GET", domain, nil)
+        if err != nil {
+            errors <- fmt.Errorf("could not create HTTP/3 request: %w", err)
+            return
+        }
+
+        resp, err := client.Do(req)
+        if err == nil && resp.ProtoMajor == 3 {
+            results <- struct {
+                version string
+                supported bool
+            }{"HTTP/3", true}
+            resp.Body.Close()
+        } else {
+            results <- struct {
+                version string
+                supported bool
+            }{"HTTP/3", false}
+        }
+    }()
+
+    go func() {
+        wg.Wait()
+        close(results)
+        close(errors)
+    }()
+
+    for result := range results {
+        switch result.version {
+        case "HTTP/1.1":
+            httpConn.HTTP11 = result.supported
+        case "HTTP/2":
+            httpConn.HTTP2 = result.supported
+        case "HTTP/3":
+            httpConn.HTTP3 = result.supported
+        }
+    }
+
+    if len(errors) > 0 {
+        return httpConn, <-errors
+    }
+
+    return httpConn, nil
 }
-
 
 func GetSupportedTLSVersions(domain string, port int) ([]TLSConnection, error) {
 	var wg sync.WaitGroup

@@ -15,22 +15,19 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/gookit/color"
-	"github.com/lithammer/dedent"
-	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
+
+	clihelpers "github.com/northwood-labs/cli-helpers"
 )
 
 var (
 	// Color text.
 	colorHeader = color.New(color.FgWhite, color.BgBlue, color.OpBold)
-	logger      zerolog.Logger
 
+	fJSON    bool
 	fQuiet   bool
 	fVerbose bool
 
@@ -40,20 +37,21 @@ var (
 		DisableAutoGenTag: true,
 		Use:               "devsec-tools",
 		Short:             "A set of useful tools for DevSecOps workflows.",
-		Long: strings.TrimSpace(dedent.Dedent(`
+		Long: clihelpers.LongHelpText(`
 		DevSec Tools is a suite of tools that are useful for DevSecOps workflows.
 		Its goal is to simplify and streamline the process of developing,
 		securing, and operating software and systems for the web.
 
 		You can also find these tools online at https://devsec.tools.
-		`)),
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			logger = getLogger(os.Getenv("DSTOOLS_RUN_AS_LAMBDA") != "")
-		},
+		`),
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {},
 	}
 )
 
 func init() {
+	rootCmd.PersistentFlags().BoolVarP(
+		&fJSON, "json", "j", false, "Output as JSON.",
+	)
 	rootCmd.PersistentFlags().BoolVarP(
 		&fVerbose, "verbose", "v", false, "Enable verbose output.",
 	)
@@ -71,53 +69,4 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
-}
-
-func getLogger(useJSON bool) zerolog.Logger {
-	var zlog zerolog.Logger
-
-	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
-		short := file
-
-		for i := len(file) - 1; i > 0; i-- {
-			if file[i] == '/' {
-				short = file[i+1:]
-				break
-			}
-		}
-
-		file = short
-
-		return file + ":" + strconv.Itoa(line)
-	}
-
-	output := zerolog.ConsoleWriter{
-		Out:        os.Stderr,
-		TimeFormat: zerolog.TimeFormatUnix,
-	}
-
-	output.FormatLevel = func(i any) string {
-		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-	}
-
-	zlog = zerolog.New(output).With().
-		Timestamp().
-		Logger()
-
-	// JSON output
-	if useJSON {
-		zlog = zerolog.New(os.Stderr).With().
-			Caller().
-			Timestamp().
-			Logger()
-	}
-
-	zlog = zlog.Level(zerolog.InfoLevel)
-	if fQuiet {
-		zlog = zlog.Level(zerolog.ErrorLevel)
-	} else if fVerbose {
-		zlog = zlog.Level(zerolog.DebugLevel)
-	}
-
-	return zlog
 }

@@ -15,11 +15,25 @@
 package cmd
 
 import (
-	clihelpers "github.com/northwood-labs/cli-helpers"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 )
 
-var versionCmd = clihelpers.VersionScreen()
+func NewTable(headers ...string) *table.Table {
+	return table.New().
+		Border(lipgloss.RoundedBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
+		BorderColumn(true).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			return lipgloss.NewStyle().Padding(0, 1)
+		}).
+		Headers(headers...)
+}
 
-func init() { // lint:allow_init
-	rootCmd.AddCommand(versionCmd)
+func displayBool(b bool) string {
+	if b {
+		return "YES"
+	}
+
+	return "NO"
 }
