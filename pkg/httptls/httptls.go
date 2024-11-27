@@ -15,11 +15,15 @@
 package httptls
 
 import (
+	"cmp"
 	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
+	"slices"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/goware/urlx"
 	"github.com/quic-go/quic-go"
@@ -37,19 +41,36 @@ const (
 	VersionTLS13 = 0x0304
 )
 
-// getHost parses the provided domain name, and returns the host or (host +
-// port), whichever pairing was provided.
-func getHost(domain string) (string, error) {
-	u, err := urlx.Parse(domain)
+func ParseDomain(domain string) (string, error) {
+	u, err := urlx.ParseWithDefaultScheme(domain, "https")
 	if err != nil {
 		return "", fmt.Errorf("could not parse the URL: %w", err)
 	}
 
-	return u.Host, nil
+	return u.Scheme + "://" + u.Host, nil
+}
+
+func ParseHostPort(domain string) (string, string, error) {
+	u, err := urlx.ParseWithDefaultScheme(domain, "https")
+	if err != nil {
+		return "", "", fmt.Errorf("could not parse the URL: %w", err)
+	}
+
+	if strings.Contains(u.Host, ":") {
+		hostPort := strings.Split(u.Host, ":")
+
+		return hostPort[0], hostPort[1], nil
+	} else if u.Scheme == "https" {
+		return u.Host, "443", nil
+	} else if u.Scheme == "http" {
+		return u.Host, "80", nil
+	}
+
+	return u.Host, u.Port(), nil
 }
 
 func ResolveEndpointToIPs(domain string) ([]string, error) {
-	host, err := getHost(domain)
+	host, _, err := ParseHostPort(domain)
 	if err != nil {
 		return []string{}, err
 	}
@@ -67,81 +88,84 @@ func ResolveEndpointToIPs(domain string) ([]string, error) {
 	return addrs, nil
 }
 
-func GetSupportedHTTPVersions(domain string) (Connection, error) {
-    httpConn := Connection{
+func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
+	httpConn := HTTPResult{
 		Hostname: domain,
 	}
-    errors := make(chan error, 2)
+	errors := make(chan error, 2)
 
 	var wg sync.WaitGroup
 
 	results := make(chan struct {
-        version string
-        supported bool
-    }, 2)
+		version   string
+		supported bool
+	}, 2)
 
-    // Check HTTP/1.1 support
-    wg.Add(1)
-    go func() {
-        defer wg.Done()
-
-        client := &http.Client{}
-
-		req, err := http.NewRequest("GET", domain, nil)
-        if err != nil {
-            errors <- fmt.Errorf("could not create HTTP/1.1 request: %w", err)
-            return
-        }
-
-        resp, err := client.Do(req)
-        if err == nil {
-            results <- struct {
-                version string
-                supported bool
-            }{"HTTP/1.1", true}
-            resp.Body.Close()
-        } else {
-            results <- struct {
-                version string
-                supported bool
-            }{"HTTP/1.1", false}
-        }
-    }()
-
-    // Check HTTP/2 support
-    wg.Add(1)
-    go func() {
-        defer wg.Done()
+	// Check HTTP/1.1 support
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 
 		client := &http.Client{
-            Transport: &http2.Transport{},
-        }
+			Timeout: 3*time.Second,
+		}
 
 		req, err := http.NewRequest("GET", domain, nil)
-        if err != nil {
-            errors <- fmt.Errorf("could not create HTTP/2 request: %w", err)
-            return
-        }
+		if err != nil {
+			errors <- fmt.Errorf("could not create HTTP/1.1 request: %w", err)
+			return
+		}
 
-        resp, err := client.Do(req)
-        if err == nil && resp.ProtoMajor == 2 {
-            results <- struct {
-                version string
-                supported bool
-            }{"HTTP/2", true}
-            resp.Body.Close()
-        } else {
-            results <- struct {
-                version string
-                supported bool
-            }{"HTTP/2", false}
-        }
-    }()
+		resp, err := client.Do(req)
+		if err == nil {
+			results <- struct {
+				version   string
+				supported bool
+			}{"HTTP/1.1", true}
+			resp.Body.Close()
+		} else {
+			results <- struct {
+				version   string
+				supported bool
+			}{"HTTP/1.1", false}
+		}
+	}()
 
-    // Check HTTP/3 support
-    wg.Add(1)
-    go func() {
-        defer wg.Done()
+	// Check HTTP/2 support
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		client := &http.Client{
+			Timeout: 3*time.Second,
+			Transport: &http2.Transport{},
+		}
+
+		req, err := http.NewRequest("GET", domain, nil)
+		if err != nil {
+			errors <- fmt.Errorf("could not create HTTP/2 request: %w", err)
+			return
+		}
+
+		resp, err := client.Do(req)
+		if err == nil && resp.ProtoMajor == 2 {
+			results <- struct {
+				version   string
+				supported bool
+			}{"HTTP/2", true}
+			resp.Body.Close()
+		} else {
+			results <- struct {
+				version   string
+				supported bool
+			}{"HTTP/2", false}
+		}
+	}()
+
+	// Check HTTP/3 support
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 
 		tr := &http3.Transport{
 			TLSClientConfig: &tls.Config{},  // set a TLS client config, if desired
@@ -150,59 +174,64 @@ func GetSupportedHTTPVersions(domain string) (Connection, error) {
 		defer tr.Close()
 
 		client := &http.Client{
+			Timeout: 3*time.Second,
 			Transport: tr,
 		}
 
 		req, err := http.NewRequest("GET", domain, nil)
-        if err != nil {
-            errors <- fmt.Errorf("could not create HTTP/3 request: %w", err)
-            return
-        }
+		if err != nil {
+			errors <- fmt.Errorf("could not create HTTP/3 request: %w", err)
+			return
+		}
 
-        resp, err := client.Do(req)
-        if err == nil && resp.ProtoMajor == 3 {
-            results <- struct {
-                version string
-                supported bool
-            }{"HTTP/3", true}
-            resp.Body.Close()
-        } else {
-            results <- struct {
-                version string
-                supported bool
-            }{"HTTP/3", false}
-        }
-    }()
+		resp, err := client.Do(req)
+		if err == nil && resp.ProtoMajor == 3 {
+			results <- struct {
+				version   string
+				supported bool
+			}{"HTTP/3", true}
+			resp.Body.Close()
+		} else {
+			results <- struct {
+				version   string
+				supported bool
+			}{"HTTP/3", false}
+		}
+	}()
 
-    go func() {
-        wg.Wait()
-        close(results)
-        close(errors)
-    }()
+	go func() {
+		wg.Wait()
+		close(results)
+		close(errors)
+	}()
 
-    for result := range results {
-        switch result.version {
-        case "HTTP/1.1":
-            httpConn.HTTP11 = result.supported
-        case "HTTP/2":
-            httpConn.HTTP2 = result.supported
-        case "HTTP/3":
-            httpConn.HTTP3 = result.supported
-        }
-    }
+	for result := range results {
+		switch result.version {
+		case "HTTP/1.1":
+			httpConn.HTTP11 = result.supported
+		case "HTTP/2":
+			httpConn.HTTP2 = result.supported
+		case "HTTP/3":
+			httpConn.HTTP3 = result.supported
+		}
+	}
 
-    if len(errors) > 0 {
-        return httpConn, <-errors
-    }
+	if len(errors) > 0 {
+		return httpConn, <-errors
+	}
 
-    return httpConn, nil
+	return httpConn, nil
 }
 
-func GetSupportedTLSVersions(domain string, port int) ([]TLSConnection, error) {
+func GetSupportedTLSVersions(domain, port string) (TLSResult, error) {
+	httpConn := TLSResult{
+		Hostname: domain,
+	}
+
 	var wg sync.WaitGroup
 
 	supportedVersions := []TLSConnection{}
-	ipPort := net.JoinHostPort(domain, fmt.Sprintf("%d", port))
+	ipPort := net.JoinHostPort(domain, port)
 	results := make(chan TLSConnection)
 
 	for _, version := range []uint16{
@@ -268,10 +297,10 @@ func GetSupportedTLSVersions(domain string, port int) ([]TLSConnection, error) {
 				// https://datatracker.ietf.org/doc/html/rfc8446/#appendix-B.4
 				cs = []uint16{
 					0x1301, // TLS_AES_128_GCM_SHA256
-					0x1302, // TLS_AES_256_GCM_SHA384
-					0x1303, // TLS_CHACHA20_POLY1305_SHA256
-					0x1304, // TLS_AES_128_CCM_SHA256
-					0x1305, // TLS_AES_128_CCM_8_SHA256
+					// 0x1302, // TLS_AES_256_GCM_SHA384
+					// 0x1303, // TLS_CHACHA20_POLY1305_SHA256
+					// 0x1304, // TLS_AES_128_CCM_SHA256
+					// 0x1305, // TLS_AES_128_CCM_8_SHA256
 				}
 			}
 
@@ -347,5 +376,20 @@ func GetSupportedTLSVersions(domain string, port int) ([]TLSConnection, error) {
 		supportedVersions = append(supportedVersions, result)
 	}
 
-	return supportedVersions, nil
+	slices.SortFunc(supportedVersions, func(a, b TLSConnection) int {
+		return cmp.Compare(b.Version, a.Version)
+	})
+
+	for i := range supportedVersions {
+		slices.SortFunc(supportedVersions[i].CipherSuites, func(a, b CipherData) int {
+			return cmp.Or(
+				cmp.Compare(a.Strength, b.Strength),
+				cmp.Compare(a.IANAName, b.IANAName),
+			)
+		})
+	}
+
+	httpConn.TLSConnections = supportedVersions
+
+	return httpConn, nil
 }

@@ -19,23 +19,30 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-
 	clihelpers "github.com/northwood-labs/cli-helpers"
+	"github.com/northwood-labs/debug"
 	"github.com/northwood-labs/devsec-tools/pkg/httptls"
+	"github.com/spf13/cobra"
 )
 
-// httpCmd represents the http command
-var httpCmd = &cobra.Command{
-	Use:   "http",
-	Short: "Check supported HTTP versions.",
+// tlsCmd represents the tls command
+var tlsCmd = &cobra.Command{
+	Use:   "tls",
+	Short: "Check supported TLS versions and ciphers.",
 	Long: clihelpers.LongHelpText(`
-	Check supported HTTP versions for a website.
+	Check supported TLS versions and ciphers for a website, including potential
+	problems with outdated cipher suites that should probably be disabled.
 	`),
 	Run: func(cmd *cobra.Command, args []string) {
 		domain := args[0]
 
-		result, err := httptls.GetSupportedHTTPVersions(domain)
+		host, port, err := httptls.ParseHostPort(domain)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		result, err := httptls.GetSupportedTLSVersions(host, port)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,18 +59,32 @@ var httpCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		// pp := debug.GetSpew()
-		// pp.Dump(result)
+		pp := debug.GetSpew()
+		pp.Dump(result)
 
-		t := NewTable("HTTP Version", "Supported")
-		t.Row("1.1", displayBool(result.HTTP11))
-		t.Row("2", displayBool(result.HTTP2))
-		t.Row("3", displayBool(result.HTTP3))
+		t := NewTable("TLS Version", "Cipher Suites", "Strength")
+
+		for i := range result.TLSConnections {
+			tlsConnection := result.TLSConnections[i]
+
+			for j := range tlsConnection.CipherSuites {
+				cipher := tlsConnection.CipherSuites[j]
+
+				if j == 0 && i == 0 {
+					t.Row(tlsConnection.Version, cipher.IANAName, cipher.Strength)
+				} else if j == 0 {
+					t.Row("", "", "")
+					t.Row(tlsConnection.Version, cipher.IANAName, cipher.Strength)
+				} else {
+					t.Row("", cipher.IANAName, cipher.Strength)
+				}
+			}
+		}
 
 		fmt.Println(t.Render())
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(httpCmd)
+	rootCmd.AddCommand(tlsCmd)
 }

@@ -15,17 +15,13 @@
 package httptls
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
 type (
-	Connection struct {
+	HTTPResult struct {
 		// Hostname represents the hostname of the connection.
 		Hostname string `json:"hostname"`
-
-		// TLSConnections represents the TLS connections that the connection advertises.
-		TLSConnections []TLSConnection `json:"tlsConnections,omitempty"`
 
 		// HTTP11 represents whether or not the connection supports HTTP/1.1.
 		HTTP11 bool `json:"http11"`
@@ -35,6 +31,14 @@ type (
 
 		// HTTP3 represents whether or not the connection supports HTTP/3.
 		HTTP3 bool `json:"http3"`
+	}
+
+	TLSResult struct {
+		// Hostname represents the hostname of the connection.
+		Hostname string `json:"hostname"`
+
+		// TLSConnections represents the TLS connections that the connection advertises.
+		TLSConnections []TLSConnection `json:"tlsConnections,omitempty"`
 	}
 
 	TLSConnection struct {
@@ -85,18 +89,4 @@ func (c *CipherData) Populate() {
 			URLs:        problem.URLs,
 		})
 	}
-}
-
-func (c *Connection) ToJSON() (string, error) {
-	for i := range c.TLSConnections {
-		tlsConn := c.TLSConnections[i]
-
-		for j := range tlsConn.CipherSuites {
-			tlsConn.CipherSuites[j].Populate()
-		}
-	}
-
-	b, err := json.Marshal(c)
-
-	return string(b), err
 }

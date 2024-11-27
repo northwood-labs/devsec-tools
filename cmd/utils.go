@@ -20,12 +20,25 @@ import (
 )
 
 func NewTable(headers ...string) *table.Table {
+	EvenRowStyle := lipgloss.NewStyle().
+		Padding(0, 1).
+		Background(lipgloss.Color("#171e21"))
+
+	OddRowStyle := lipgloss.NewStyle().
+		Padding(0, 1).
+		Background(lipgloss.Color("0"))
+
 	return table.New().
 		Border(lipgloss.RoundedBorder()).
 		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
 		BorderColumn(true).
 		StyleFunc(func(row, col int) lipgloss.Style {
-			return lipgloss.NewStyle().Padding(0, 1)
+			switch {
+			case row%2 == 0:
+				return EvenRowStyle
+			default:
+				return OddRowStyle
+			}
 		}).
 		Headers(headers...)
 }

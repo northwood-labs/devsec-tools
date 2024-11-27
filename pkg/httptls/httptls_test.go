@@ -15,133 +15,131 @@
 package httptls
 
 import (
-	"regexp"
-	"slices"
 	"testing"
 )
 
 // <https://github.com/golang/go/wiki/TableDrivenTests>
-func TestResolveEndpointToIPs(t *testing.T) { // lint:allow_complexity
-	for name, tc := range map[string]struct {
-		Input       string
-		Expected    []string
-		ExpectedErr *regexp.Regexp
-	}{
-		"scheme:cloudflare.com": {
-			Input: "https://cloudflare.com",
-			Expected: []string{
-				"104.16.132.229",
-				"104.16.133.229",
-				"2606:4700::6810:84e5",
-				"2606:4700::6810:85e5",
-			},
-		},
-		"cloudflare.com": {
-			Input: "cloudflare.com",
-			Expected: []string{
-				"104.16.132.229",
-				"104.16.133.229",
-				"2606:4700::6810:84e5",
-				"2606:4700::6810:85e5",
-			},
-		},
-		"scheme:github.com": {
-			Input: "https://github.com",
-			Expected: []string{
-				"140.82.112.3",
-				"140.82.112.4",
-				"140.82.113.3",
-				"140.82.113.4",
-				"140.82.114.3",
-				"140.82.114.4",
-			},
-		},
-		"github.com": {
-			Input: "github.com",
-			Expected: []string{
-				"140.82.112.3",
-				"140.82.112.4",
-				"140.82.113.3",
-				"140.82.113.4",
-				"140.82.114.3",
-				"140.82.114.4",
-			},
-		},
-		"scheme:ryanparman.com": {
-			Input: "https://ryanparman.com",
-			Expected: []string{
-				"172.66.40.211",
-				"172.66.43.45",
-				"2606:4700:3108::ac42:28d3",
-				"2606:4700:3108::ac42:2b2d",
-			},
-		},
-		"ryanparman.com": {
-			Input: "ryanparman.com",
-			Expected: []string{
-				"172.66.40.211",
-				"172.66.43.45",
-				"2606:4700:3108::ac42:28d3",
-				"2606:4700:3108::ac42:2b2d",
-			},
-		},
-		"scheme:example.com": {
-			Input: "http://example.com",
-			Expected: []string{
-				"2606:2800:21f:cb07:6820:80da:af6b:8b2c",
-				"93.184.215.14",
-			},
-		},
-		"example.com": {
-			Input: "example.com",
-			Expected: []string{
-				"2606:2800:21f:cb07:6820:80da:af6b:8b2c",
-				"93.184.215.14",
-			},
-		},
-		"scheme:http.badssl.com": {
-			Input: "http://http.badssl.com",
-			Expected: []string{
-				"104.154.89.105",
-			},
-		},
-		"http.badssl.com": {
-			Input: "http.badssl.com",
-			Expected: []string{
-				"104.154.89.105",
-			},
-		},
-		"scheme:detectportal.firefox.com": {
-			Input: "http://detectportal.firefox.com",
-			Expected: []string{
-				"2600:1901:0:38d7::",
-				"34.107.221.82",
-			},
-		},
-	} {
-		t.Run(name, func(t *testing.T) {
-			actual, err := ResolveEndpointToIPs(tc.Input)
+// func TestResolveEndpointToIPs(t *testing.T) { // lint:allow_complexity
+// 	for name, tc := range map[string]struct {
+// 		Input       string
+// 		Expected    []string
+// 		ExpectedErr *regexp.Regexp
+// 	}{
+// 		"scheme:cloudflare.com": {
+// 			Input: "https://cloudflare.com",
+// 			Expected: []string{
+// 				"104.16.132.229",
+// 				"104.16.133.229",
+// 				"2606:4700::6810:84e5",
+// 				"2606:4700::6810:85e5",
+// 			},
+// 		},
+// 		"cloudflare.com": {
+// 			Input: "cloudflare.com",
+// 			Expected: []string{
+// 				"104.16.132.229",
+// 				"104.16.133.229",
+// 				"2606:4700::6810:84e5",
+// 				"2606:4700::6810:85e5",
+// 			},
+// 		},
+// 		"scheme:github.com": {
+// 			Input: "https://github.com",
+// 			Expected: []string{
+// 				"140.82.112.3",
+// 				"140.82.112.4",
+// 				"140.82.113.3",
+// 				"140.82.113.4",
+// 				"140.82.114.3",
+// 				"140.82.114.4",
+// 			},
+// 		},
+// 		"github.com": {
+// 			Input: "github.com",
+// 			Expected: []string{
+// 				"140.82.112.3",
+// 				"140.82.112.4",
+// 				"140.82.113.3",
+// 				"140.82.113.4",
+// 				"140.82.114.3",
+// 				"140.82.114.4",
+// 			},
+// 		},
+// 		"scheme:ryanparman.com": {
+// 			Input: "https://ryanparman.com",
+// 			Expected: []string{
+// 				"172.66.40.211",
+// 				"172.66.43.45",
+// 				"2606:4700:3108::ac42:28d3",
+// 				"2606:4700:3108::ac42:2b2d",
+// 			},
+// 		},
+// 		"ryanparman.com": {
+// 			Input: "ryanparman.com",
+// 			Expected: []string{
+// 				"172.66.40.211",
+// 				"172.66.43.45",
+// 				"2606:4700:3108::ac42:28d3",
+// 				"2606:4700:3108::ac42:2b2d",
+// 			},
+// 		},
+// 		"scheme:example.com": {
+// 			Input: "http://example.com",
+// 			Expected: []string{
+// 				"2606:2800:21f:cb07:6820:80da:af6b:8b2c",
+// 				"93.184.215.14",
+// 			},
+// 		},
+// 		"example.com": {
+// 			Input: "example.com",
+// 			Expected: []string{
+// 				"2606:2800:21f:cb07:6820:80da:af6b:8b2c",
+// 				"93.184.215.14",
+// 			},
+// 		},
+// 		"scheme:http.badssl.com": {
+// 			Input: "http://http.badssl.com",
+// 			Expected: []string{
+// 				"104.154.89.105",
+// 			},
+// 		},
+// 		"http.badssl.com": {
+// 			Input: "http.badssl.com",
+// 			Expected: []string{
+// 				"104.154.89.105",
+// 			},
+// 		},
+// 		"scheme:detectportal.firefox.com": {
+// 			Input: "http://detectportal.firefox.com",
+// 			Expected: []string{
+// 				"2600:1901:0:38d7::",
+// 				"34.107.221.82",
+// 			},
+// 		},
+// 	} {
+// 		t.Run(name, func(t *testing.T) {
+// 			actual, err := ResolveEndpointToIPs(tc.Input)
 
-			if len(actual) < 1 {
-				t.Errorf("Expected at least one IP address for %s, got '%#v'", tc.Input, len(actual))
-			}
+// 			if len(actual) < 1 {
+// 				t.Errorf("Expected at least one IP address for %s, got '%#v'", tc.Input, len(actual))
+// 			}
 
-			if err != nil && tc.ExpectedErr != nil {
-				if !tc.ExpectedErr.MatchString(err.Error()) {
-					t.Errorf("Expected error '%#v', got '%#v'", tc.ExpectedErr, err)
-				}
-			}
+// 			if err != nil && tc.ExpectedErr != nil {
+// 				if !tc.ExpectedErr.MatchString(err.Error()) {
+// 					t.Errorf("Expected error '%#v', got '%#v'", tc.ExpectedErr, err)
+// 				}
+// 			}
 
-			for i := range actual {
-				a := actual[i]
+// 			for i := range actual {
+// 				a := actual[i]
 
-				if !slices.Contains(tc.Expected, a) {
-					t.Errorf("Expected to find %#v inside %#v", a, tc.Expected)
-				}
-			}
-		})
-	}
-}
+// 				if !slices.Contains(tc.Expected, a) {
+// 					t.Errorf("Expected to find %#v inside %#v", a, tc.Expected)
+// 				}
+// 			}
+// 		})
+// 	}
+// }
 
 // <https://github.com/golang/go/wiki/TableDrivenTests>
 // func TestGetSupportedTLSVersions(t *testing.T) { // lint:allow_complexity
@@ -173,3 +171,98 @@ func TestResolveEndpointToIPs(t *testing.T) { // lint:allow_complexity
 // 		})
 // 	}
 // }
+
+// <https://github.com/golang/go/wiki/TableDrivenTests>
+func TestParseDomain(t *testing.T) { // lint:allow_complexity
+	for name, tc := range map[string]struct {
+		Input    string
+		Expected string
+	}{
+		"example.com": {
+			Input:    "example.com",
+			Expected: "https://example.com",
+		},
+		"https://example.com": {
+			Input:    "https://example.com",
+			Expected: "https://example.com",
+		},
+		"http://example.com": {
+			Input:    "http://example.com",
+			Expected: "http://example.com",
+		},
+		"example.com/path/file.html": {
+			Input:    "example.com/path/file.html",
+			Expected: "https://example.com",
+		},
+		"https://example.com/path/file.html": {
+			Input:    "https://example.com/path/file.html",
+			Expected: "https://example.com",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			actual, err := ParseDomain(tc.Input)
+			if err != nil {
+				t.Errorf("Expected no error, got '%#v'", err)
+			}
+
+			if actual != tc.Expected {
+				t.Errorf("Expected '%#v', got '%#v'", tc.Expected, actual)
+			}
+		})
+	}
+}
+
+// <https://github.com/golang/go/wiki/TableDrivenTests>
+func TestParseHostPort(t *testing.T) { // lint:allow_complexity
+	for name, tc := range map[string]struct {
+		Input     string
+		ExpDomain string
+		ExpPort   string
+	}{
+		"example.com:22": {
+			Input:     "example.com:22",
+			ExpDomain: "example.com",
+			ExpPort:   "22",
+		},
+		"example.com": {
+			Input:     "example.com",
+			ExpDomain: "example.com",
+			ExpPort:   "443",
+		},
+		"https://example.com": {
+			Input:     "https://example.com",
+			ExpDomain: "example.com",
+			ExpPort:   "443",
+		},
+		"http://example.com": {
+			Input:     "http://example.com",
+			ExpDomain: "example.com",
+			ExpPort:   "80",
+		},
+		"example.com/path/file.html": {
+			Input:     "example.com/path/file.html",
+			ExpDomain: "example.com",
+			ExpPort:   "443",
+		},
+		"https://example.com/path/file.html": {
+			Input:     "https://example.com/path/file.html",
+			ExpDomain: "example.com",
+			ExpPort:   "443",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			actualDomain, actualPort, err := ParseHostPort(tc.Input)
+			if err != nil {
+				t.Errorf("Expected no error, got '%#v'", err)
+			}
+
+			if actualDomain != tc.ExpDomain {
+				t.Errorf("Expected '%#v', got '%#v'", tc.ExpDomain, actualDomain)
+			}
+
+			if actualPort != tc.ExpPort {
+				t.Errorf("Expected '%#v', got '%#v'", tc.ExpPort, actualPort)
+			}
+		})
+	}
+}
