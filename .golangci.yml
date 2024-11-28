@@ -317,14 +317,14 @@ linters-settings:
   # exhaustivestruct:
 
   exhaustruct:
-    # List of regular expressions to match struct packages and names.
-    # If this list is empty, all structs are tested.
-    # Default: []
-    # include: []
+  # List of regular expressions to match struct packages and names.
+  # If this list is empty, all structs are tested.
+  # Default: []
+  # include: []
 
-    # List of regular expressions to exclude struct packages and names from check.
-    # Default: []
-    # exclude: []
+  # List of regular expressions to exclude struct packages and names from check.
+  # Default: []
+  # exclude: []
 
   # forbidigo:
 
@@ -450,45 +450,45 @@ linters-settings:
         skipTestFuncs: true
 
       ruleguard:
-        # Enable debug to identify which 'Where' condition was rejected.
-        # The value of the parameter is the name of a function in a ruleguard file.
-        #
-        # When a rule is evaluated:
-        # If:
-        #   The Match() clause is accepted; and
-        #   One of the conditions in the Where() clause is rejected,
-        # Then:
-        #   ruleguard prints the specific Where() condition that was rejected.
-        #
-        # The flag is passed to the ruleguard 'debug-group' argument.
-        # Default: ""
-        # debug: ''
+      # Enable debug to identify which 'Where' condition was rejected.
+      # The value of the parameter is the name of a function in a ruleguard file.
+      #
+      # When a rule is evaluated:
+      # If:
+      #   The Match() clause is accepted; and
+      #   One of the conditions in the Where() clause is rejected,
+      # Then:
+      #   ruleguard prints the specific Where() condition that was rejected.
+      #
+      # The flag is passed to the ruleguard 'debug-group' argument.
+      # Default: ""
+      # debug: ''
 
-        # Determines the behavior when an error occurs while parsing ruleguard files.
-        # If flag is not set, log error and skip rule files that contain an error.
-        # If flag is set, the value must be a comma-separated list of error conditions.
-        # - 'all':    fail on all errors.
-        # - 'import': ruleguard rule imports a package that cannot be found.
-        # - 'dsl':    gorule file does not comply with the ruleguard DSL.
-        # Default: ""
-        # failOn: ''
+      # Determines the behavior when an error occurs while parsing ruleguard files.
+      # If flag is not set, log error and skip rule files that contain an error.
+      # If flag is set, the value must be a comma-separated list of error conditions.
+      # - 'all':    fail on all errors.
+      # - 'import': ruleguard rule imports a package that cannot be found.
+      # - 'dsl':    gorule file does not comply with the ruleguard DSL.
+      # Default: ""
+      # failOn: ''
 
-        # Comma-separated list of file paths containing ruleguard rules.
-        # If a path is relative, it is relative to the directory where the golangci-lint command is executed.
-        # The special '${configDir}' variable is substituted with the absolute directory containing the golangci config file.
-        # Glob patterns such as 'rules-*.go' may be specified.
-        # Default: ""
-        # rules: ''
+      # Comma-separated list of file paths containing ruleguard rules.
+      # If a path is relative, it is relative to the directory where the golangci-lint command is executed.
+      # The special '${configDir}' variable is substituted with the absolute directory containing the golangci config file.
+      # Glob patterns such as 'rules-*.go' may be specified.
+      # Default: ""
+      # rules: ''
 
-        # Comma-separated list of enabled groups or skip empty to enable everything.
-        # Tags can be defined with # character prefix.
-        # Default: "<all>"
-        # enable: "myGroupName,#myTagName"
+      # Comma-separated list of enabled groups or skip empty to enable everything.
+      # Tags can be defined with # character prefix.
+      # Default: "<all>"
+      # enable: "myGroupName,#myTagName"
 
-        # Comma-separated list of disabled groups or skip empty to enable everything.
-        # Tags can be defined with # character prefix.
-        # Default: ""
-        # disable: "myGroupName,#myTagName"
+      # Comma-separated list of disabled groups or skip empty to enable everything.
+      # Tags can be defined with # character prefix.
+      # Default: ""
+      # disable: "myGroupName,#myTagName"
 
       tooManyResultsChecker:
         # Maximum number of results.
@@ -552,10 +552,10 @@ linters-settings:
   # goheader:
 
   goimports:
-    # A comma-separated list of prefixes, which, if set, checks import paths
-    # with the given prefixes are grouped after 3rd-party packages.
-    # Default: ""
-    # local-prefixes: github.mycompany.com
+  # A comma-separated list of prefixes, which, if set, checks import paths
+  # with the given prefixes are grouped after 3rd-party packages.
+  # Default: ""
+  # local-prefixes: github.mycompany.com
 
   gomnd:
     # List of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.

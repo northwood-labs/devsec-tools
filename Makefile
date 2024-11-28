@@ -250,6 +250,7 @@ install-tools-go:
 	@ $(HEADER) "=====> Installing Go packages..."
 	$(GO) install github.com/antham/gommit@latest
 	$(GO) install github.com/google/osv-scanner/cmd/osv-scanner@v1
+	$(GO) install github.com/google/yamlfmt/cmd/yamlfmt@latest
 	$(GO) install github.com/goph/licensei/cmd/licensei@latest
 	$(GO) install github.com/mdempsky/unconvert@latest
 	$(GO) install github.com/nikolaydubina/go-binsize-treemap@latest

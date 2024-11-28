@@ -46,7 +46,7 @@ repos:
     hooks:
       - id: markdownlint
         args:
-          - --ignore=themes/dst2024/node_modules
+          - --ignore=node_modules
           - --ignore=.github
           - --ignore=.templates
           - --fix
@@ -71,7 +71,7 @@ repos:
       - id: trivy-vuln
         name: Trivy (Vulnerabilities)
         description: Check for security vulnerabilities. (https://trivy.dev)
-        entry: bash -c 'trivy fs --config trivy-vuln.yaml --ignorefile .trivyignore.yaml .'
+        entry: bash -c 'trivy fs --config trivy-vuln.yaml --ignorefile .trivyignore .'
         language: system
         stages: [pre-commit, pre-push]
         # Troubleshooting: https://aquasecurity.github.io/trivy/latest/docs/references/troubleshooting/#denied
@@ -106,4 +106,4 @@ repos:
           - --indent=4
           - --case-indent
           - --space-redirects
-# goplicate-end:shell
+        # goplicate-end:shell
