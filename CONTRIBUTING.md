@@ -109,25 +109,25 @@ You can find more details about the _Developer Certificate of Origin_ checker in
 ### Written prose
 
 * We use U.S. English spelling.
-    * :white_check_mark: color
-    * :x: colour
+hite_check_mark: color
+: colour
 
 * Brand-names should be spelled correctly.
-    * :white_check_mark: GitHub
-    * :x: Github
-    * :x: github
-    * :x: GH
+hite_check_mark: GitHub
+: Github
+: github
+: GH
 
 * Use the _Oxford comma_.
-    * :white_check_mark: This, that, and this.
-    * :x: This, that and this.
+hite_check_mark: This, that, and this.
+: This, that and this.
 
 * Instead of a single sentence that wraps 2–4 lines, see if you can break it up into multiple, shorter sentences.
 
 * Properly use a period (`.`) or an ellipsis (`…`).
-    * :white_check_mark: This is a sentence.
-    * :white_check_mark: This is a sentence that ends with an ellipsis…
-    * :x: The double-period (`..`) does not exist in the English language.
+hite_check_mark: This is a sentence.
+hite_check_mark: This is a sentence that ends with an ellipsis…
+: The double-period (`..`) does not exist in the English language.
 
 * Aim for _clarity_ over _cleverness_.
 
@@ -136,12 +136,12 @@ You can find more details about the _Developer Certificate of Origin_ checker in
 * Avoid long paragraphs because most people won't read them. Can you present the same idea with a picture, a table, or a list?
 
 * Section headers use sentence case, not title case.
-    * :white_check_mark: Section header for this next piece of information
-    * :x: Section Header for this Next Piece of Information
+hite_check_mark: Section header for this next piece of information
+: Section Header for this Next Piece of Information
 
 * The word _default_ is an adjective (descriptor) not a verb (performs an action). "Default" describes a state. It is not an action.
-    * :white_check_mark: The default value is `1`.
-    * :x: Defaults to `1`.
+hite_check_mark: The default value is `1`.
+: Defaults to `1`.
 
 > [!IMPORTANT]
 > If you're not sure, use the existing language as a guide.

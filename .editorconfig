@@ -17,12 +17,20 @@ trim_trailing_whitespace = true
 indent_style = tab
 max_line_length = 20000
 
+[atlas.hcl]
+max_line_length = 20000
+
 # Web
 [*.{css,html,js,less,sass,scss}]
 indent_size = 2
 
 # Configuration formats
-[*.{hcl,json,toml,yaml,yml}]
+[*.{hcl,json,jsonc,toml,yaml,yml}]
+indent_size = 2
+indent_style = space
+max_line_length = 20000
+
+[.ecrc]
 indent_size = 2
 
 [*.go]
@@ -32,12 +40,24 @@ indent_style = tab
 indent_size = 2
 max_line_length = 20000
 
+[*.{css,gohtml,html,js,less,mjs,sass,scss}]
+indent_size = 2
+max_line_length = 100000
+
+[*.{gql,graphql,graphqls}]
+indent_size = 2
+max_line_length = 20000
+
 [*.py]
 indent_size = 4
 
 [*.sh]
 indent_size = 4
 max_line_length = 120
+
+[*.sql]
+indent_size = 4
+max_line_length = 20000
 
 # Terraform files
 [*.{tf,tftpl,tfvars}]

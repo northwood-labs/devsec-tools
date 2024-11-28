@@ -1,0 +1,28 @@
+---
+# https://github.com/google/yamlfmt/blob/main/docs/config-file.md
+
+continue_on_error: false
+doublestar: true
+# exclude: []
+# extensions: []
+gitignore_excludes: true
+# include: []
+# line_ending: lf
+output_format: line
+# regex_exclude: []
+
+formatter:
+  type: basic
+  disallow_anchors: false
+  drop_merge_tag: true
+  eof_newline: true
+  include_document_start: true
+  indent: 2
+  indentless_arrays: false
+  line_ending: lf
+  max_line_length: 120
+  pad_line_comments: 1
+  retain_line_breaks: true
+  # retain_line_breaks_single: false
+  scan_folded_as_literal: true
+  trim_trailing_whitespace: true

@@ -1,25 +1,21 @@
 ---
+# This is a "full copy" file. Any manual changes will be overwritten in the next
+# sync. If you want to make changes to this file, open a PR against the upstream
+# file. Changes will be reflected in ALL repositories during the next sync.
 cache:
   backend: fs
-db:
-  download-java-only: false
-  download-only: false
-  java-repository: ghcr.io/aquasecurity/trivy-java-db
-  java-skip-update: false
-  light: false
-  no-progress: false
-  repository: ghcr.io/aquasecurity/trivy-db
-  skip-update: false
-# debug: false
+  # clear: false
+  ttl: 0s
+debug: false
 dependency-tree: true
 exit-code: 0
 format: table
-ignore-policy: ""
+ignore-policy: ''
 ignorefile: .trivyignore
 include-dev-deps: false
 insecure: false
 license:
-  confidencelevel: "0.9"
+  confidencelevel: '0.9'
   forbidden:
     - AGPL-1.0
     - AGPL-3.0
@@ -166,18 +162,11 @@ license:
     - CC0-1.0
     - Unlicense
 list-all-pkgs: true
-misconfiguration:
-  include-non-failures: false
-  policy-bundle-repository: ghcr.io/aquasecurity/defsec:0
-output: ""
+output: ''
 quiet: true
-report: summary
+report: all
 scan:
-  compliance: ""
-  file-patterns: []
   offline: false
-  rekor-url: https://rekor.sigstore.dev
-  sbom-sources: []
   scanners:
     - license
   skip-dirs: []
