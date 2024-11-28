@@ -15,9 +15,76 @@
 package cmd
 
 import (
+	"os"
+	"time"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/charmbracelet/log"
 )
+
+func GetLogger(fVerbose int, fJSON bool) *log.Logger {
+	styles := log.DefaultStyles()
+
+	// ERROR
+	styles.Levels[log.ErrorLevel] = lipgloss.NewStyle().
+		SetString("ERROR").
+		Padding(0, 1, 0, 1).
+		Background(lipgloss.Color("160")).
+		Foreground(lipgloss.Color("255"))
+	styles.Keys["err"] = lipgloss.NewStyle().Foreground(lipgloss.Color("160"))
+	styles.Values["err"] = lipgloss.NewStyle().Bold(true)
+
+	// WARN
+	styles.Levels[log.WarnLevel] = lipgloss.NewStyle().
+		SetString("WARN").
+		Padding(0, 1, 0, 1).
+		Background(lipgloss.Color("220")).
+		Foreground(lipgloss.Color("232"))
+	styles.Keys["warn"] = lipgloss.NewStyle().Foreground(lipgloss.Color("220"))
+	styles.Values["warn"] = lipgloss.NewStyle().Bold(true)
+
+	// INFO
+	styles.Levels[log.InfoLevel] = lipgloss.NewStyle().
+		SetString("INFO").
+		Padding(0, 1, 0, 1).
+		Background(lipgloss.Color("21")).
+		Foreground(lipgloss.Color("255"))
+	styles.Keys["info"] = lipgloss.NewStyle().Foreground(lipgloss.Color("69"))
+	styles.Values["info"] = lipgloss.NewStyle().Bold(true)
+
+	// DEBUG
+	styles.Levels[log.DebugLevel] = lipgloss.NewStyle().
+		SetString("DEBUG").
+		Padding(0, 1, 0, 1).
+		Background(lipgloss.Color("99")).
+		Foreground(lipgloss.Color("11"))
+	styles.Keys["debug"] = lipgloss.NewStyle().Foreground(lipgloss.Color("99"))
+	styles.Values["debug"] = lipgloss.NewStyle().Bold(true)
+
+	// Logger
+	logger := log.NewWithOptions(os.Stderr, log.Options{
+		Level: log.FatalLevel,
+		ReportCaller: false,
+		ReportTimestamp: true,
+		TimeFormat: time.RFC3339Nano,
+	})
+
+	logger.SetStyles(styles)
+
+	if os.Getenv("DST_LOG_JSON") == "true" || fJSON {
+		logger.SetFormatter(log.JSONFormatter)
+	}
+
+	if os.Getenv("DST_LOG_VERBOSE") == "2" || fVerbose > 1 {
+		logger.SetReportCaller(true)
+		logger.SetLevel(log.DebugLevel)
+	} else if os.Getenv("DST_LOG_VERBOSE") == "1" || fVerbose > 0 {
+		logger.SetLevel(log.InfoLevel)
+	}
+
+	return logger
+}
 
 func NewTable(headers ...string) *table.Table {
 	EvenRowStyle := lipgloss.NewStyle().

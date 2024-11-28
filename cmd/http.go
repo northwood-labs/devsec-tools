@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -32,19 +33,29 @@ var httpCmd = &cobra.Command{
 	Long: clihelpers.LongHelpText(`
 	Check supported HTTP versions for a website.
 	`),
-	Run: func(cmd *cobra.Command, args []string) {
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("Please provide a domain to check.\n")
+		}
+
+		return nil
+	},
+  	Run: func(cmd *cobra.Command, args []string) {
 		domain := args[0]
 
-		result, err := httptls.GetSupportedHTTPVersions(domain)
+		result, err := httptls.GetSupportedHTTPVersions(domain, httptls.Options{
+			Logger: logger,
+			TimeoutSeconds: fTimeout,
+		})
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 			os.Exit(1)
 		}
 
 		if fJSON {
 			out, err := json.Marshal(result)
 			if err != nil {
-				fmt.Println(err)
+				logger.Error(err)
 				os.Exit(1)
 			}
 

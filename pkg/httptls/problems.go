@@ -521,24 +521,18 @@ var (
 			},
 			EncryptCamellia128CBC: {
 				Name:        EncryptionAlgoList[EncryptCamellia128CBC],
-				Class:       "",
-				Description: "",
+				Class:       ProblemDescription["CBC"].Name,
+				Description: ProblemDescription["CBC"].Description,
+				URLs:        ProblemDescription["CBC"].URLs,
 			},
-			EncryptCamellia128GCM: {
-				Name:        EncryptionAlgoList[EncryptCamellia128GCM],
-				Class:       "",
-				Description: "",
-			},
+			// EncryptCamellia128GCM: {},
 			EncryptCamellia256CBC: {
 				Name:        EncryptionAlgoList[EncryptCamellia256CBC],
-				Class:       "",
-				Description: "",
+				Class:       ProblemDescription["CBC"].Name,
+				Description: ProblemDescription["CBC"].Description,
+				URLs:        ProblemDescription["CBC"].URLs,
 			},
-			EncryptCamellia256GCM: {
-				Name:        EncryptionAlgoList[EncryptCamellia256GCM],
-				Class:       "",
-				Description: "",
-			},
+			// EncryptCamellia256GCM: {},
 			// EncryptChaChaPoly: {},
 			EncryptDESCBC: {
 				Name: EncryptionAlgoList[EncryptDESCBC],

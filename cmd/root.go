@@ -17,19 +17,19 @@ package cmd
 import (
 	"os"
 
-	"github.com/gookit/color"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 
 	clihelpers "github.com/northwood-labs/cli-helpers"
 )
 
 var (
-	// Color text.
-	colorHeader = color.New(color.FgWhite, color.BgBlue, color.OpBold)
+	logger  *log.Logger
 
 	fJSON    bool
 	fQuiet   bool
-	fVerbose bool
+	fVerbose int
+	fTimeout int
 
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{
@@ -44,7 +44,9 @@ var (
 
 		You can also find these tools online at https://devsec.tools.
 		`),
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			logger = GetLogger(fVerbose, fJSON)
+		},
 	}
 )
 
@@ -53,10 +55,13 @@ func init() {
 		&fJSON, "json", "j", false, "Output as JSON.",
 	)
 	rootCmd.PersistentFlags().BoolVarP(
-		&fVerbose, "verbose", "v", false, "Enable verbose output.",
-	)
-	rootCmd.PersistentFlags().BoolVarP(
 		&fQuiet, "quiet", "q", false, "Disable all logging output.",
+	)
+	rootCmd.PersistentFlags().CountVarP(
+		&fVerbose, "verbose", "v", "Enable verbose output.",
+	)
+	rootCmd.PersistentFlags().IntVarP(
+		&fTimeout, "timeout", "t", 3, "Timeout in seconds.",
 	)
 
 	rootCmd.MarkFlagsMutuallyExclusive("verbose", "quiet")

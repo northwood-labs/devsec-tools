@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -32,25 +33,35 @@ var tlsCmd = &cobra.Command{
 	Check supported TLS versions and ciphers for a website, including potential
 	problems with outdated cipher suites that should probably be disabled.
 	`),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("Please provide a domain to check.\n")
+		}
+
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		domain := args[0]
 
 		host, port, err := httptls.ParseHostPort(domain)
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 			os.Exit(1)
 		}
 
-		result, err := httptls.GetSupportedTLSVersions(host, port)
+		result, err := httptls.GetSupportedTLSVersions(host, port, httptls.Options{
+			Logger: logger,
+			TimeoutSeconds: fTimeout,
+		})
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 			os.Exit(1)
 		}
 
 		if fJSON {
 			out, err := json.Marshal(result)
 			if err != nil {
-				fmt.Println(err)
+				logger.Error(err)
 				os.Exit(1)
 			}
 
@@ -68,6 +79,10 @@ var tlsCmd = &cobra.Command{
 
 			for j := range tlsConnection.CipherSuites {
 				cipher := tlsConnection.CipherSuites[j]
+
+				if tlsConnection.Version == "TLS v1.3" {
+					cipher.IANAName = "(Standardized 1.3 suites)"
+				}
 
 				if j == 0 && i == 0 {
 					t.Row(tlsConnection.Version, cipher.IANAName, cipher.Strength)

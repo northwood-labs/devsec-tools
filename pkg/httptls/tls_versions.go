@@ -15,10 +15,10 @@
 package httptls
 
 var TLSVersion = map[uint16]string{
-	0x0002: "SSL v2",
-	0x0300: "SSL v3",
-	0x0301: "TLS 1.0",
-	0x0302: "TLS 1.1",
-	0x0303: "TLS 1.2",
-	0x0304: "TLS 1.3",
+	0x0002: "SSLv2",
+	0x0300: "SSLv3",
+	0x0301: "TLSv1.0",
+	0x0302: "TLSv1.1",
+	0x0303: "TLSv1.2",
+	0x0304: "TLSv1.3",
 }

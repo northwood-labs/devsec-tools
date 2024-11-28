@@ -69,15 +69,21 @@ func ParseHostPort(domain string) (string, string, error) {
 	return u.Host, u.Port(), nil
 }
 
-func ResolveEndpointToIPs(domain string) ([]string, error) {
+func ResolveEndpointToIPs(domain string, opts ...Options) ([]string, error) {
+	logger, _ := handleOpts(opts)
+
 	host, _, err := ParseHostPort(domain)
 	if err != nil {
 		return []string{}, err
 	}
 
+	logger.Debugf("Resolving host `%s` to IP addresses", host)
+
 	addrs, err := net.LookupHost(host)
 	if err != nil {
 		host = "www." + host
+
+		logger.Debugf("Resolving host `%s` to IP addresses", host)
 
 		addrs, err = net.LookupHost(host)
 		if err != nil {
@@ -88,26 +94,30 @@ func ResolveEndpointToIPs(domain string) ([]string, error) {
 	return addrs, nil
 }
 
-func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
+func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error) {
+	logger, timeoutSecs := handleOpts(opts)
+
 	httpConn := HTTPResult{
 		Hostname: domain,
 	}
-	errors := make(chan error, 2)
+	errors := make(chan error, 3)
 
 	var wg sync.WaitGroup
 
 	results := make(chan struct {
 		version   string
 		supported bool
-	}, 2)
+	}, 3)
 
 	// Check HTTP/1.1 support
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
+		logger.Info("Checking", "domain", domain, "http", "1.1")
+
 		client := &http.Client{
-			Timeout: 3*time.Second,
+			Timeout: time.Duration(timeoutSecs)*time.Second,
 		}
 
 		req, err := http.NewRequest("GET", domain, nil)
@@ -117,6 +127,9 @@ func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
 		}
 
 		resp, err := client.Do(req)
+
+		logger.Debug("Completed", "domain", domain, "http", "1.1")
+
 		if err == nil {
 			results <- struct {
 				version   string
@@ -136,8 +149,10 @@ func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
 	go func() {
 		defer wg.Done()
 
+		logger.Info("Checking", "domain", domain, "http", "2")
+
 		client := &http.Client{
-			Timeout: 3*time.Second,
+			Timeout: time.Duration(timeoutSecs)*time.Second,
 			Transport: &http2.Transport{},
 		}
 
@@ -148,6 +163,9 @@ func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
 		}
 
 		resp, err := client.Do(req)
+
+		logger.Debug("Completed", "domain", domain, "http", "2")
+
 		if err == nil && resp.ProtoMajor == 2 {
 			results <- struct {
 				version   string
@@ -167,6 +185,8 @@ func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
 	go func() {
 		defer wg.Done()
 
+		logger.Info("Checking", "domain", domain, "http", "3")
+
 		tr := &http3.Transport{
 			TLSClientConfig: &tls.Config{},  // set a TLS client config, if desired
 			QUICConfig:      &quic.Config{}, // QUIC connection options
@@ -174,7 +194,7 @@ func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
 		defer tr.Close()
 
 		client := &http.Client{
-			Timeout: 3*time.Second,
+			Timeout: time.Duration(timeoutSecs)*time.Second,
 			Transport: tr,
 		}
 
@@ -185,6 +205,9 @@ func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
 		}
 
 		resp, err := client.Do(req)
+
+		logger.Debug("Completed", "domain", domain, "http", "3")
+
 		if err == nil && resp.ProtoMajor == 3 {
 			results <- struct {
 				version   string
@@ -223,7 +246,9 @@ func GetSupportedHTTPVersions(domain string) (HTTPResult, error) {
 	return httpConn, nil
 }
 
-func GetSupportedTLSVersions(domain, port string) (TLSResult, error) {
+func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, error) {
+	logger, _ := handleOpts(opts)
+
 	httpConn := TLSResult{
 		Hostname: domain,
 	}
@@ -312,6 +337,12 @@ func GetSupportedTLSVersions(domain, port string) (TLSResult, error) {
 				go func(c uint16) {
 					defer innerWg.Done()
 
+					logger.Info("Checking",
+						"endpoint", ipPort,
+						"proto", TLSVersion[version],
+						"cipher", CipherList[c].IANAName,
+					)
+
 					conf := &tls.Config{
 						InsecureSkipVerify: true,
 						MinVersion:         version,
@@ -347,17 +378,17 @@ func GetSupportedTLSVersions(domain, port string) (TLSResult, error) {
 				var versionStr string
 				switch version {
 				case VersionSSL20:
-					versionStr = "SSLv2"
+					versionStr = TLSVersion[VersionSSL20]
 				case VersionSSL30:
-					versionStr = "SSLv3"
+					versionStr = TLSVersion[VersionSSL30]
 				case tls.VersionTLS10:
-					versionStr = "TLS v1.0"
+					versionStr = TLSVersion[VersionTLS10]
 				case tls.VersionTLS11:
-					versionStr = "TLS v1.1"
+					versionStr = TLSVersion[VersionTLS11]
 				case tls.VersionTLS12:
-					versionStr = "TLS v1.2"
+					versionStr = TLSVersion[VersionTLS12]
 				case tls.VersionTLS13:
-					versionStr = "TLS v1.3"
+					versionStr = TLSVersion[VersionTLS13]
 				}
 				results <- TLSConnection{
 					Version:      versionStr,

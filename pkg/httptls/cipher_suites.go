@@ -677,9 +677,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x0041: {
-		IANAName:    "TLS_RSA_WITH_Camellia_128_CBC_SHA",
-		OpenSSLName: "Camellia128-SHA",
-		GNUTLSName:  "TLS_RSA_Camellia_128_CBC_SHA1",
+		IANAName:    "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA",
+		OpenSSLName: "CAMELLIA128-SHA",
+		GNUTLSName:  "TLS_RSA_CAMELLIA_128_CBC_SHA1",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -688,7 +688,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0042: {
-		IANAName: "TLS_DH_DSS_WITH_Camellia_128_CBC_SHA",
+		IANAName: "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -697,7 +697,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0043: {
-		IANAName: "TLS_DH_RSA_WITH_Camellia_128_CBC_SHA",
+		IANAName: "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -706,9 +706,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0044: {
-		IANAName:    "TLS_DHE_DSS_WITH_Camellia_128_CBC_SHA",
-		OpenSSLName: "DHE-DSS-Camellia128-SHA",
-		GNUTLSName:  "TLS_DHE_DSS_Camellia_128_CBC_SHA1",
+		IANAName:    "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA",
+		OpenSSLName: "DHE-DSS-CAMELLIA128-SHA",
+		GNUTLSName:  "TLS_DHE_DSS_CAMELLIA_128_CBC_SHA1",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -717,9 +717,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0045: {
-		IANAName:    "TLS_DHE_RSA_WITH_Camellia_128_CBC_SHA",
-		OpenSSLName: "DHE-RSA-Camellia128-SHA",
-		GNUTLSName:  "TLS_DHE_RSA_Camellia_128_CBC_SHA1",
+		IANAName:    "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA",
+		OpenSSLName: "DHE-RSA-CAMELLIA128-SHA",
+		GNUTLSName:  "TLS_DHE_RSA_CAMELLIA_128_CBC_SHA1",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -728,9 +728,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0046: {
-		IANAName:    "TLS_DH_anon_WITH_Camellia_128_CBC_SHA",
-		OpenSSLName: "ADH-Camellia128-SHA",
-		GNUTLSName:  "TLS_DH_ANON_Camellia_128_CBC_SHA1",
+		IANAName:    "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA",
+		OpenSSLName: "ADH-CAMELLIA128-SHA",
+		GNUTLSName:  "TLS_DH_ANON_CAMELLIA_128_CBC_SHA1",
 
 		strength:       StrengthInsecure,
 		keyExchange:    KexDH,
@@ -818,9 +818,9 @@ var CipherList = map[uint16]CipherData{
 	},
 	// 0x006E-0x0083   Unassigned
 	0x0084: {
-		IANAName:    "TLS_RSA_WITH_Camellia_256_CBC_SHA",
-		OpenSSLName: "Camellia256-SHA",
-		GNUTLSName:  "TLS_RSA_Camellia_256_CBC_SHA1",
+		IANAName:    "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA",
+		OpenSSLName: "CAMELLIA256-SHA",
+		GNUTLSName:  "TLS_RSA_CAMELLIA_256_CBC_SHA1",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -829,7 +829,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0085: {
-		IANAName: "TLS_DH_DSS_WITH_Camellia_256_CBC_SHA",
+		IANAName: "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -838,7 +838,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0086: {
-		IANAName: "TLS_DH_RSA_WITH_Camellia_256_CBC_SHA",
+		IANAName: "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -847,9 +847,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0087: {
-		IANAName:    "TLS_DHE_DSS_WITH_Camellia_256_CBC_SHA",
-		OpenSSLName: "DHE-DSS-Camellia256-SHA",
-		GNUTLSName:  "TLS_DHE_DSS_Camellia_256_CBC_SHA1",
+		IANAName:    "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA",
+		OpenSSLName: "DHE-DSS-CAMELLIA256-SHA",
+		GNUTLSName:  "TLS_DHE_DSS_CAMELLIA_256_CBC_SHA1",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -858,9 +858,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0088: {
-		IANAName:    "TLS_DHE_RSA_WITH_Camellia_256_CBC_SHA",
-		OpenSSLName: "DHE-RSA-Camellia256-SHA",
-		GNUTLSName:  "TLS_DHE_RSA_Camellia_256_CBC_SHA1",
+		IANAName:    "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA",
+		OpenSSLName: "DHE-RSA-CAMELLIA256-SHA",
+		GNUTLSName:  "TLS_DHE_RSA_CAMELLIA_256_CBC_SHA1",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -869,9 +869,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA1,
 	},
 	0x0089: {
-		IANAName:    "TLS_DH_anon_WITH_Camellia_256_CBC_SHA",
-		OpenSSLName: "ADH-Camellia256-SHA",
-		GNUTLSName:  "TLS_DH_ANON_Camellia_256_CBC_SHA1",
+		IANAName:    "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA",
+		OpenSSLName: "ADH-CAMELLIA256-SHA",
+		GNUTLSName:  "TLS_DH_ANON_CAMELLIA_256_CBC_SHA1",
 
 		strength:       StrengthInsecure,
 		keyExchange:    KexDH,
@@ -1389,9 +1389,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0x00BA: {
-		IANAName:    "TLS_RSA_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "Camellia128-SHA256",
-		GNUTLSName:  "TLS_RSA_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_RSA_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -1400,7 +1400,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00BB: {
-		IANAName: "TLS_DH_DSS_WITH_Camellia_128_CBC_SHA256",
+		IANAName: "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -1409,7 +1409,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00BC: {
-		IANAName: "TLS_DH_RSA_WITH_Camellia_128_CBC_SHA256",
+		IANAName: "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -1418,9 +1418,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00BD: {
-		IANAName:    "TLS_DHE_DSS_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "DHE-DSS-Camellia128-SHA256",
-		GNUTLSName:  "TLS_DHE_DSS_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "DHE-DSS-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_DHE_DSS_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -1429,9 +1429,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00BE: {
-		IANAName:    "TLS_DHE_RSA_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "DHE-RSA-Camellia128-SHA256",
-		GNUTLSName:  "TLS_DHE_RSA_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "DHE-RSA-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_DHE_RSA_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -1440,9 +1440,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00BF: {
-		IANAName:    "TLS_DH_anon_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "ADH-Camellia128-SHA256",
-		GNUTLSName:  "TLS_DH_ANON_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "ADH-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_DH_ANON_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthInsecure,
 		keyExchange:    KexDH,
@@ -1451,9 +1451,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00C0: {
-		IANAName:    "TLS_RSA_WITH_Camellia_256_CBC_SHA256",
-		OpenSSLName: "Camellia256-SHA256",
-		GNUTLSName:  "TLS_RSA_Camellia_256_CBC_SHA256",
+		IANAName:    "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256",
+		OpenSSLName: "CAMELLIA256-SHA256",
+		GNUTLSName:  "TLS_RSA_CAMELLIA_256_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -1462,7 +1462,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00C1: {
-		IANAName: "TLS_DH_DSS_WITH_Camellia_256_CBC_SHA256",
+		IANAName: "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -1471,7 +1471,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00C2: {
-		IANAName: "TLS_DH_RSA_WITH_Camellia_256_CBC_SHA256",
+		IANAName: "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -1480,9 +1480,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00C3: {
-		IANAName:    "TLS_DHE_DSS_WITH_Camellia_256_CBC_SHA256",
-		OpenSSLName: "DHE-DSS-Camellia256-SHA256",
-		GNUTLSName:  "TLS_DHE_DSS_Camellia_256_CBC_SHA256",
+		IANAName:    "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256",
+		OpenSSLName: "DHE-DSS-CAMELLIA256-SHA256",
+		GNUTLSName:  "TLS_DHE_DSS_CAMELLIA_256_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -1491,9 +1491,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00C4: {
-		IANAName:    "TLS_DHE_RSA_WITH_Camellia_256_CBC_SHA256",
-		OpenSSLName: "DHE-RSA-Camellia256-SHA256",
-		GNUTLSName:  "TLS_DHE_RSA_Camellia_256_CBC_SHA256",
+		IANAName:    "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256",
+		OpenSSLName: "DHE-RSA-CAMELLIA256-SHA256",
+		GNUTLSName:  "TLS_DHE_RSA_CAMELLIA_256_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -1502,9 +1502,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0x00C5: {
-		IANAName:    "TLS_DH_anon_WITH_Camellia_256_CBC_SHA256",
-		OpenSSLName: "ADH-Camellia256-SHA256",
-		GNUTLSName:  "TLS_DH_ANON_Camellia_256_CBC_SHA256",
+		IANAName:    "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256",
+		OpenSSLName: "ADH-CAMELLIA256-SHA256",
+		GNUTLSName:  "TLS_DH_ANON_CAMELLIA_256_CBC_SHA256",
 
 		strength:       StrengthInsecure,
 		keyExchange:    KexDH,
@@ -2734,9 +2734,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC072: {
-		IANAName:    "TLS_ECDHE_ECDSA_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "ECDHE-ECDSA-Camellia128-SHA256",
-		GNUTLSName:  "TLS_ECDHE_ECDSA_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "ECDHE-ECDSA-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_ECDHE_ECDSA_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDHE,
@@ -2745,9 +2745,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC073: {
-		IANAName:    "TLS_ECDHE_ECDSA_WITH_Camellia_256_CBC_SHA384",
-		OpenSSLName: "ECDHE-ECDSA-Camellia256-SHA384",
-		GNUTLSName:  "TLS_ECDHE_ECDSA_Camellia_256_CBC_SHA384",
+		IANAName:    "TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384",
+		OpenSSLName: "ECDHE-ECDSA-CAMELLIA256-SHA384",
+		GNUTLSName:  "TLS_ECDHE_ECDSA_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDHE,
@@ -2756,7 +2756,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC074: {
-		IANAName: "TLS_ECDH_ECDSA_WITH_Camellia_128_CBC_SHA256",
+		IANAName: "TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -2765,7 +2765,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC075: {
-		IANAName: "TLS_ECDH_ECDSA_WITH_Camellia_256_CBC_SHA384",
+		IANAName: "TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -2774,9 +2774,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC076: {
-		IANAName:    "TLS_ECDHE_RSA_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "ECDHE-RSA-Camellia128-SHA256",
-		GNUTLSName:  "TLS_ECDHE_RSA_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "ECDHE-RSA-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_ECDHE_RSA_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDHE,
@@ -2785,9 +2785,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC077: {
-		IANAName:    "TLS_ECDHE_RSA_WITH_Camellia_256_CBC_SHA384",
-		OpenSSLName: "ECDHE-RSA-Camellia256-SHA384",
-		GNUTLSName:  "TLS_ECDHE_RSA_Camellia_256_CBC_SHA384",
+		IANAName:    "TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384",
+		OpenSSLName: "ECDHE-RSA-CAMELLIA256-SHA384",
+		GNUTLSName:  "TLS_ECDHE_RSA_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDHE,
@@ -2796,7 +2796,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC078: {
-		IANAName: "TLS_ECDH_RSA_WITH_Camellia_128_CBC_SHA256",
+		IANAName: "TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -2805,7 +2805,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC079: {
-		IANAName: "TLS_ECDH_RSA_WITH_Camellia_256_CBC_SHA384",
+		IANAName: "TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -2814,8 +2814,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC07A: {
-		IANAName:   "TLS_RSA_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_RSA_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_RSA_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -2824,8 +2824,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC07B: {
-		IANAName:   "TLS_RSA_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_RSA_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_RSA_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -2834,8 +2834,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC07C: {
-		IANAName:   "TLS_DHE_RSA_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_DHE_RSA_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_DHE_RSA_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -2844,8 +2844,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC07D: {
-		IANAName:   "TLS_DHE_RSA_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_DHE_RSA_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_DHE_RSA_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -2854,7 +2854,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC07E: {
-		IANAName: "TLS_DH_RSA_WITH_Camellia_128_GCM_SHA256",
+		IANAName: "TLS_DH_RSA_WITH_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -2863,7 +2863,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC07F: {
-		IANAName: "TLS_DH_RSA_WITH_Camellia_256_GCM_SHA384",
+		IANAName: "TLS_DH_RSA_WITH_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -2872,8 +2872,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC080: {
-		IANAName:   "TLS_DHE_DSS_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_DHE_DSS_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_DHE_DSS_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -2882,8 +2882,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC081: {
-		IANAName:   "TLS_DHE_DSS_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_DHE_DSS_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_DHE_DSS_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -2892,7 +2892,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC082: {
-		IANAName: "TLS_DH_DSS_WITH_Camellia_128_GCM_SHA256",
+		IANAName: "TLS_DH_DSS_WITH_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -2901,7 +2901,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC083: {
-		IANAName: "TLS_DH_DSS_WITH_Camellia_256_GCM_SHA384",
+		IANAName: "TLS_DH_DSS_WITH_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDH,
@@ -2910,8 +2910,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC084: {
-		IANAName:   "TLS_DH_anon_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_DH_ANON_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_DH_anon_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_DH_ANON_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthInsecure,
 		keyExchange:    KexDH,
@@ -2920,8 +2920,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC085: {
-		IANAName:   "TLS_DH_anon_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_DH_ANON_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_DH_ANON_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthInsecure,
 		keyExchange:    KexDH,
@@ -2930,8 +2930,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC086: {
-		IANAName:   "TLS_ECDHE_ECDSA_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_ECDHE_ECDSA_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_ECDHE_ECDSA_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthRecommended,
 		keyExchange:    KexECDHE,
@@ -2940,8 +2940,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC087: {
-		IANAName:   "TLS_ECDHE_ECDSA_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_ECDHE_ECDSA_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_ECDHE_ECDSA_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthRecommended,
 		keyExchange:    KexECDHE,
@@ -2950,7 +2950,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC088: {
-		IANAName: "TLS_ECDH_ECDSA_WITH_Camellia_128_GCM_SHA256",
+		IANAName: "TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -2959,7 +2959,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC089: {
-		IANAName: "TLS_ECDH_ECDSA_WITH_Camellia_256_GCM_SHA384",
+		IANAName: "TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -2968,8 +2968,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC08A: {
-		IANAName:   "TLS_ECDHE_RSA_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_ECDHE_RSA_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_ECDHE_RSA_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthSecure,
 		keyExchange:    KexECDHE,
@@ -2978,8 +2978,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC08B: {
-		IANAName:   "TLS_ECDHE_RSA_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_ECDHE_RSA_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_ECDHE_RSA_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthSecure,
 		keyExchange:    KexECDHE,
@@ -2988,7 +2988,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC08C: {
-		IANAName: "TLS_ECDH_RSA_WITH_Camellia_128_GCM_SHA256",
+		IANAName: "TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -2997,7 +2997,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC08D: {
-		IANAName: "TLS_ECDH_RSA_WITH_Camellia_256_GCM_SHA384",
+		IANAName: "TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDH,
@@ -3006,8 +3006,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC08E: {
-		IANAName:   "TLS_PSK_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_PSK_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_PSK_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexPSK,
@@ -3016,8 +3016,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC08F: {
-		IANAName:   "TLS_PSK_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_PSK_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_PSK_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexPSK,
@@ -3026,8 +3026,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC090: {
-		IANAName:   "TLS_DHE_PSK_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_DHE_PSK_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_DHE_PSK_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -3036,8 +3036,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC091: {
-		IANAName:   "TLS_DHE_PSK_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_DHE_PSK_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_DHE_PSK_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -3046,8 +3046,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC092: {
-		IANAName:   "TLS_RSA_PSK_WITH_Camellia_128_GCM_SHA256",
-		GNUTLSName: "TLS_RSA_PSK_Camellia_128_GCM_SHA256",
+		IANAName:   "TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256",
+		GNUTLSName: "TLS_RSA_PSK_CAMELLIA_128_GCM_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -3056,8 +3056,8 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC093: {
-		IANAName:   "TLS_RSA_PSK_WITH_Camellia_256_GCM_SHA384",
-		GNUTLSName: "TLS_RSA_PSK_Camellia_256_GCM_SHA384",
+		IANAName:   "TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384",
+		GNUTLSName: "TLS_RSA_PSK_CAMELLIA_256_GCM_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -3066,9 +3066,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC094: {
-		IANAName:    "TLS_PSK_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "PSK-Camellia128-SHA256",
-		GNUTLSName:  "TLS_PSK_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "PSK-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_PSK_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexPSK,
@@ -3077,9 +3077,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC095: {
-		IANAName:    "TLS_PSK_WITH_Camellia_256_CBC_SHA384",
-		OpenSSLName: "PSK-Camellia256-SHA384",
-		GNUTLSName:  "TLS_PSK_Camellia_256_CBC_SHA384",
+		IANAName:    "TLS_PSK_WITH_CAMELLIA_256_CBC_SHA384",
+		OpenSSLName: "PSK-CAMELLIA256-SHA384",
+		GNUTLSName:  "TLS_PSK_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexPSK,
@@ -3088,9 +3088,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC096: {
-		IANAName:    "TLS_DHE_PSK_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "DHE-PSK-Camellia128-SHA256",
-		GNUTLSName:  "TLS_DHE_PSK_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "DHE-PSK-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_DHE_PSK_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -3099,9 +3099,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC097: {
-		IANAName:    "TLS_DHE_PSK_WITH_Camellia_256_CBC_SHA384",
-		OpenSSLName: "DHE-PSK-Camellia256-SHA384",
-		GNUTLSName:  "TLS_DHE_PSK_Camellia_256_CBC_SHA384",
+		IANAName:    "TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384",
+		OpenSSLName: "DHE-PSK-CAMELLIA256-SHA384",
+		GNUTLSName:  "TLS_DHE_PSK_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexDHE,
@@ -3110,9 +3110,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC098: {
-		IANAName:    "TLS_RSA_PSK_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "RSA-PSK-Camellia128-SHA256",
-		GNUTLSName:  "TLS_RSA_PSK_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "RSA-PSK-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_RSA_PSK_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -3121,9 +3121,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC099: {
-		IANAName:    "TLS_RSA_PSK_WITH_Camellia_256_CBC_SHA384",
-		OpenSSLName: "RSA-PSK-Camellia256-SHA384",
-		GNUTLSName:  "TLS_RSA_PSK_Camellia_256_CBC_SHA384",
+		IANAName:    "TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384",
+		OpenSSLName: "RSA-PSK-CAMELLIA256-SHA384",
+		GNUTLSName:  "TLS_RSA_PSK_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexRSA,
@@ -3132,9 +3132,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA384,
 	},
 	0xC09A: {
-		IANAName:    "TLS_ECDHE_PSK_WITH_Camellia_128_CBC_SHA256",
-		OpenSSLName: "ECDHE-PSK-Camellia128-SHA256",
-		GNUTLSName:  "TLS_ECDHE_PSK_Camellia_128_CBC_SHA256",
+		IANAName:    "TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256",
+		OpenSSLName: "ECDHE-PSK-CAMELLIA128-SHA256",
+		GNUTLSName:  "TLS_ECDHE_PSK_CAMELLIA_128_CBC_SHA256",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDHE,
@@ -3143,9 +3143,9 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	0xC09B: {
-		IANAName:    "TLS_ECDHE_PSK_WITH_Camellia_256_CBC_SHA384",
-		OpenSSLName: "ECDHE-PSK-Camellia256-SHA384",
-		GNUTLSName:  "TLS_ECDHE_PSK_Camellia_256_CBC_SHA384",
+		IANAName:    "TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384",
+		OpenSSLName: "ECDHE-PSK-CAMELLIA256-SHA384",
+		GNUTLSName:  "TLS_ECDHE_PSK_CAMELLIA_256_CBC_SHA384",
 
 		strength:       StrengthWeak,
 		keyExchange:    KexECDHE,

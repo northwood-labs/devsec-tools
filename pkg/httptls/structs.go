@@ -16,9 +16,19 @@ package httptls
 
 import (
 	"fmt"
+
+	"github.com/charmbracelet/log"
 )
 
 type (
+	Options struct {
+		// Logger is an instance of the charmbracelet/log logger.
+		Logger *log.Logger
+
+		// TimeoutSeconds is the number of seconds to wait before timing out.
+		TimeoutSeconds int
+	}
+
 	HTTPResult struct {
 		// Hostname represents the hostname of the connection.
 		Hostname string `json:"hostname"`
@@ -89,4 +99,23 @@ func (c *CipherData) Populate() {
 			URLs:        problem.URLs,
 		})
 	}
+}
+
+func handleOpts(opts []Options) (*log.Logger, int) {
+	logger := &log.Logger{}
+	timeout := 3
+
+	for _, opt := range opts {
+		if opt.Logger != nil {
+			logger = opt.Logger
+		}
+
+		if opt.TimeoutSeconds > 0 {
+			timeout = opt.TimeoutSeconds
+		}
+
+		break
+	}
+
+	return logger, timeout
 }
