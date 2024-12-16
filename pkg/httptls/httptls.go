@@ -117,7 +117,7 @@ func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error
 		logger.Info("Checking", "domain", domain, "http", "1.1")
 
 		client := &http.Client{
-			Timeout: time.Duration(timeoutSecs)*time.Second,
+			Timeout: time.Duration(timeoutSecs) * time.Second,
 		}
 
 		req, err := http.NewRequest("GET", domain, nil)
@@ -152,7 +152,7 @@ func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error
 		logger.Info("Checking", "domain", domain, "http", "2")
 
 		client := &http.Client{
-			Timeout: time.Duration(timeoutSecs)*time.Second,
+			Timeout:   time.Duration(timeoutSecs) * time.Second,
 			Transport: &http2.Transport{},
 		}
 
@@ -194,7 +194,7 @@ func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error
 		defer tr.Close()
 
 		client := &http.Client{
-			Timeout: time.Duration(timeoutSecs)*time.Second,
+			Timeout:   time.Duration(timeoutSecs) * time.Second,
 			Transport: tr,
 		}
 

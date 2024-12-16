@@ -6,6 +6,7 @@ toolchain go1.23.3
 
 require (
 	github.com/aws/aws-lambda-go v1.47.0
+	github.com/charmbracelet/huh/spinner v0.0.0-20241211235322-ceae3bbcfbb4
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/charmbracelet/log v0.4.0
 	github.com/goware/urlx v0.3.2

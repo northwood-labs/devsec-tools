@@ -50,7 +50,7 @@ var tlsCmd = &cobra.Command{
 		}
 
 		result, err := httptls.GetSupportedTLSVersions(host, port, httptls.Options{
-			Logger: logger,
+			Logger:         logger,
 			TimeoutSeconds: fTimeout,
 		})
 		if err != nil {

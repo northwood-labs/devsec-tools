@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/huh/spinner"
 	"github.com/spf13/cobra"
 
 	clihelpers "github.com/northwood-labs/cli-helpers"
@@ -32,6 +33,9 @@ var httpCmd = &cobra.Command{
 	Short: "Check supported HTTP versions.",
 	Long: clihelpers.LongHelpText(`
 	Check supported HTTP versions for a website.
+
+	If a hostname does not support ANY version of HTTP, please check the
+	hostname and try again. Network timeouts are treated as "NO".
 	`),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -40,16 +44,41 @@ var httpCmd = &cobra.Command{
 
 		return nil
 	},
-  	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 		domain := args[0]
 
-		result, err := httptls.GetSupportedHTTPVersions(domain, httptls.Options{
-			Logger: logger,
-			TimeoutSeconds: fTimeout,
-		})
+		var result httptls.HTTPResult
+
+		err := spinner.New().
+			Title(fmt.Sprintf("Testing HTTP versions for %s...", domain)).
+			Type(spinner.Dots).
+			Accessible(fQuiet && !fJSON).
+			Action(func(result *httptls.HTTPResult) func() {
+				return func() {
+					res, e := httptls.GetSupportedHTTPVersions(domain, httptls.Options{
+						Logger:         logger,
+						TimeoutSeconds: fTimeout,
+					})
+					if e != nil {
+						logger.Error(e)
+						os.Exit(1)
+					}
+
+					*result = res
+				}
+			}(&result)).
+			Run()
 		if err != nil {
-			logger.Error(err)
-			os.Exit(1)
+			logger.Fatal(err)
+		}
+
+		// No results AND ALSO not in quiet mode
+		if !result.HTTP11 && !result.HTTP2 && !result.HTTP3 && !fQuiet {
+			logger.Errorf(
+				"The hostname `%s` does not support ANY versions of HTTP. It is probable that "+
+					"the hostname is incorrect.",
+				domain,
+			)
 		}
 
 		if fJSON {
@@ -62,9 +91,6 @@ var httpCmd = &cobra.Command{
 			fmt.Fprintln(os.Stdout, string(out))
 			os.Exit(0)
 		}
-
-		// pp := debug.GetSpew()
-		// pp.Dump(result)
 
 		t := NewTable("HTTP Version", "Supported")
 		t.Row("1.1", displayBool(result.HTTP11))

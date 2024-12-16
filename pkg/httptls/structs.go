@@ -20,6 +20,8 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+const LinkCSInfo = "https://ciphersuite.info/cs/%s"
+
 type (
 	Options struct {
 		// Logger is an instance of the charmbracelet/log logger.
@@ -67,38 +69,6 @@ func (c *CipherData) Populate() {
 	c.Authentication = AuthenticationList[c.authentication]
 	c.EncryptionAlgo = EncryptionAlgoList[c.encryptionAlgo]
 	c.Hash = HashList[c.hash]
-
-	if problem, ok := ProblemList["kex"][c.keyExchange]; ok {
-		c.Problems = append(c.Problems, ProblemData{
-			Class:       "kex",
-			Description: problem.Description,
-			URLs:        problem.URLs,
-		})
-	}
-
-	if problem, ok := ProblemList["authsig"][c.authentication]; ok {
-		c.Problems = append(c.Problems, ProblemData{
-			Class:       "authsig",
-			Description: problem.Description,
-			URLs:        problem.URLs,
-		})
-	}
-
-	if problem, ok := ProblemList["encryption"][c.encryptionAlgo]; ok {
-		c.Problems = append(c.Problems, ProblemData{
-			Class:       "encryption",
-			Description: problem.Description,
-			URLs:        problem.URLs,
-		})
-	}
-
-	if problem, ok := ProblemList["hash"][c.hash]; ok {
-		c.Problems = append(c.Problems, ProblemData{
-			Class:       "hash",
-			Description: problem.Description,
-			URLs:        problem.URLs,
-		})
-	}
 }
 
 func handleOpts(opts []Options) (*log.Logger, int) {

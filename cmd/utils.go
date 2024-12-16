@@ -64,10 +64,10 @@ func GetLogger(fVerbose int, fJSON bool) *log.Logger {
 
 	// Logger
 	logger := log.NewWithOptions(os.Stderr, log.Options{
-		Level: log.FatalLevel,
-		ReportCaller: false,
+		Level:           log.ErrorLevel,
+		ReportCaller:    false,
 		ReportTimestamp: true,
-		TimeFormat: time.RFC3339Nano,
+		TimeFormat:      time.RFC3339Nano,
 	})
 
 	logger.SetStyles(styles)

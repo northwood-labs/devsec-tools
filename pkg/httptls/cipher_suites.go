@@ -47,10 +47,6 @@ type CipherData struct {
 	// Hash is a string representation of the hashing function.
 	Hash string `json:"hash"`
 
-	// Problems is a a list of strings which represent problems known with
-	// the cipher suite.
-	Problems []ProblemData `json:"problems"`
-
 	// Private
 	strength       CipherStrength
 	keyExchange    KeyExchange
