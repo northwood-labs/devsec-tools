@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/huh/spinner"
 	clihelpers "github.com/northwood-labs/cli-helpers"
 	"github.com/northwood-labs/devsec-tools/pkg/httptls"
 	"github.com/spf13/cobra"
@@ -49,13 +50,29 @@ var tlsCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		result, err := httptls.GetSupportedTLSVersions(host, port, httptls.Options{
-			Logger:         logger,
-			TimeoutSeconds: fTimeout,
-		})
+		var result httptls.TLSResult
+
+		err = spinner.New().
+			Title(fmt.Sprintf("Testing TLS versions for %s...", domain)).
+			Type(spinner.Dots).
+			Accessible(fQuiet && !fJSON).
+			Action(func(result *httptls.TLSResult) func() {
+				return func() {
+					res, e := httptls.GetSupportedTLSVersions(host, port, httptls.Options{
+						Logger:         logger,
+						TimeoutSeconds: fTimeout,
+					})
+					if e != nil {
+						logger.Error(e)
+						os.Exit(1)
+					}
+
+					*result = res
+				}
+			}(&result)).
+			Run()
 		if err != nil {
-			logger.Error(err)
-			os.Exit(1)
+			logger.Fatal(err)
 		}
 
 		if fJSON {
@@ -68,9 +85,6 @@ var tlsCmd = &cobra.Command{
 			fmt.Fprintln(os.Stdout, string(out))
 			os.Exit(0)
 		}
-
-		// pp := debug.GetSpew()
-		// pp.Dump(result)
 
 		t := NewTable("TLS Version", "Cipher Suites", "Strength")
 

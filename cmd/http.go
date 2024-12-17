@@ -45,11 +45,14 @@ var httpCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		domain := args[0]
+		domain, err := httptls.ParseDomain(args[0])
+		if err != nil {
+			logger.Fatal(err)
+		}
 
 		var result httptls.HTTPResult
 
-		err := spinner.New().
+		err = spinner.New().
 			Title(fmt.Sprintf("Testing HTTP versions for %s...", domain)).
 			Type(spinner.Dots).
 			Accessible(fQuiet && !fJSON).
