@@ -22,6 +22,7 @@ import (
 
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/spf13/cobra"
+	"github.com/valkey-io/valkey-go"
 
 	clihelpers "github.com/northwood-labs/cli-helpers"
 	"github.com/northwood-labs/devsec-tools/pkg/httptls"
@@ -50,13 +51,18 @@ var httpCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
+		vkClient, err := GetCacheClient()
+		if err != nil {
+			logger.Fatal(err)
+		}
+
 		var result httptls.HTTPResult
 
 		err = spinner.New().
 			Title(fmt.Sprintf("Testing HTTP versions for %s...", domain)).
 			Type(spinner.Dots).
 			Accessible(fQuiet && !fJSON).
-			Action(func(result *httptls.HTTPResult) func() {
+			Action(func(result *httptls.HTTPResult, vkClient *valkey.Client) func() {
 				return func() {
 					res, e := httptls.GetSupportedHTTPVersions(domain, httptls.Options{
 						Logger:         logger,
@@ -69,7 +75,7 @@ var httpCmd = &cobra.Command{
 
 					*result = res
 				}
-			}(&result)).
+			}(&result, vkClient)).
 			Run()
 		if err != nil {
 			logger.Fatal(err)

@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/log"
+	"github.com/valkey-io/valkey-go"
 )
 
 const LinkCSInfo = "https://ciphersuite.info/cs/%s"
@@ -29,6 +30,9 @@ type (
 
 		// TimeoutSeconds is the number of seconds to wait before timing out.
 		TimeoutSeconds int
+
+		// ValkeyClient is an instance of the Valkey client.
+		ValkeyClient *valkey.Client
 	}
 
 	HTTPResult struct {
@@ -71,9 +75,11 @@ func (c *CipherData) Populate() {
 	c.Hash = HashList[c.hash]
 }
 
-func handleOpts(opts []Options) (*log.Logger, int) {
+func handleOpts(opts []Options) *Options {
 	logger := &log.Logger{}
 	timeout := 3
+
+	var vkClient *valkey.Client
 
 	for _, opt := range opts {
 		if opt.Logger != nil {
@@ -84,8 +90,16 @@ func handleOpts(opts []Options) (*log.Logger, int) {
 			timeout = opt.TimeoutSeconds
 		}
 
+		if opt.ValkeyClient != nil {
+			vkClient = opt.ValkeyClient
+		}
+
 		break
 	}
 
-	return logger, timeout
+	return &Options{
+		Logger:         logger,
+		TimeoutSeconds: timeout,
+		ValkeyClient:   vkClient,
+	}
 }

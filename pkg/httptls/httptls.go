@@ -70,7 +70,8 @@ func ParseHostPort(domain string) (string, string, error) {
 }
 
 func ResolveEndpointToIPs(domain string, opts ...Options) ([]string, error) {
-	logger, _ := handleOpts(opts)
+	options := handleOpts(opts)
+	logger := options.Logger
 
 	host, _, err := ParseHostPort(domain)
 	if err != nil {
@@ -95,7 +96,9 @@ func ResolveEndpointToIPs(domain string, opts ...Options) ([]string, error) {
 }
 
 func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error) {
-	logger, timeoutSecs := handleOpts(opts)
+	options := handleOpts(opts)
+	logger := options.Logger
+	timeoutSecs := options.TimeoutSeconds
 
 	httpConn := HTTPResult{
 		Hostname: domain,
@@ -247,7 +250,8 @@ func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error
 }
 
 func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, error) {
-	logger, _ := handleOpts(opts)
+	options := handleOpts(opts)
+	logger := options.Logger
 
 	httpConn := TLSResult{
 		Hostname: domain,

@@ -15,15 +15,12 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/charmbracelet/log"
-	"github.com/valkey-io/valkey-go"
 )
 
 func GetLogger(fVerbose int, fJSON bool) *log.Logger {
@@ -119,17 +116,4 @@ func displayBool(b bool) string {
 	}
 
 	return "NO"
-}
-
-func GetCacheClient(servers string) (*valkey.Client, error) {
-	client, err := valkey.NewClient(
-		valkey.ClientOption{
-			InitAddress: strings.Split(servers, ";"),
-		},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create cache client: %w", err)
-	}
-
-	return &client, nil
 }

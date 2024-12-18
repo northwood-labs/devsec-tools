@@ -1,0 +1,6 @@
+#syntax=docker/dockerfile:1
+FROM valkey/valkey@sha256:c5d4f082b76d433a38274ebb38a43cff19829a062928bdcc45611135ef54e608
+# valkey/valkey:8
+
+COPY ./docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
