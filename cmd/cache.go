@@ -25,24 +25,22 @@ import (
 	"github.com/valkey-io/valkey-go/valkeycompat"
 )
 
-func GetCacheClient() (*vk.Client, *cache.Cache[string], error) {
+func GetValkeyCacheClient() (*vk.Client, *cache.Cache[string], error) {
 	servers := os.Getenv("DST_CACHE_HOSTS")
 
-	if servers == "" {
-		return nil, nil, nil
+	if servers != "" {
+		valkeyClient, err := vk.NewClient(vk.ClientOption{
+			InitAddress: strings.Split(servers, ";"),
+		})
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create cache client: %w", err)
+		}
+
+		valkeyStore := vkCache.NewValkey(valkeycompat.NewAdapter(valkeyClient))
+		cacheManager := cache.New[string](valkeyStore)
+
+		return &valkeyClient, cacheManager, nil
 	}
 
-	valkeyClient, err := vk.NewClient(vk.ClientOption{
-		InitAddress: strings.Split(servers, ";"),
-	})
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create cache client: %w", err)
-	}
-
-	defer valkeyClient.Close()
-
-	valkeyStore := vkCache.NewValkey(valkeycompat.NewAdapter(valkeyClient))
-	cacheManager := cache.New[string](valkeyStore)
-
-	return &valkeyClient, cacheManager, nil
+	return nil, nil, fmt.Errorf("DST_CACHE_HOSTS is not set")
 }

@@ -10,11 +10,88 @@ This package provices lower-level Go libraries and a CLI tool for running securi
 devsec-tools --help
 ```
 
-## CLI environment variables
+### Check supported HTTP versions for a domain
 
-* `DST_LOG_JSON` — Setting this value to `true` will enable JSON logging without requiring the CLI flag.
+> [!TIP]
+> If you do not provide a _scheme_, `devsec-tools` will assume `https:`. If you explicitly want to test `http:`, you should specify that in the domain name.
 
-* `DST_LOG_VERBOSE` — Setting this value to `1` will enable `INFO`-level logging. Setting this value to `2` will enable `DEBUG`-level logging, and will reveal caller locations.
+```bash
+devsec-tools http apple.com
+```
+
+```bash
+devsec-tools http http://localhost:8080
+```
+
+### Check supported TLS versions and cipher suites for a domain
+
+```bash
+devsec-tools http google.com
+```
+
+## Environment variables
+
+* `DST_CACHE_HOSTS` — When **running as a Lambda function**, this is one or more endpoints (delimited by `;`) that should be used for [Valkey] caching.
+
+    ```bash
+    # Example: local dev
+    DST_CACHE_HOSTS="localhost:6379"
+
+    # Example: production
+    DST_CACHE_HOSTS="server1.host.com:6379;server2.host.com:6379;server3.host.com:6379"
+    ```
+
+* `DST_LOG_JSON` — Setting this value to `true` will enable JSON logging without requiring the CLI flag. It will also switch to JSON logging when **running as a Lambda function**.
+
+    ```bash
+    DST_LOG_JSON="true"
+    ```
+
+* `DST_LOG_VERBOSE` — Setting this value to `1` will enable `INFO`-level logging. Setting this value to `2` will enable `DEBUG`-level logging, and will reveal caller locations. The default log level is `Error`, which allows both `Error` and `Fatal` messages.
+
+    ```bash
+    # Equivalent to `devsec-tools -vv`
+    DST_LOG_JSON="2"
+    ```
+
+* `PORT` — When **running as a local web server**, this will override the port that the local web server runs on (default: `8080`).
+
+    ```bash
+    PORT=9000 devsec-tools serve
+    ```
+
+## Local web server
+
+For local testing, the CLI exposes a very simple HTTP/1.1 server at <http://localhost:8080>.
+
+```bash
+devsec-tools serve
+```
+
+### Endpoints
+
+When launching the local web server, it will tell you which HTTP methods and endpoints are available. It exposes both `GET` and `POST`, as appropriate.
+
+### GET
+
+For `GET` endpoints, any parameters are passed as URL-encoded query string parameters. Using the `/http` endpoint as an example:
+
+```http
+GET /http?url=https%3A%2F%2Fapple.com HTTP/1.1
+Host: localhost:8080
+```
+
+### POST
+
+For `POST` endpoints, parameters are passed as a JSON-encoded request body. Using the `/http` endpoint as an example:
+
+```http
+POST /http HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json; charset=utf-8
+
+{"url":"https://apple.com"}
+```
 
 ## Stdout, stderr
 
@@ -148,3 +225,5 @@ devsec-tools http https://apple.com -vv
 ### Quiet
 
 Quiet mode will prevent all logging and error messages from being displayed except for those which are `FATAL`. It will also prevent any _progress_ animations from displaying.
+
+[Valkey]: https://valkey.io

@@ -37,51 +37,61 @@ type QueryString struct {
 }
 
 // serveCmd represents the serve command
-var serveCmd = &cobra.Command{
-	Use:   "serve",
-	Short: "Run a very simple local web server for development purposes only.",
-	Long: clihelpers.LongHelpText(`
-	Run a very simple local web server for development purposes only.
+var (
+	fServeDebug bool
 
-	Exposes a simple web server on http://localhost:8080 which matches the web
-	interface provided by https://api.devsec.tools. This is not intended for
-	any usage beyond local development.
-	`),
-	Run: func(cmd *cobra.Command, args []string) {
-		r := gin.Default()
+	serveCmd = &cobra.Command{
+		Use:   "serve",
+		Short: "Run a very simple local web server for development purposes only.",
+		Long: clihelpers.LongHelpText(`
+		Run a very simple local web server for development purposes only.
 
-		r.SetTrustedProxies([]string{
-			"127.0.0.1",
-		})
+		Exposes a simple web server on http://localhost:8080 which matches the web
+		interface provided by https://api.devsec.tools. This is not intended for
+		any usage beyond local development.
+		`),
+		Run: func(cmd *cobra.Command, args []string) {
+			r := gin.Default()
 
-		pprof.Register(r)
+			// r.SetTrustedProxies([]string{
+			// 	"127.0.0.1",
+			// })
 
-		r.Use(cors.New(cors.Config{
-			AllowAllOrigins:  true,
-			AllowMethods:     []string{"GET", "POST"},
-			AllowHeaders:     []string{"Origin"},
-			ExposeHeaders:    []string{"Content-Length"},
-			AllowCredentials: true,
-			MaxAge:           12 * time.Hour,
-		}))
+			if fServeDebug {
+				pprof.Register(r)
+			}
 
-		r.Use(requestid.New(
-			requestid.WithCustomHeaderStrKey("x-request-id"),
-		))
+			r.Use(cors.New(cors.Config{
+				AllowAllOrigins:  true,
+				AllowMethods:     []string{"GET", "POST"},
+				AllowHeaders:     []string{"Origin"},
+				ExposeHeaders:    []string{"Content-Length"},
+				AllowCredentials: true,
+				MaxAge:           12 * time.Hour,
+			}))
 
-		store := persistence.NewInMemoryStore(10 * time.Minute)
+			r.Use(requestid.New(
+				requestid.WithCustomHeaderStrKey("x-request-id"),
+			))
 
-		r.GET("/http", cache.CachePage(store, time.Minute, handleHTTP))
-		r.POST("/http", cache.CachePage(store, time.Minute, handleHTTP))
+			store := persistence.NewInMemoryStore(10 * time.Minute)
 
-		r.GET("/tls", cache.CachePage(store, time.Minute, handleTLS))
-		r.POST("/tls", cache.CachePage(store, time.Minute, handleTLS))
+			r.GET("/http", cache.CachePage(store, time.Minute, handleHTTP))
+			r.POST("/http", cache.CachePage(store, time.Minute, handleHTTP))
 
-		r.Run()
-	},
-}
+			r.GET("/tls", cache.CachePage(store, time.Minute, handleTLS))
+			r.POST("/tls", cache.CachePage(store, time.Minute, handleTLS))
+
+			r.Run()
+		},
+	}
+)
 
 func init() {
+	serveCmd.Flags().BoolVarP(
+		&fServeDebug, "serve-debug", "D", false, "Enable debug/profiling endpoints in the local web server.",
+	)
+
 	rootCmd.AddCommand(serveCmd)
 }
 
