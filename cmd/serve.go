@@ -18,7 +18,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cache"
+	"github.com/gin-contrib/cache/persistence"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 
@@ -44,16 +50,32 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		r := gin.Default()
 
-		r.Use(func(c *gin.Context) {
-			c.Header("Access-Control-Allow-Origin", "*")
-			c.Next()
+		r.SetTrustedProxies([]string{
+			"127.0.0.1",
 		})
 
-		r.GET("/http", handleHTTP)
-		r.POST("/http", handleHTTP)
+		pprof.Register(r)
 
-		r.GET("/tls", handleTLS)
-		r.POST("/tls", handleTLS)
+		r.Use(cors.New(cors.Config{
+			AllowAllOrigins:  true,
+			AllowMethods:     []string{"GET", "POST"},
+			AllowHeaders:     []string{"Origin"},
+			ExposeHeaders:    []string{"Content-Length"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+
+		r.Use(requestid.New(
+			requestid.WithCustomHeaderStrKey("x-request-id"),
+		))
+
+		store := persistence.NewInMemoryStore(10 * time.Minute)
+
+		r.GET("/http", cache.CachePage(store, time.Minute, handleHTTP))
+		r.POST("/http", cache.CachePage(store, time.Minute, handleHTTP))
+
+		r.GET("/tls", cache.CachePage(store, time.Minute, handleTLS))
+		r.POST("/tls", cache.CachePage(store, time.Minute, handleTLS))
 
 		r.Run()
 	},

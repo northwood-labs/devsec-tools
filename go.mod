@@ -9,6 +9,10 @@ require (
 	github.com/charmbracelet/huh/spinner v0.0.0-20241216182847-438e4f741435
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/charmbracelet/log v0.4.0
+	github.com/gin-contrib/cache v1.3.0
+	github.com/gin-contrib/cors v1.7.2
+	github.com/gin-contrib/pprof v1.5.1
+	github.com/gin-contrib/requestid v1.0.3
 	github.com/gin-gonic/gin v1.10.0
 	github.com/goware/urlx v0.3.2
 	github.com/northwood-labs/cli-helpers v0.0.0-20241111201136-8e7d54066157
@@ -16,13 +20,14 @@ require (
 	github.com/quic-go/quic-go v0.48.2
 	github.com/spf13/cobra v1.8.1
 	github.com/valkey-io/valkey-go v1.0.51
-	golang.org/x/exp v0.0.0-20241215155358-4a5509556b9e
-	golang.org/x/net v0.32.0
+	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67
+	golang.org/x/net v0.33.0
 )
 
 require (
 	github.com/PuerkitoBio/purell v1.2.1 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874 // indirect
 	github.com/bytedance/sonic v1.12.6 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
 	github.com/charmbracelet/bubbles v0.20.0 // indirect
@@ -41,7 +46,9 @@ require (
 	github.com/go-playground/validator/v10 v10.23.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/goccy/go-json v0.10.4 // indirect
+	github.com/gomodule/redigo v1.9.2 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
@@ -52,6 +59,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/memcachier/mc/v3 v3.0.3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
@@ -63,6 +71,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
