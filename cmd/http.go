@@ -15,14 +15,18 @@
 package cmd
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/charmbracelet/huh/spinner"
+	"github.com/eko/gocache/lib/v4/cache"
+	"github.com/eko/gocache/lib/v4/store"
 	"github.com/spf13/cobra"
-	"github.com/valkey-io/valkey-go"
 
 	clihelpers "github.com/northwood-labs/cli-helpers"
 	"github.com/northwood-labs/devsec-tools/pkg/httptls"
@@ -51,10 +55,15 @@ var httpCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
-		vkClient, err := GetCacheClient()
+		client, cacheManager, err := GetCacheClient()
 		if err != nil {
 			logger.Fatal(err)
 		}
+
+		defer func(){
+			c := *client
+			c.Close()
+		}()
 
 		var result httptls.HTTPResult
 
@@ -62,20 +71,51 @@ var httpCmd = &cobra.Command{
 			Title(fmt.Sprintf("Testing HTTP versions for %s...", domain)).
 			Type(spinner.Dots).
 			Accessible(fQuiet && !fJSON).
-			Action(func(result *httptls.HTTPResult, vkClient *valkey.Client) func() {
+			Action(func(result *httptls.HTTPResult, domain string, cacheManager *cache.Cache[string]) func() {
 				return func() {
-					res, e := httptls.GetSupportedHTTPVersions(domain, httptls.Options{
-						Logger:         logger,
-						TimeoutSeconds: fTimeout,
-					})
-					if e != nil {
-						logger.Error(e)
+					h := sha256.New()
+					h.Write([]byte(domain))
+					hash := hex.EncodeToString(h.Sum(nil))
+					key := "http-" + hash
+
+					data, err := cacheManager.Get(ctx, key)
+					if err != nil {
+						res, e := httptls.GetSupportedHTTPVersions(domain, httptls.Options{
+							Logger:         logger,
+							TimeoutSeconds: fTimeout,
+						})
+						if e != nil {
+							logger.Error(e)
+							os.Exit(1)
+						}
+
+						b, e := json.Marshal(res)
+						if e != nil {
+							logger.Error(e)
+							os.Exit(1)
+						}
+
+						e = cacheManager.Set(ctx, key, string(b), store.WithExpiration(60*time.Minute))
+						if err != nil {
+							logger.Error(e)
+							os.Exit(1)
+						}
+
+						*result = res
+						return
+					}
+
+					var res httptls.HTTPResult
+
+					err = json.Unmarshal([]byte(data), &res)
+					if err != nil {
+						logger.Error(err)
 						os.Exit(1)
 					}
 
 					*result = res
 				}
-			}(&result, vkClient)).
+			}(&result, domain, cacheManager)).
 			Run()
 		if err != nil {
 			logger.Fatal(err)

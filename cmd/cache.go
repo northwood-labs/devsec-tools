@@ -19,24 +19,30 @@ import (
 	"os"
 	"strings"
 
-	"github.com/valkey-io/valkey-go"
+	"github.com/eko/gocache/lib/v4/cache"
+	vkCache "github.com/northwood-labs/gocache-valkey/v4"
+	vk "github.com/valkey-io/valkey-go"
+	"github.com/valkey-io/valkey-go/valkeycompat"
 )
 
-func GetCacheClient() (*valkey.Client, error) {
+func GetCacheClient() (*vk.Client, *cache.Cache[string], error) {
 	servers := os.Getenv("DST_CACHE_HOSTS")
 
 	if servers == "" {
-		return nil, nil
+		return nil, nil, nil
 	}
 
-	client, err := valkey.NewClient(
-		valkey.ClientOption{
-			InitAddress: strings.Split(servers, ";"),
-		},
-	)
+	valkeyClient, err := vk.NewClient(vk.ClientOption{
+		InitAddress: strings.Split(servers, ";"),
+	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create cache client: %w", err)
+		return nil, nil, fmt.Errorf("failed to create cache client: %w", err)
 	}
 
-	return &client, nil
+	defer valkeyClient.Close()
+
+	valkeyStore := vkCache.NewValkey(valkeycompat.NewAdapter(valkeyClient))
+	cacheManager := cache.New[string](valkeyStore)
+
+	return &valkeyClient, cacheManager, nil
 }

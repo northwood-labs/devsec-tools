@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/charmbracelet/log"
@@ -24,6 +25,7 @@ import (
 )
 
 var (
+	ctx      = context.Background()
 	logger  *log.Logger
 
 	fJSON    bool
