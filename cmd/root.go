@@ -18,6 +18,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 
@@ -25,8 +26,8 @@ import (
 )
 
 var (
-	ctx      = context.Background()
-	logger  *log.Logger
+	ctx    = context.Background()
+	logger *log.Logger
 
 	fJSON    bool
 	fQuiet   bool
@@ -48,6 +49,14 @@ var (
 		`),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			logger = GetLogger(fVerbose, fJSON)
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			// Are we running in a Lambda environment?
+			if os.Getenv("_LAMBDA_SERVER_PORT") != "" {
+				lambda.Start(HandleRequest)
+			} else {
+				_ = cmd.Help()
+			}
 		},
 	}
 )

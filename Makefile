@@ -178,7 +178,24 @@ lint: license pre-commit
 ## build: [build]* Builds and installs the binary locally.
 build: tidy
 	@ $(HEADER) "=====> Building and installing locally..."
-	$(GO) install -a -trimpath -ldflags="-s -w" .
+	CGO_ENABLED=0 $(GO) install -a -trimpath -ldflags="-s -w" -v .
+
+.PHONY: build-lambda
+## build-lambda: [build]* Builds the Lambda function with current ARCH for local development.
+build-lambda: tidy
+	@ $(HEADER) "=====> Building Lambda function..."
+	CGO_ENABLED=0 GOOS=linux $(GO) build -a -trimpath -ldflags="-s -w" -tags lambda.norpc -o localdev/var-runtime/bootstrap .
+
+.PHONY: build-lambda-prod
+## build-lambda-prod: [build]* Builds the Lambda function for deployment.
+build-lambda-prod: tidy
+	@ $(HEADER) "=====> Building Lambda function..."
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -a -trimpath -ldflags="-s -w" -tags lambda.norpc -o bootstrap -v .
+
+	@ $(HEADER) "=====> Zipping the Lambda function..."
+	@ zip bootstrap.zip bootstrap
+	@ output="$(shell realpath bootstrap.zip 2>&1)" && $(WHITE) "$$output"
+	@ rm -f bootstrap
 
 # https://github.com/golang/go/wiki/TableDrivenTests
 # https://go.dev/doc/tutorial/fuzz

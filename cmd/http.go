@@ -79,7 +79,7 @@ var httpCmd = &cobra.Command{
 		if !result.HTTP11 && !result.HTTP2 && !result.HTTP3 && !fQuiet {
 			logger.Errorf(
 				"The hostname `%s` does not support ANY versions of HTTP. It is probable that "+
-					"the hostname is incorrect.",
+					"either the hostname is incorrect, or the website is down.",
 				domain,
 			)
 		}

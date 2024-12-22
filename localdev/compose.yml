@@ -1,5 +1,36 @@
 ---
 services:
+  lambda:
+    container_name: localdev-lambda
+    build:
+      context: .
+      dockerfile: Dockerfile-lambda
+      secrets:
+        - github_token
+
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    restart: always
+    privileged: false
+    pid: host
+    sysctls:
+      net.core.somaxconn: 1024
+    environment:
+      # https://github.com/aws/aws-lambda-runtime-interface-emulator
+      _LAMBDA_SERVER_PORT: 8080
+      AWS_LAMBDA_FUNCTION_TIMEOUT: 30 # Web timeout
+      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128
+      AWS_LAMBDA_FUNCTION_NAME: devsec-tools
+      DST_LOG_VERBOSE: 2
+      LOG_LEVEL: DEBUG
+    volumes:
+      - ./var-runtime:/var/runtime:ro
+      # - ./var-tasks:/var/tasks:ro
+    ports:
+      - 9000:8080
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
   db:
     container_name: localdev-valkey
     build:
@@ -13,7 +44,6 @@ services:
     pid: host
     sysctls:
       net.core.somaxconn: 1024
-
     volumes:
       - vkdata:/data
     ports:
@@ -22,6 +52,11 @@ services:
 volumes:
   vkdata:
     driver: local
+
+secrets:
+  github_token:
+    name: GITHUB_TOKEN
+    environment: GITHUB_TOKEN
 
 networks:
   dst-network:

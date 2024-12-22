@@ -42,5 +42,6 @@ tests/terratest-*
 tfplan
 # goplicate-end:terraform
 
+bootstrap.zip
 dist/
 public/

@@ -17,6 +17,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/goware/urlx v0.3.2
 	github.com/northwood-labs/cli-helpers v0.0.0-20241111201136-8e7d54066157
+	github.com/northwood-labs/debug v0.0.0-20240514204655-f938e2fa11e9
 	github.com/northwood-labs/gocache-valkey/v4 v4.0.0-20241219051326-219069e441d4
 	github.com/northwood-labs/golang-utils/debug v0.0.0-20240514195441-31b98331cf9f
 	github.com/quic-go/quic-go v0.48.2

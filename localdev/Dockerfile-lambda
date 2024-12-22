@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+FROM golang:1-alpine AS go-installer
+
+RUN go install github.com/northwood-labs/download-asset@latest
+RUN --mount=type=secret,id=github_token \
+    GITHUB_TOKEN="$(cat /run/secrets/github_token)" \
+    download-asset get \
+        --owner-repo aws/aws-lambda-runtime-interface-emulator \
+        --tag latest \
+        --intel64 x86_64 \
+        --arm64 arm64 \
+        --pattern 'aws-lambda-rie-{{.Arch}}' \
+        --write-to-bin aws-lambda-rie \
+    ;
+
+RUN mv /usr/local/bin/aws-lambda-rie* /usr/local/bin/aws-lambda-rie
+
+#-------------------------------------------------------------------------------
+
+# syntax=docker/dockerfile:1
+FROM ghcr.io/northwood-labs/lambda-provided-al2023@sha256:2b947c7c1e18392ce6b1b311ba1715a9b043a6fb5bb6572e914764e946321382
+# ghcr.io/northwood-labs/lambda-provided-al2023:latest
+# docker images --digests ghcr.io/northwood-labs/lambda-provided-al2023 --format '{{ .Digest }}'
+
+COPY --from=go-installer /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
+COPY lambda-entrypoint.sh /entrypoint.sh
+
+RUN chmod 0755 /usr/local/bin/aws-lambda-rie /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
