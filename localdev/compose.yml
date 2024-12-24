@@ -8,6 +8,9 @@ services:
       secrets:
         - github_token
 
+    depends_on:
+      - cache
+
     # set shared memory limit when using docker-compose
     shm_size: 128mb
     restart: always
@@ -21,17 +24,19 @@ services:
       AWS_LAMBDA_FUNCTION_TIMEOUT: 30 # Web timeout
       AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128
       AWS_LAMBDA_FUNCTION_NAME: devsec-tools
-      DST_LOG_VERBOSE: 2
       LOG_LEVEL: DEBUG
+
+      # Configure devsec-tools
+      DST_CACHE_HOSTS: "cache:6379"
+      DST_LOG_VERBOSE: 2
     volumes:
       - ./var-runtime:/var/runtime:ro
-      # - ./var-tasks:/var/tasks:ro
     ports:
       - 9000:8080
     extra_hosts:
       - host.docker.internal:host-gateway
 
-  db:
+  cache:
     container_name: localdev-valkey
     build:
       context: .

@@ -15,158 +15,202 @@
 package cmd
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 
-	"github.com/gin-contrib/cache"
-	"github.com/gin-contrib/cache/persistence"
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/pprof"
-	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 
 	clihelpers "github.com/northwood-labs/cli-helpers"
-	"github.com/northwood-labs/devsec-tools/pkg/httptls"
 )
 
-type QueryString struct {
-	URL string `form:"url"`
-}
+type (
+	// QueryString represents the query string parameters that DevSec Tools
+	// cares about.
+	QueryString struct {
+		URL string `json:"url" form:"url"`
+	}
 
-// serveCmd represents the serve command
-var (
-	fServeDebug bool
+	// LambdaGetRequest represents the shape of the GET request that the local
+	// Lambda environment understands.
+	LambdaGetRequest struct {
+		HTTPMethod  string            `json:"httpMethod"`
+		Path        string            `json:"path"`
+		QueryString map[string]string `json:"queryStringParameters"`
+	}
 
-	serveCmd = &cobra.Command{
-		Use:   "serve",
-		Short: "Run a very simple local web server for development purposes only.",
-		Long: clihelpers.LongHelpText(`
-		Run a very simple local web server for development purposes only.
+	// LambdaPostRequest represents the shape of the POST request that the local
+	// Lambda environment understands.
+	LambdaPostRequest struct {
+		HTTPMethod string `json:"httpMethod"`
+		Path       string `json:"path"`
+		Body       string `json:"body"`
+	}
 
-		Exposes a simple web server on http://localhost:8080 which matches the web
-		interface provided by https://api.devsec.tools. This is not intended for
-		any usage beyond local development.
-		`),
-		Run: func(cmd *cobra.Command, args []string) {
-			r := gin.Default()
-
-			// r.SetTrustedProxies([]string{
-			// 	"127.0.0.1",
-			// })
-
-			if fServeDebug {
-				pprof.Register(r)
-			}
-
-			r.Use(cors.New(cors.Config{
-				AllowAllOrigins:  true,
-				AllowMethods:     []string{"GET", "POST"},
-				AllowHeaders:     []string{"Origin"},
-				ExposeHeaders:    []string{"Content-Length"},
-				AllowCredentials: true,
-				MaxAge:           12 * time.Hour,
-			}))
-
-			r.Use(requestid.New(
-				requestid.WithCustomHeaderStrKey("x-request-id"),
-			))
-
-			store := persistence.NewInMemoryStore(10 * time.Minute)
-
-			r.GET("/http", cache.CachePage(store, time.Minute, handleHTTP))
-			r.POST("/http", cache.CachePage(store, time.Minute, handleHTTP))
-
-			r.GET("/tls", cache.CachePage(store, time.Minute, handleTLS))
-			r.POST("/tls", cache.CachePage(store, time.Minute, handleTLS))
-
-			r.Run()
-		},
+	// LambdaResponse represents the shape of the response from the local Lambda
+	// environment.
+	LambdaResponse struct {
+		StatusCode int    `json:"statusCode,omitempty"`
+		Body       string `json:"body,omitempty"`
 	}
 )
 
-func init() {
-	serveCmd.Flags().BoolVarP(
-		&fServeDebug, "serve-debug", "D", false, "Enable debug/profiling endpoints in the local web server.",
-	)
+// serveCmd represents the serve command
+var serveCmd = &cobra.Command{
+	Use:   "serve",
+	Short: "Run a very simple local web server for development purposes only.",
+	Long: clihelpers.LongHelpText(`
+	Run a very simple local web server for development purposes only.
 
+	Exposes a simple web server on http://localhost:8080 which matches the web
+	interface provided by https://api.devsec.tools. This is not intended for
+	any usage beyond local development.
+	`),
+	Run: func(cmd *cobra.Command, args []string) {
+		r := gin.Default()
+
+		// r.SetTrustedProxies([]string{
+		// 	"127.0.0.1",
+		// })
+
+		r.Use(cors.New(cors.Config{
+			AllowAllOrigins:  true,
+			AllowMethods:     []string{"GET", "POST"},
+			AllowHeaders:     []string{"Origin"},
+			ExposeHeaders:    []string{"Content-Length"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+
+		r.GET("/http", handleRequest)
+		r.POST("/http", handleRequest)
+
+		r.GET("/tls", handleRequest)
+		r.POST("/tls", handleRequest)
+
+		r.Run()
+	},
+}
+
+func init() {
 	rootCmd.AddCommand(serveCmd)
 }
 
-func handleError(err error, c *gin.Context) {
-	logger.Error(err)
-	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-		"error": err.Error(),
-	})
-}
-
-func handleHTTP(c *gin.Context) {
+func handleRequest(c *gin.Context) {
 	var qs QueryString
 
-	if c.ShouldBind(&qs) == nil {
-		domain, err := httptls.ParseDomain(qs.URL)
-		if err != nil {
-			handleError(err, c)
+	if c.Bind(&qs) == nil {
+		var (
+			result *LambdaResponse
+			err    error
+		)
 
-			return
+		// Wrap the received request in a LambdaRequest so that we can forward
+		// it to the Lambda environment.
+		switch c.Request.Method {
+		case "GET":
+			requestBody := LambdaGetRequest{
+				HTTPMethod: c.Request.Method,
+				Path:       c.Request.URL.Path,
+				QueryString: map[string]string{
+					"url": qs.URL,
+				},
+			}
+
+			b, _ := json.Marshal(requestBody)
+
+			result, err = Send(string(b))
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+			}
+
+			var body map[string]interface{}
+
+			err = json.Unmarshal([]byte(result.Body), &body)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+			}
+
+			c.JSON(result.StatusCode, body)
+
+		case "POST":
+			b, _ := json.Marshal(&qs)
+
+			requestBody := LambdaPostRequest{
+				HTTPMethod: c.Request.Method,
+				Path:       c.Request.URL.Path,
+				Body:       string(b),
+			}
+
+			b, _ = json.Marshal(requestBody)
+
+			result, err = Send(string(b))
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+			}
+
+			var body map[string]interface{}
+
+			err = json.Unmarshal([]byte(result.Body), &body)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+			}
+
+			c.JSON(result.StatusCode, body)
+
+		default:
+			c.AbortWithStatusJSON(http.StatusMethodNotAllowed, gin.H{
+				"error": "Only GET and POST methods are supported.",
+			})
 		}
-
-		result, err := httptls.GetSupportedHTTPVersions(domain, httptls.Options{
-			Logger:         logger,
-			TimeoutSeconds: fTimeout,
-		})
-		if err != nil {
-			handleError(err, c)
-
-			return
-		}
-
-		if !result.HTTP11 && !result.HTTP2 && !result.HTTP3 {
-			err := errors.New(fmt.Sprintf(
-				"The hostname `%s` does not support ANY versions of HTTP. It is probable that "+
-					"the hostname is incorrect.",
-				domain,
-			))
-
-			handleError(err, c)
-
-			return
-		}
-
-		c.JSON(http.StatusOK, result)
 	}
 }
 
-func handleTLS(c *gin.Context) {
-	var qs QueryString
+func Send(body string) (*LambdaResponse, error) {
+	var result LambdaResponse
 
-	if c.ShouldBind(&qs) == nil {
-		domain, err := httptls.ParseDomain(qs.URL)
-		if err != nil {
-			handleError(err, c)
-
-			return
-		}
-
-		host, port, err := httptls.ParseHostPort(domain)
-		if err != nil {
-			handleError(err, c)
-
-			return
-		}
-
-		result, err := httptls.GetSupportedTLSVersions(host, port, httptls.Options{
-			Logger:         logger,
-			TimeoutSeconds: fTimeout,
-		})
-		if err != nil {
-			handleError(err, c)
-
-			return
-		}
-
-		c.JSON(http.StatusOK, result)
+	client := &http.Client{
+		Timeout: time.Duration(90) * time.Second,
 	}
+
+	req, err := http.NewRequest(
+		"GET",
+		"http://localhost:9000/2015-03-31/functions/function/invocations",
+		strings.NewReader(body),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed to send: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	err = json.Unmarshal(b, &result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
+	}
+
+	return &result, nil
 }

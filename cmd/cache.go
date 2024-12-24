@@ -28,19 +28,15 @@ import (
 func GetValkeyCacheClient() (*vk.Client, *cache.Cache[string], error) {
 	servers := os.Getenv("DST_CACHE_HOSTS")
 
-	if servers != "" {
-		valkeyClient, err := vk.NewClient(vk.ClientOption{
-			InitAddress: strings.Split(servers, ";"),
-		})
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to create cache client: %w", err)
-		}
-
-		valkeyStore := vkCache.NewValkey(valkeycompat.NewAdapter(valkeyClient))
-		cacheManager := cache.New[string](valkeyStore)
-
-		return &valkeyClient, cacheManager, nil
+	valkeyClient, err := vk.NewClient(vk.ClientOption{
+		InitAddress: strings.Split(servers, ";"),
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create cache client: %w", err)
 	}
 
-	return nil, nil, fmt.Errorf("DST_CACHE_HOSTS is not set")
+	valkeyStore := vkCache.NewValkey(valkeycompat.NewAdapter(valkeyClient))
+	cacheManager := cache.New[string](valkeyStore)
+
+	return &valkeyClient, cacheManager, nil
 }

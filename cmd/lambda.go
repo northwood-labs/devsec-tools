@@ -16,14 +16,18 @@ package cmd
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/charmbracelet/log"
-	"github.com/northwood-labs/debug"
+	"github.com/eko/gocache/lib/v4/store"
+
 	"github.com/northwood-labs/devsec-tools/pkg/httptls"
 )
 
@@ -76,8 +80,9 @@ func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 		}, nil
 	}
 
-	pp := debug.GetSpew()
-	pp.Dump(input)
+	// Log the input
+	inputJSON, _ := json.Marshal(input)
+	logger.Debug("Input:", "input", string(inputJSON))
 
 	// Handle the correct test
 	switch event.Path {
@@ -99,10 +104,17 @@ func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 }
 
 func handleLambdaHTTP(input InputRequest) (events.APIGatewayProxyResponse, error) {
+	var (
+		e    error
+		err1 error
+	)
+
 	domain, err := httptls.ParseDomain(input.URL)
 	if err != nil {
 		e := ErrorResponse{Message: "Could not understand given URL."}
 		b, _ := json.Marshal(e)
+
+		logger.Error(err)
 
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -112,13 +124,12 @@ func handleLambdaHTTP(input InputRequest) (events.APIGatewayProxyResponse, error
 
 	var result httptls.HTTPResult
 
-	result, err = httptls.GetSupportedHTTPVersions(domain, httptls.Options{
-		Logger:         logger,
-		TimeoutSeconds: 3,
-	})
+	client, cacheManager, err := GetValkeyCacheClient()
 	if err != nil {
-		e := ErrorResponse{Message: fmt.Sprintf("Error when testing the endpoint: %s", err.Error())}
+		e := ErrorResponse{Message: "Unable to communicate with cache."}
 		b, _ := json.Marshal(e)
+
+		logger.Error(err)
 
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
@@ -126,43 +137,83 @@ func handleLambdaHTTP(input InputRequest) (events.APIGatewayProxyResponse, error
 		}, nil
 	}
 
-	// No results AND ALSO not in quiet mode
-	if !result.HTTP11 && !result.HTTP2 && !result.HTTP3 {
-		e := ErrorResponse{Message: fmt.Sprintf(
-			"The hostname `%s` does not support ANY versions of HTTP. It is probable that "+
-				"either the hostname is incorrect, or the website is down.",
-			domain,
-		)}
-		b, _ := json.Marshal(e)
+	c := *client
+	defer c.Close()
 
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       string(b),
-		}, nil
-	}
+	key := "http-" + hash(domain)
 
-	b, err := json.Marshal(result)
+	data, err := cacheManager.Get(ctx, key)
 	if err != nil {
-		e := ErrorResponse{Message: fmt.Sprintf("Error when preparing results as JSON: %s", err.Error())}
-		b, _ := json.Marshal(e)
+		result, err1 = httptls.GetSupportedHTTPVersions(domain, httptls.Options{
+			Logger:         logger,
+			TimeoutSeconds: 3,
+		})
+		if err1 != nil {
+			e := ErrorResponse{Message: fmt.Sprintf("Error when testing the endpoint: %s", err.Error())}
+			b, _ := json.Marshal(e)
+
+			logger.Error(err1)
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       string(b),
+			}, nil
+		}
+
+		// No results AND ALSO not in quiet mode
+		if !result.HTTP11 && !result.HTTP2 && !result.HTTP3 {
+			e := ErrorResponse{Message: fmt.Sprintf(
+				"The hostname `%s` does not support ANY versions of HTTP. It is probable that "+
+					"either the hostname is incorrect, or the website is down.",
+				domain,
+			)}
+			b, _ := json.Marshal(e)
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       string(b),
+			}, nil
+		}
+
+		b, err1 := json.Marshal(result)
+		if err1 != nil {
+			e := ErrorResponse{Message: fmt.Sprintf("Error when preparing results as JSON: %s", err1.Error())}
+			b, _ := json.Marshal(e)
+
+			logger.Error(err1)
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       string(b),
+			}, nil
+		}
+
+		e = cacheManager.Set(ctx, key, string(b), store.WithExpiration(60*time.Minute)) // @TODO
+		if e != nil {
+			logger.Error(e)
+		}
 
 		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
+			StatusCode: 200,
 			Body:       string(b),
 		}, nil
 	}
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
-		Body:       string(b),
+		Body:       string(data),
 	}, nil
 }
 
 func handleLambdaTLS(input InputRequest) (events.APIGatewayProxyResponse, error) {
+	var err1 error
+
 	domain, err := httptls.ParseDomain(input.URL)
 	if err != nil {
 		e := ErrorResponse{Message: "Could not understand given URL."}
 		b, _ := json.Marshal(e)
+
+		logger.Error(err)
 
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -172,10 +223,28 @@ func handleLambdaTLS(input InputRequest) (events.APIGatewayProxyResponse, error)
 
 	var result httptls.TLSResult
 
+	client, cacheManager, err := GetValkeyCacheClient()
+	if err != nil {
+		e := ErrorResponse{Message: "Unable to communicate with cache."}
+		b, _ := json.Marshal(e)
+
+		logger.Error(err)
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       string(b),
+		}, nil
+	}
+
+	c := *client
+	defer c.Close()
+
 	host, port, err := httptls.ParseHostPort(domain)
 	if err != nil {
 		e := ErrorResponse{Message: "Could not understand given domain/port."}
 		b, _ := json.Marshal(e)
+
+		logger.Error(err)
 
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -183,57 +252,59 @@ func handleLambdaTLS(input InputRequest) (events.APIGatewayProxyResponse, error)
 		}, nil
 	}
 
-	result, err = httptls.GetSupportedTLSVersions(host, port, httptls.Options{
-		Logger:         logger,
-		TimeoutSeconds: 3,
-	})
+	key := "tls-" + hash(host+":"+port)
+
+	data, err := cacheManager.Get(ctx, key)
 	if err != nil {
-		e := ErrorResponse{Message: fmt.Sprintf("Error when testing the endpoint: %s", err.Error())}
-		b, _ := json.Marshal(e)
+		result, err1 = httptls.GetSupportedTLSVersions(host, port, httptls.Options{
+			Logger:         logger,
+			TimeoutSeconds: 10,
+		})
+		if err1 != nil {
+			e := ErrorResponse{Message: fmt.Sprintf("Error when testing the endpoint: %s", err1.Error())}
+			b, _ := json.Marshal(e)
+
+			logger.Error(err1)
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       string(b),
+			}, nil
+		}
+
+		b, err1 := json.Marshal(result)
+		if err1 != nil {
+			e := ErrorResponse{Message: fmt.Sprintf("Error when preparing results as JSON: %s", err1.Error())}
+			b, _ := json.Marshal(e)
+
+			logger.Error(err1)
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       string(b),
+			}, nil
+		}
+
+		e := cacheManager.Set(ctx, key, string(b), store.WithExpiration(60*time.Minute)) // @TODO
+		if e != nil {
+			logger.Error(e)
+		}
 
 		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       string(b),
-		}, nil
-	}
-
-	b, err := json.Marshal(result)
-	if err != nil {
-		e := ErrorResponse{Message: fmt.Sprintf("Error when preparing results as JSON: %s", err.Error())}
-		b, _ := json.Marshal(e)
-
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
+			StatusCode: 200,
 			Body:       string(b),
 		}, nil
 	}
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
-		Body:       string(b),
+		Body:       string(data),
 	}, nil
 }
 
-// client, cacheManager, err := GetValkeyCacheClient()
-// if err != nil {
-// }
+func hash(s string) string {
+	h := sha256.New()
+	h.Write([]byte(s))
 
-// 			h := sha256.New()
-// 			h.Write([]byte(domain))
-// 			hash := hex.EncodeToString(h.Sum(nil))
-// 			key := "http-" + hash
-
-// 			data, err := cacheManager.Get(ctx, key)
-// 			if err != nil {
-
-// 				e = cacheManager.Set(ctx, key, string(b), store.WithExpiration(60*time.Minute))
-// 				if e != nil {
-// 					logger.Error(e)
-// 					os.Exit(1)
-// 				}
-
-// 				return
-// 			}
-
-// c := *client
-// c.Close()
+	return hex.EncodeToString(h.Sum(nil))
+}
