@@ -9,6 +9,12 @@
 
 ## Start backend services
 
+First, login to `ghcr.io`.
+
+```bash
+echo -n "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+```
+
 The local versions of backend services run as containers. From the root of the repository:
 
 ```bash
