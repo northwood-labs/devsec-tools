@@ -14,6 +14,7 @@
 
 package httptls
 
+// TLSVersion is a map of TLS versions to their human-readable names.
 var TLSVersion = map[uint16]string{
 	0x0002: "SSLv2",
 	0x0300: "SSLv3",

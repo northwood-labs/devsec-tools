@@ -33,6 +33,7 @@ const (
 	KexSM2
 )
 
+// KeyExchangeList is a map of key exchange algorithms to their human-readable names.
 var KeyExchangeList = map[KeyExchange]string{
 	KexNone:    "None",
 	KexDH:      "Diffie-Hellman (Non-Ephemeral) (ECDH)",

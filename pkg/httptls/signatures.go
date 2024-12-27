@@ -45,6 +45,7 @@ const (
 	SigSM2     Signature = 0x0109
 )
 
+// AuthenticationList is a map of signature algorithms to their human-readable names.
 var AuthenticationList = map[Signature]string{
 	SigAnonymous: "Anonymous",
 	SigDSA:       "NIST Digital Signature (DSA)",

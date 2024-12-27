@@ -24,6 +24,7 @@ const (
 	StrengthRecommended
 )
 
+// StrengthList is a map of cipher strengths to their human-readable names.
 var StrengthList = map[CipherStrength]string{
 	StrengthInsecure:    "Insecure",
 	StrengthWeak:        "Weak",

@@ -24,6 +24,7 @@ import (
 const LinkCSInfo = "https://ciphersuite.info/cs/%s"
 
 type (
+	// Options is used to pass options to the HTTP and TLS functions.
 	Options struct {
 		// Logger is an instance of the charmbracelet/log logger.
 		Logger *log.Logger
@@ -35,6 +36,7 @@ type (
 		ValkeyClient *valkey.Client
 	}
 
+	// HTTPResult represents the results of an HTTP check.
 	HTTPResult struct {
 		// Hostname represents the hostname of the connection.
 		Hostname string `json:"hostname"`
@@ -49,6 +51,7 @@ type (
 		HTTP3 bool `json:"http3"`
 	}
 
+	// TLSResult represents the results of a TLS check.
 	TLSResult struct {
 		// Hostname represents the hostname of the connection.
 		Hostname string `json:"hostname"`
@@ -57,6 +60,7 @@ type (
 		TLSConnections []TLSConnection `json:"tlsConnections,omitempty"`
 	}
 
+	// TLSConnection represents a single TLS connection, and is part of the TLSResult struct.
 	TLSConnection struct {
 		// Version represents the version of TLS.
 		Version string `json:"version,omitempty"`
@@ -66,6 +70,8 @@ type (
 	}
 )
 
+// Populate populates the CipherData struct with human-readable values, based on
+// integer values that are collected during scanning.
 func (c *CipherData) Populate() {
 	c.URL = fmt.Sprintf(LinkCSInfo, c.IANAName)
 	c.Strength = StrengthList[c.strength]

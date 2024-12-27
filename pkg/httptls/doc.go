@@ -12,25 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+/*
+Package httptls is a library which contains functionality for testing HTTP
+versions, TLS versions, and TLS ciphersuites.
 
-import (
-	"context"
+The library is used by the `http` and `tls` subcommands of the `devsec-tools`
+CLI.
 
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-lambda-go/lambdacontext"
-	"github.com/northwood-labs/golang-utils/debug"
-)
-
-func main() {
-	lambda.Start(HandleRequest)
-}
-
-func HandleRequest(ctx context.Context, event any) error {
-	lctx, _ := lambdacontext.FromContext(ctx)
-
-	pp := debug.GetSpew()
-	pp.Dump(lctx)
-
-	return nil
-}
+This package leverages concurrency to test multiple versions of HTTP and TLS
+simultaneously. The library also provides a `ParseDomain` function to parse a
+domain from a URL-like string.
+*/
+package httptls

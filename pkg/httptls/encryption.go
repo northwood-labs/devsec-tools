@@ -56,6 +56,7 @@ const (
 	EncryptSM4GCM
 )
 
+// EncryptionAlgoList is a map of encryption algorithms to their human-readable names.
 var EncryptionAlgoList = map[EncryptionAlgo]string{
 	Encrypt28147CNT:       "28147-CNT",         // Russia; Россия
 	Encrypt3DESEDECBC:     "3DES-EDE-CBC",      // Ancient

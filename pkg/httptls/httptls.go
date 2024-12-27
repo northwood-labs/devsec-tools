@@ -33,14 +33,27 @@ import (
 )
 
 const (
+	// VersionSSL20 represents the SSL v2 protocol version.
 	VersionSSL20 = 0x0002
+
+	// VersionSSL30 represents the SSL v3 protocol version.
 	VersionSSL30 = 0x0300
+
+	// VersionTLS10 represents the TLS 1.0 protocol version.
 	VersionTLS10 = 0x0301
+
+	// VersionTLS11 represents the TLS 1.1 protocol version.
 	VersionTLS11 = 0x0302
+
+	// VersionTLS12 represents the TLS 1.2 protocol version.
 	VersionTLS12 = 0x0303
+
+	// VersionTLS13 represents the TLS 1.3 protocol version.
 	VersionTLS13 = 0x0304
 )
 
+// ParseDomain parses a URL-like string and returns the domain/hostname with an
+// `https:` scheme.
 func ParseDomain(domain string) (string, error) {
 	u, err := urlx.ParseWithDefaultScheme(domain, "https")
 	if err != nil {
@@ -50,6 +63,12 @@ func ParseDomain(domain string) (string, error) {
 	return u.Scheme + "://" + u.Host, nil
 }
 
+// ParseHostPort parses a domain string and returns the hostname and port. An
+// `https:` scheme will return port 443, and an `http:` scheme will return port
+// 80.
+//
+// If a custom port is specified in the domain string, it will be returned as
+// the port.
 func ParseHostPort(domain string) (string, string, error) {
 	u, err := urlx.ParseWithDefaultScheme(domain, "https")
 	if err != nil {
@@ -69,6 +88,11 @@ func ParseHostPort(domain string) (string, string, error) {
 	return u.Host, u.Port(), nil
 }
 
+// ResolveEndpointToIPs resolves a domain to the IPv4 and IPv6 addresses which
+// are used to serve it.
+//
+// Accepts an optional Options struct to configure the logger and other
+// connectivity settings.
 func ResolveEndpointToIPs(domain string, opts ...Options) ([]string, error) {
 	options := handleOpts(opts)
 	logger := options.Logger
@@ -95,6 +119,11 @@ func ResolveEndpointToIPs(domain string, opts ...Options) ([]string, error) {
 	return addrs, nil
 }
 
+// GetSupportedHTTPVersions checks a domain for supported HTTP versions. HTTP
+// 1.1, 2, and 3 are checked.
+//
+// Goroutines are used to check each version concurrently. The results are then
+// collected and returned.
 func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error) {
 	options := handleOpts(opts)
 	logger := options.Logger
@@ -249,6 +278,11 @@ func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error
 	return httpConn, nil
 }
 
+// GetSupportedTLSVersions checks a domain for supported TLS versions. SSL v2,
+// SSL v3, TLS 1.0, TLS 1.1, TLS 1.2, and TLS 1.3 are checked.
+//
+// Goroutines are used to check each version and ciphersuite concurrently. The
+// results are then collected and returned.
 func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, error) {
 	options := handleOpts(opts)
 	logger := options.Logger

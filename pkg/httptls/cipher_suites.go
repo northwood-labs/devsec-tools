@@ -14,6 +14,7 @@
 
 package httptls
 
+// CipherData represents the data associated with a cipher suite.
 type CipherData struct {
 	// IANAName represents the official name of the cipher suite.
 	IANAName string `json:"ianaName,omitempty"`
@@ -55,8 +56,14 @@ type CipherData struct {
 	hash           Hash
 }
 
-// https://ciphersuite.info/cs/?singlepage=true
-// https://www.iana.org/assignments/tls-parameters/tls-parameters.xml
+// CipherList is a map of all IANA-identified cipher suites to their respective
+// data.
+//
+// https://ciphersuite.info/cs/?singlepage=true provides a list of all cipher
+// suites.
+//
+// https://www.iana.org/assignments/tls-parameters/tls-parameters.xml is the
+// official source for this information.
 var CipherList = map[uint16]CipherData{
 	0x0000: {
 		IANAName: "TLS_NULL_WITH_NULL_NULL",

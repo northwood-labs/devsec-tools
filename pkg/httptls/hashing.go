@@ -36,6 +36,7 @@ const (
 	HashSM3   Hash = 0x0102
 )
 
+// HashList is a map of hashing functions to their human-readable names.
 var HashList = map[Hash]string{
 	HashNone:   "None",
 	HashMD5:    "MD5",

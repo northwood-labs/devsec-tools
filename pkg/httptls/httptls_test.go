@@ -15,6 +15,7 @@
 package httptls
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -265,4 +266,46 @@ func TestParseHostPort(t *testing.T) { // lint:allow_complexity
 			}
 		})
 	}
+}
+
+func ExampleParseDomain() {
+	domain, _ := ParseDomain("example.com")
+	fmt.Println(domain)
+	// Output: https://example.com
+}
+
+func ExampleParseDomain_scheme() {
+	domain, _ := ParseDomain("http://example.com")
+	fmt.Println(domain)
+	// Output: http://example.com
+}
+
+func ExampleParseDomain_port() {
+	domain, _ := ParseDomain("http://example.com:8080")
+	fmt.Println(domain)
+	// Output: http://example.com:8080
+}
+
+func ExampleParseDomain_path() {
+	domain, _ := ParseDomain("example.com/abc/123")
+	fmt.Println(domain)
+	// Output: https://example.com
+}
+
+func ExampleParseHostPort_port() {
+	domain, port, _ := ParseHostPort("example.com:22")
+	fmt.Println(domain, port)
+	// Output: example.com 22
+}
+
+func ExampleParseHostPort_defacto() {
+	domain, port, _ := ParseHostPort("example.com")
+	fmt.Println(domain, port)
+	// Output: example.com 443
+}
+
+func ExampleParseHostPort_http() {
+	domain, port, _ := ParseHostPort("http://example.com")
+	fmt.Println(domain, port)
+	// Output: example.com 80
 }
