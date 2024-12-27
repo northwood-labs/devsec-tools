@@ -79,6 +79,11 @@ func (c *CipherData) Populate() {
 	c.Authentication = AuthenticationList[c.authentication]
 	c.EncryptionAlgo = EncryptionAlgoList[c.encryptionAlgo]
 	c.Hash = HashList[c.hash]
+
+	// Apply PFS settings
+	if c.keyExchange == KexDHE || c.keyExchange == KexECDHE {
+		c.IsPFS = true
+	}
 }
 
 func handleOpts(opts []Options) *Options {

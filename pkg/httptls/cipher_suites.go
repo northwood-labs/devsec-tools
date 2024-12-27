@@ -48,6 +48,13 @@ type CipherData struct {
 	// Hash is a string representation of the hashing function.
 	Hash string `json:"hash"`
 
+	// IsPFS is a boolean indicating whether the cipher suite provides Perfect
+	// Forward Secrecy.
+	IsPFS bool `json:"isPFS"`
+
+	// IsAEAD is a boolean indicating whether the cipher suite provides AEAD.
+	IsAEAD bool `json:"isAEAD"`
+
 	// Private
 	strength       CipherStrength
 	keyExchange    KeyExchange
