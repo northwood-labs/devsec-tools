@@ -96,9 +96,9 @@ var httpCmd = &cobra.Command{
 		}
 
 		t := NewTable("HTTP Version", "Supported")
-		t.Row("1.1", displayBool(result.HTTP11))
-		t.Row("2", displayBool(result.HTTP2))
-		t.Row("3", displayBool(result.HTTP3))
+		t.Row("1.1", displayBool(result.HTTP11, fEmoji))
+		t.Row("2", displayBool(result.HTTP2, fEmoji))
+		t.Row("3", displayBool(result.HTTP3, fEmoji))
 
 		fmt.Println(t.Render())
 	},

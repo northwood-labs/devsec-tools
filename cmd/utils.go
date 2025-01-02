@@ -110,10 +110,26 @@ func NewTable(headers ...string) *table.Table {
 		Headers(headers...)
 }
 
-func displayBool(b bool) string {
-	if b {
-		return "YES"
+func displayBool(b, useEmoji bool) string {
+	yes := "YES"
+	no := "NO"
+
+	if useEmoji {
+		yes = "✅"
+		no = "❌"
 	}
 
-	return "NO"
+	if b {
+		return yes
+	}
+
+	return no
+}
+
+func parseFlagAsBool(env string) bool {
+	if os.Getenv(env) == "true" {
+		return true
+	}
+
+	return false
 }

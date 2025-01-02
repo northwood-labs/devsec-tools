@@ -184,7 +184,7 @@ build: tidy
 ## build-lambda: [build]* Builds the Lambda function with current ARCH for local development.
 build-lambda: tidy
 	@ $(HEADER) "=====> Building Lambda function..."
-	CGO_ENABLED=0 GOOS=linux $(GO) build -a -trimpath -ldflags="-s -w" -tags lambda.norpc -o localdev/var-runtime/bootstrap .
+	CGO_ENABLED=0 GOOS=linux $(GO) build -gcflags="all=-N -l" -tags lambda.norpc -o localdev/var-runtime/bootstrap .
 
 .PHONY: build-lambda-prod
 ## build-lambda-prod: [build]* Builds the Lambda function for deployment.

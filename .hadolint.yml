@@ -1,0 +1,8 @@
+ignored:
+  # "Multiple consecutive `RUN` instructions. Consider consolidation."
+  # We've learned to love the layer cache. Considered and disregarded.
+  - DL3059
+
+trustedRegistries:
+  - docker.io
+  - ghcr.io

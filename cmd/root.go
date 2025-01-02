@@ -31,6 +31,7 @@ var (
 
 	fJSON    bool
 	fQuiet   bool
+	fEmoji   bool
 	fVerbose int
 	fTimeout int
 
@@ -63,7 +64,18 @@ var (
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(
-		&fJSON, "json", "j", false, "Output as JSON.",
+		&fEmoji,
+		"emoji",
+		"E",
+		parseFlagAsBool("DST_OUTPUT_EMOJI"),
+		"(DST_OUTPUT_EMOJI) Use emoji in tabular output for boolean values.",
+	)
+	rootCmd.PersistentFlags().BoolVarP(
+		&fJSON,
+		"json",
+		"j",
+		parseFlagAsBool("DST_OUTPUT_JSON"),
+		"(DST_OUTPUT_JSON) Output as JSON.",
 	)
 	rootCmd.PersistentFlags().BoolVarP(
 		&fQuiet, "quiet", "q", false, "Disable all logging output.",

@@ -414,6 +414,9 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 
 			if len(suites) > 0 {
 				var versionStr string
+
+				versionInt := int(version)
+
 				switch version {
 				case VersionSSL20:
 					versionStr = TLSVersion[VersionSSL20]
@@ -429,6 +432,7 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 					versionStr = TLSVersion[VersionTLS13]
 				}
 				results <- TLSConnection{
+					VersionID:    versionInt,
 					Version:      versionStr,
 					CipherSuites: suites,
 				}

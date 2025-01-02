@@ -49,3 +49,12 @@ var KeyExchangeList = map[KeyExchange]string{
 	KexSRP:     "Secure Remote Password (SRP)",
 	KexSM2:     "ShangMi-2 (SM2)",
 }
+
+// PFSList is a map of key exchange algorithms which fall under the definition
+// of Perfect Forward Secrecy (PFS). Perfect Forward Secrecy (PFS) is a property
+// of secure communication protocols in which compromise of long-term keys does
+// not compromise past session keys.
+var PFSList = map[KeyExchange]bool{
+	KexDHE:   true,
+	KexECDHE: true,
+}

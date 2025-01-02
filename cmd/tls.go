@@ -86,7 +86,7 @@ var tlsCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		t := NewTable("TLS Version", "Cipher Suites", "Strength")
+		t := NewTable("TLS Version", "Cipher Suites", "Strength", "PFS", "AEAD")
 
 		for i := range result.TLSConnections {
 			tlsConnection := result.TLSConnections[i]
@@ -94,17 +94,35 @@ var tlsCmd = &cobra.Command{
 			for j := range tlsConnection.CipherSuites {
 				cipher := tlsConnection.CipherSuites[j]
 
-				if tlsConnection.Version == "TLS v1.3" {
-					cipher.IANAName = "(Standardized 1.3 suites)"
-				}
+				// if tlsConnection.VersionID == httptls.VersionTLS13 {
+				// 	cipher.IANAName = "(Standardized 1.3 suites)"
+				// }
 
 				if j == 0 && i == 0 {
-					t.Row(tlsConnection.Version, cipher.IANAName, cipher.Strength)
+					t.Row(
+						tlsConnection.Version,
+						cipher.IANAName,
+						cipher.Strength,
+						displayBool(cipher.IsPFS, fEmoji),
+						displayBool(cipher.IsAEAD, fEmoji),
+					)
 				} else if j == 0 {
 					t.Row("", "", "")
-					t.Row(tlsConnection.Version, cipher.IANAName, cipher.Strength)
+					t.Row(
+						tlsConnection.Version,
+						cipher.IANAName,
+						cipher.Strength,
+						displayBool(cipher.IsPFS, fEmoji),
+						displayBool(cipher.IsAEAD, fEmoji),
+					)
 				} else {
-					t.Row("", cipher.IANAName, cipher.Strength)
+					t.Row(
+						"",
+						cipher.IANAName,
+						cipher.Strength,
+						displayBool(cipher.IsPFS, fEmoji),
+						displayBool(cipher.IsAEAD, fEmoji),
+					)
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM golang:1-alpine AS go-installer
 
+# Download the AWS Lambda Runtime Interface Emulator
 RUN go install github.com/northwood-labs/download-asset@latest
 RUN --mount=type=secret,id=github_token \
     GITHUB_TOKEN="$(cat /run/secrets/github_token)" \
@@ -15,6 +16,9 @@ RUN --mount=type=secret,id=github_token \
 
 RUN mv /usr/local/bin/aws-lambda-rie* /usr/local/bin/aws-lambda-rie
 
+# Build Delve for debugging
+RUN go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
+
 #-------------------------------------------------------------------------------
 
 # syntax=docker/dockerfile:1
@@ -23,8 +27,11 @@ FROM ghcr.io/northwood-labs/lambda-provided-al2023@sha256:2b947c7c1e18392ce6b1b3
 # docker images --digests ghcr.io/northwood-labs/lambda-provided-al2023 --format '{{ .Digest }}'
 
 COPY --from=go-installer /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
+COPY --from=go-installer /go/bin/dlv /dlv
 COPY lambda-entrypoint.sh /entrypoint.sh
 
 RUN chmod 0755 /usr/local/bin/aws-lambda-rie /entrypoint.sh
+
+EXPOSE 42424
 
 ENTRYPOINT ["/entrypoint.sh"]

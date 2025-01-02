@@ -62,6 +62,9 @@ type (
 
 	// TLSConnection represents a single TLS connection, and is part of the TLSResult struct.
 	TLSConnection struct {
+		// VersionID represents the version of TLS as an integer.
+		VersionID int `json:"versionId,omitempty"`
+
 		// Version represents the version of TLS.
 		Version string `json:"version,omitempty"`
 
@@ -81,8 +84,13 @@ func (c *CipherData) Populate() {
 	c.Hash = HashList[c.hash]
 
 	// Apply PFS settings
-	if c.keyExchange == KexDHE || c.keyExchange == KexECDHE {
+	if _, ok := PFSList[c.keyExchange]; ok {
 		c.IsPFS = true
+	}
+
+	// Apply AEAD settings
+	if _, ok := AEADList[c.encryptionAlgo]; ok {
+		c.IsAEAD = true
 	}
 }
 

@@ -2,34 +2,62 @@
 
 ## Prerequisites
 
-* [Docker Desktop](https://docker.com/desktop)
+* A *nix environment (e.g., Linux, macOS)
+* [Docker Desktop]
+  * [Recommended settings](https://github.com/northwood-labs/macos-for-development/wiki/Docker-Desktop#recommended-settings)
+* [Bash] 5.x shell
+  * [Recommended settings](https://github.com/skyzyx/bash-mac/blob/master/RECOMMENDED_SETTINGS.md)
+* [Go]
+* [Hugo]
+* [Homebrew] (macOS)
+  * `export HOMEBREW_CASK_OPTS="--no-quarantine"`
 * An HTTP client (Recommendations:)
   * [RapidAPI](https://paw.cloud) (formerly _Paw_)
   * [Insomnia](https://insomnia.rest)
 
+### Platform notes
+
+* **macOS** — Set up your environment with [Homebrew] as documented, which will include the [Xcode CLI Tools].
+* **Linux** — Install your platform's standard developer tools. This is different for different families of Linux distributions.
+* **Windows** — Run Linux via [Windows Subsystem for Linux v2][WSL2] (WSL2).
+
+## Exposed ports
+
+When running as a Lambda function for local development, Docker exposes certain ports on your host machine.
+
+| Port    | Description                                                                                                                 |
+|---------|-----------------------------------------------------------------------------------------------------------------------------|
+| `1313`  | Localhost endpoint for the website ([Hugo]). Returns HTML.                                                                  |
+| `6379`  | [Valkey] cache server. Redis 7.2-compatible.                                                                                |
+| `8080`  | Localhost endpoint for the local Lambda service that works the way real Lambda will work. (Compatible with documented API.) |
+| `9000`  | Direct local Lambda function interface (low-level [RIE] interface for protocol debugging).                                  |
+| `42424` | [Delve] debugging protocol for Go.                                                                                          |
+
 ## Start backend services
 
-First, login to `ghcr.io`.
+1. [Generate a new _Personal Access Token_](https://github.com/settings/tokens/new?description=DevSecTools%20localdev&scopes=read:packages&default_expires_at=90), with `read:packages` scope. Save it to your password manager.
 
-```bash
-echo -n "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
-```
+1. Then, login to `ghcr.io`. This token is represented by `GHCR_TOKEN`. Your GitHub username is represented by `GHCR_USER`.
 
-The local versions of backend services run as containers. From the root of the repository:
+    ```bash
+    echo -n "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+    ```
 
-```bash
-make build-lambda
-cd localdev
-docker compose up
-```
+1. The local versions of backend services run as containers. From the root of the repository:
 
-The very first time you run `docker compose up`, the Docker images will need to build. Subsequent runs will leverage the cached completed image.
+    ```bash
+    make build-lambda
+    cd localdev
+    docker compose up
+    ```
 
-When you are done, terminate the containers.
+    The very first time you run `docker compose up`, the Docker images will need to build. Subsequent runs will leverage the cached completed image. Any time the `Dockerfile` or `docker-compose.yml` are changed, it is a good idea to explicitly run `docker compose up --build`.
 
-```bash
-docker compose down
-```
+1. When you are done, terminate the containers.
+
+    ```bash
+    docker compose down
+    ```
 
 Operating Docker Desktop and Docker Compose is outside the scope of these instructions, but you can read the documentation for yourself.
 
@@ -88,11 +116,11 @@ For local testing, the CLI exposes a very simple HTTP/1.1 server at <http://loca
 devsec-tools serve
 ```
 
-Re-read _Lambda server_ (above) to get a better understanding of how this works, but think of it like a reverse-proxy to your Lambda environment.
+Re-read _Lambda server_ (above) to get a better understanding of how this works, but think of it like a reverse-proxy to your Lambda environment. This is the endpoint that you, the developer, make requests to.
 
 ## Endpoints
 
-When launching the local web server, it will tell you which HTTP methods and endpoints are available. It exposes both `GET` and `POST`, as appropriate.
+When launching the local web server, it will tell you which HTTP methods and endpoints are available. It exposes both `GET` and `POST` HTTP methods.
 
 ### GET
 
@@ -115,4 +143,28 @@ Content-Type: application/json; charset=utf-8
 {"url":"https://apple.com"}
 ```
 
+## Start frontend services
+
+All of this exists in the [devsec-ui](https://github.com/northwood-labs/devsec-ui) repository. See that project for further instructions.
+
+## Delve: Go debugger (:42424)
+
+You may find that you need to run your debugger against the compiled Lambda function code running inside of our Docker container. If you followed the instructions above, then it should all be setup and ready to go for you.
+
+* The Lambda function has been compiled with debugging data.
+* The Docker container has been built with a copy of `dlv`.
+* The Docker Compose definition has been configured to expose the port to the host.
+* If you use [VS Code], we have the debugger definitions stored in this repository.
+* There are [Delve integrations for other IDEs](https://github.com/go-delve/delve/blob/master/Documentation/EditorIntegration.md) and tools as well.
+
+[Bash]: https://github.com/skyzyx/bash-mac
+[Delve]: https://github.com/go-delve/delve
+[Docker Desktop]: https://docker.com/desktop
+[Go]: https://go.dev
+[Homebrew]: https://github.com/northwood-labs/macos-for-development/wiki
+[Hugo]: https://gohugo.io
+[RIE]: https://github.com/aws/aws-lambda-runtime-interface-emulator
 [Valkey]: https://valkey.io
+[VS Code]: https://github.com/northwood-labs/macos-for-development/wiki/VS-Code
+[WSL2]: https://learn.microsoft.com/en-us/windows/wsl/install
+[Xcode CLI Tools]: https://github.com/northwood-labs/macos-for-development/wiki/Installing-the-Xcode-CLI-Tools

@@ -95,3 +95,23 @@ var EncryptionAlgoList = map[EncryptionAlgo]string{
 	EncryptSM4CCM:         "SM4-CCM",           // China; 中国
 	EncryptSM4GCM:         "SM4-GCM",           // China; 中国
 }
+
+// AEADList is a map of Authenticated Encryption with Associated Data (AEAD)
+// encryption modes of operation. AEAD offers a much higher degree if security
+// than traditional encryption algorithms. They consist of GCM, CCM, and
+// Poly1305 modes.
+var AEADList = map[EncryptionAlgo]bool{
+	EncryptAES128CCM:      true, // International Standard
+	EncryptAES128CCM8:     true, // International Standard
+	EncryptAES128GCM:      true, // International Standard
+	EncryptAES256CCM:      true, // International Standard
+	EncryptAES256CCM8:     true, // International Standard
+	EncryptAES256GCM:      true, // International Standard
+	EncryptARIA128GCM:     true, // South Korea; 대한민국
+	EncryptARIA256GCM:     true, // South Korea; 대한민국
+	EncryptCamellia128GCM: true, // Japan, 日本
+	EncryptCamellia256GCM: true, // Japan, 日本
+	EncryptChaChaPoly:     true, // International Standard
+	EncryptSM4CCM:         true, // China; 中国
+	EncryptSM4GCM:         true, // China; 中国
+}

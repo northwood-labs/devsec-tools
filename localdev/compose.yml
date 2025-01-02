@@ -1,68 +1,113 @@
 ---
 services:
   lambda:
+    # Name of the container when it is running.
     container_name: localdev-lambda
+
+    # Instructions which tell BuildKit how to build the image, passing secrets
+    # SECURELY to the Dockerfile.
     build:
       context: .
       dockerfile: Dockerfile-lambda
       secrets:
-        - github_token
+        - github_token # See below for definition
 
     depends_on:
       - cache
 
-    # set shared memory limit when using docker-compose
+    # Set shared memory limit when using `docker compose`.
     shm_size: 128mb
+
+    # Stay running. Restart on failure.
     restart: always
+
+    # Basic Linux-y and permission stuff.
     privileged: false
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+      - seccomp:unconfined
     pid: host
     sysctls:
       net.core.somaxconn: 1024
+
+    # Environment variables used by the running Docker environment.
+    # https://github.com/aws/aws-lambda-runtime-interface-emulator
     environment:
-      # https://github.com/aws/aws-lambda-runtime-interface-emulator
       _LAMBDA_SERVER_PORT: 8080
-      AWS_LAMBDA_FUNCTION_TIMEOUT: 30 # Web timeout
-      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128
+      AWS_LAMBDA_FUNCTION_TIMEOUT: 30      # Web timeout
+      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128 # Lambda function memory limit (logged; not enforced)
       AWS_LAMBDA_FUNCTION_NAME: devsec-tools
-      LOG_LEVEL: DEBUG
+      LOG_LEVEL: DEBUG                     # Logging for the Runtime Interface Emulator
 
       # Configure devsec-tools
       DST_CACHE_HOSTS: "cache:6379"
       DST_LOG_VERBOSE: 2
+
+    # Mount a local directory inside the running Docker container.
     volumes:
       - ./var-runtime:/var/runtime:ro
+
+    # Inside, the container runs on port 8080. But we want to expose it on
+    # port 9000 to our host machine.
     ports:
-      - 9000:8080
+      - 9000:8080   # HTTP interface
+      - 42424:42424 # Delve debugger
+
+    # Enable running containers to communicate with services on the host machine.
+    # Only works in Docker Desktop for local development. Don't do this with
+    # containers you don't trust.
     extra_hosts:
       - host.docker.internal:host-gateway
 
   cache:
+    # Name of the container when it is running.
     container_name: localdev-valkey
+
+    # Instructions which tell BuildKit how to build the image, passing secrets
+    # SECURELY to the Dockerfile.
     build:
       context: .
       dockerfile: Dockerfile-valkey
 
-    # set shared memory limit when using docker-compose
+    # Set shared memory limit when using `docker compose`.
     shm_size: 512mb
+
+    # Stay running. Restart on failure.
     restart: always
+
+    # Basic Linux-y and permission stuff.
     privileged: true
     pid: host
     sysctls:
       net.core.somaxconn: 1024
+
+    # Connect persistent volumes to the container.
     volumes:
       - vkdata:/data
+
+    # Inside, the container runs on port 6379. We want to expose the same port
+    # number on the host.
     ports:
       - 6379:6379
 
+# Create a persistent volume for the cache that will reload on restart, without
+# dumping container files directly into your project directory.
 volumes:
   vkdata:
     driver: local
 
+# Define a secret here to read from the builder's environment variables, and
+# pass them SECURELY into Docker BuildKit so that the Dockerfile can access it.
 secrets:
   github_token:
     name: GITHUB_TOKEN
     environment: GITHUB_TOKEN
 
+
+# Configure a bridge network to connect this (and other containers inside this
+# file) together.
 networks:
   dst-network:
     driver: bridge
