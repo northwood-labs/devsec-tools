@@ -1,4 +1,8 @@
 ignored:
+  # Specify version with `dnf install -y <package>-<version>`.
+  # This is for local development only. It's fine.
+  - DL3041
+
   # "Multiple consecutive `RUN` instructions. Consider consolidation."
   # We've learned to love the layer cache. Considered and disregarded.
   - DL3059

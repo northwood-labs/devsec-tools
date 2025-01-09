@@ -2,7 +2,7 @@
 services:
   lambda:
     # Name of the container when it is running.
-    container_name: localdev-lambda
+    # container_name: localdev-lambda
 
     # Instructions which tell BuildKit how to build the image, passing secrets
     # SECURELY to the Dockerfile.
@@ -14,6 +14,10 @@ services:
 
     depends_on:
       - cache
+      - traefik
+
+    # Run multiple copies of this container.
+    scale: 1
 
     # Set shared memory limit when using `docker compose`.
     shm_size: 128mb
@@ -60,6 +64,48 @@ services:
     # containers you don't trust.
     extra_hosts:
       - host.docker.internal:host-gateway
+
+    labels:
+      - "traefik.http.routers.lambda.rule=Host(`lambda.docker.localhost`)"
+
+  traefik:
+    # Name of the container when it is running.
+    container_name: localdev-traefik
+
+    # Instructions which tell BuildKit how to build the image, passing secrets
+    # SECURELY to the Dockerfile.
+    image: traefik:3
+
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:8081"
+
+    # Set shared memory limit when using `docker compose`.
+    shm_size: 512mb
+
+    # Stay running. Restart on failure.
+    restart: always
+
+    # Basic Linux-y and permission stuff.
+    privileged: true
+    pid: host
+    sysctls:
+      net.core.somaxconn: 1024
+
+    # Connect persistent volumes to the container.
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+    # Inside, the container runs on port 808x. We want to expose the same port
+    # number on the host.
+    ports:
+      - 8081:8081
+      - 8082:8080  # Traefik's web UI, enabled by --api
 
   cache:
     # Name of the container when it is running.
