@@ -1,9 +1,10 @@
 {
-    "sarif-viewer.connectToGithubCodeScanning": "off",
-    "codeQL.githubDatabase.update": "never",
-    "yaml.schemas": {
-        "https://goreleaser.com/static/schema-pro.json": ".goreleaser.yml",
-        "file:///Users/rparman/.vscode/extensions/atlassian.atlascode-3.0.10/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
-        "https://json.schemastore.org/github-issue-config.json": "file:///Library/WebServer/Documents/northwood-labs/devsec-tools/.github/ISSUE_TEMPLATE/config.yml"
-    }
+  "sarif-viewer.connectToGithubCodeScanning": "off",
+  "codeQL.githubDatabase.update": "never",
+  "yaml.schemas": {
+    "https://goreleaser.com/static/schema-pro.json": ".goreleaser.yml",
+    "file:///Users/rparman/.vscode/extensions/atlassian.atlascode-3.0.10/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+    "https://json.schemastore.org/github-issue-config.json": "file:///Library/WebServer/Documents/northwood-labs/devsec-tools/.github/ISSUE_TEMPLATE/config.yml",
+    "https://json.schemastore.org/traefik-v3.json": "traefik.yml"
+  }
 }

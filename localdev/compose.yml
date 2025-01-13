@@ -81,11 +81,15 @@ services:
 
     # Enables the web UI and tells Traefik to listen to Docker
     command:
-      - "--log.level=DEBUG"
+      # - "--log.level=DEBUG"
+      - "--api=true"
+      - "--api.dashboard=true"
       - "--api.insecure=true"
       - "--entryPoints.web.address=:80"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker=true"
+      - "--providers.file.filename=/traefik.yml"
+      - "--providers.file.watch=true"
 
     # Set shared memory limit when using `docker compose`.
     shm_size: 512mb
@@ -103,6 +107,7 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yml/:/traefik.yml"
 
     ports:
       - 80:80     # Have Traefik run on port 80; distinguish by /etc/hosts definitions

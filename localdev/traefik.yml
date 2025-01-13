@@ -1,0 +1,12 @@
+---
+http:
+  routers:
+    apiproxy:
+      rule: Host(`api.devsec.local`)
+      service: apiproxy
+
+  services:
+    apiproxy:
+      loadBalancer:
+        servers:
+          - url: http://localhost:8080
