@@ -2,6 +2,7 @@
 services:
   lambda:
     # Name of the container when it is running.
+    # Not compatible with `scale:`.
     # container_name: localdev-lambda
 
     # Instructions which tell BuildKit how to build the image, passing secrets
@@ -17,7 +18,7 @@ services:
       - traefik
 
     # Run multiple copies of this container.
-    scale: 1
+    scale: 8
 
     # Set shared memory limit when using `docker compose`.
     shm_size: 128mb
@@ -40,10 +41,10 @@ services:
     # https://github.com/aws/aws-lambda-runtime-interface-emulator
     environment:
       _LAMBDA_SERVER_PORT: 8080
-      AWS_LAMBDA_FUNCTION_TIMEOUT: 30      # Web timeout
-      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128 # Lambda function memory limit (logged; not enforced)
+      AWS_LAMBDA_FUNCTION_TIMEOUT: 30        # Web timeout
+      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128   # Lambda function memory limit (logged; not enforced)
       AWS_LAMBDA_FUNCTION_NAME: devsec-tools
-      LOG_LEVEL: DEBUG                     # Logging for the Runtime Interface Emulator
+      LOG_LEVEL: DEBUG                       # Logging for the Runtime Interface Emulator
 
       # Configure devsec-tools
       DST_CACHE_HOSTS: "cache:6379"
@@ -56,8 +57,8 @@ services:
     # Inside, the container runs on port 8080. But we want to expose it on
     # port 9000 to our host machine.
     ports:
-      - 9000:8080   # HTTP interface
-      - 42424:42424 # Delve debugger
+      - 9000-9010:8080 # HTTP interface (allow up to scale=11)
+      # - 42424:42424  # Delve debugger
 
     # Enable running containers to communicate with services on the host machine.
     # Only works in Docker Desktop for local development. Don't do this with
@@ -65,8 +66,10 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
+    # Used by Traefik to route traffic.
     labels:
-      - "traefik.http.routers.lambda.rule=Host(`lambda.docker.localhost`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.lambda.rule=Host(`lambda.devsec.local`)"
 
   traefik:
     # Name of the container when it is running.
@@ -76,13 +79,13 @@ services:
     # SECURELY to the Dockerfile.
     image: traefik:3
 
-    # Enables the web UI and tells Traefik to listen to docker
+    # Enables the web UI and tells Traefik to listen to Docker
     command:
-      #- "--log.level=DEBUG"
+      - "--log.level=DEBUG"
       - "--api.insecure=true"
-      - "--providers.docker=true"
+      - "--entryPoints.web.address=:80"
       - "--providers.docker.exposedbydefault=false"
-      - "--entryPoints.web.address=:8081"
+      - "--providers.docker=true"
 
     # Set shared memory limit when using `docker compose`.
     shm_size: 512mb
@@ -101,11 +104,9 @@ services:
       # So that Traefik can listen to the Docker events
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-    # Inside, the container runs on port 808x. We want to expose the same port
-    # number on the host.
     ports:
-      - 8081:8081
-      - 8082:8080  # Traefik's web UI, enabled by --api
+      - 80:80     # Have Traefik run on port 80; distinguish by /etc/hosts definitions
+      - 8082:8080 # Traefik's web UI, enabled by --api
 
   cache:
     # Name of the container when it is running.
@@ -136,7 +137,7 @@ services:
     # Inside, the container runs on port 6379. We want to expose the same port
     # number on the host.
     ports:
-      - 6379:6379
+      - 6379
 
 # Create a persistent volume for the cache that will reload on restart, without
 # dumping container files directly into your project directory.

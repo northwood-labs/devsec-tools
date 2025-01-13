@@ -71,6 +71,7 @@ var serveCmd = &cobra.Command{
 	interface provided by https://api.devsec.tools. This is not intended for
 	any usage beyond local development.
 	`),
+	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		r := gin.Default()
 
@@ -188,7 +189,7 @@ func Send(body string) (*LambdaResponse, error) {
 
 	req, err := http.NewRequest(
 		"GET",
-		"http://localhost:9000/2015-03-31/functions/function/invocations",
+		"http://lambda.devsec.local/2015-03-31/functions/function/invocations",
 		strings.NewReader(body),
 	)
 	if err != nil {
