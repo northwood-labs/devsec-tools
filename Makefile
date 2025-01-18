@@ -186,6 +186,14 @@ build-lambda: tidy
 	@ $(HEADER) "=====> Building Lambda function..."
 	CGO_ENABLED=0 GOOS=linux $(GO) build -gcflags="all=-N -l" -tags lambda.norpc -o localdev/var-runtime/bootstrap .
 
+.PHONY: build-serve
+## build-serve: [build] Builds the API proxy server for use with Docker Compose.
+build-serve:
+	@ $(HEADER) "=====> Building API proxy server..."
+	cd localdev/api-proxy && \
+		$(GO) mod tidy && \
+		CGO_ENABLED=0 GOOS=linux $(GO) build -o serve .
+
 .PHONY: build-lambda-prod
 ## build-lambda-prod: [build]* Builds the Lambda function for deployment.
 build-lambda-prod: tidy

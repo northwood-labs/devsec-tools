@@ -46,3 +46,7 @@ When deployed to an AWS Lambda environment, `devsec-tools` will run in _Lambda-m
 In the future we may add more modes, depending on support from cloud serverless providers.
 
 We are also planning to investigate the feasibility of [WASM](https://webassembly.org)/[WASI](https://wasi.dev) compatibility, as well as compatibility with [TinyGo](https://tinygo.org).
+
+## Documentation
+
+More thorough documentation can be found in the `./docs/` directory of this repository.

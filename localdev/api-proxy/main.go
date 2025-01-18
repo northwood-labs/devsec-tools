@@ -1,4 +1,4 @@
-// Copyright 2024, Northwood Labs
+// Copyright 2024-2025, Northwood Labs
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package main
 
 import (
 	"encoding/json"
@@ -24,9 +24,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/cobra"
-
-	clihelpers "github.com/northwood-labs/cli-helpers"
 )
 
 type (
@@ -60,46 +57,29 @@ type (
 	}
 )
 
-// serveCmd represents the serve command
-var serveCmd = &cobra.Command{
-	Use:   "serve",
-	Short: "Run a very simple local web server for development purposes only.",
-	Long: clihelpers.LongHelpText(`
-	Run a very simple local web server for development purposes only.
+func main() {
+	r := gin.Default()
 
-	Exposes a simple web server on http://localhost:8080 which matches the web
-	interface provided by https://api.devsec.tools. This is not intended for
-	any usage beyond local development.
-	`),
-	Hidden: true,
-	Run: func(cmd *cobra.Command, args []string) {
-		r := gin.Default()
+	// r.SetTrustedProxies([]string{
+	// 	"127.0.0.1",
+	// })
 
-		// r.SetTrustedProxies([]string{
-		// 	"127.0.0.1",
-		// })
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "OPTIONS", "POST"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}))
 
-		r.Use(cors.New(cors.Config{
-			AllowAllOrigins:  true,
-			AllowMethods:     []string{"GET", "POST"},
-			AllowHeaders:     []string{"Origin"},
-			ExposeHeaders:    []string{"Content-Length"},
-			AllowCredentials: true,
-			MaxAge:           12 * time.Hour,
-		}))
+	r.GET("/http", handleRequest)
+	r.POST("/http", handleRequest)
 
-		r.GET("/http", handleRequest)
-		r.POST("/http", handleRequest)
+	r.GET("/tls", handleRequest)
+	r.POST("/tls", handleRequest)
 
-		r.GET("/tls", handleRequest)
-		r.POST("/tls", handleRequest)
-
-		r.Run()
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(serveCmd)
+	r.Run()
 }
 
 func handleRequest(c *gin.Context) {
@@ -189,12 +169,16 @@ func Send(body string) (*LambdaResponse, error) {
 
 	req, err := http.NewRequest(
 		"GET",
-		"http://lambda.devsec.local/2015-03-31/functions/function/invocations",
+		"http://traefik:80/2015-03-31/functions/function/invocations",
 		strings.NewReader(body),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
+
+	// Need to explicitly set the `Host` header because we're calling Traefik
+	// from container to container.
+	req.Host = "lambda.devsec.local"
 
 	resp, err := client.Do(req)
 	if err != nil {

@@ -1,0 +1,44 @@
+---
+# This syntax is what Traefik refers to as "dynamic" configuration. "Static"
+# configuration has a different shape.
+
+http:
+  routers:
+    hugo:
+      rule: "Host(`devsec.local`)"
+      priority: 1001
+      entryPoints:
+        - web
+      service: hugo
+      middlewares: # Executes in order
+        - cors
+        - hugo
+
+  middlewares:
+    hugo:
+      # https://doc.traefik.io/traefik/middlewares/http/redirectregex/
+      redirectRegex:
+        regex: "^http://devsec.local(.*)"
+        replacement: "http://devsec.local:1313${1}"
+        permanent: true
+    cors:
+      # https://doc.traefik.io/traefik/middlewares/http/headers/#cors-headers
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlAllowHeaders:
+          - Origin
+        accessControlAllowOriginList: "*"
+        accessControlExposeHeaders:
+          - Content-Length
+        accessControlMaxAge: 43200
+        addVaryHeader: true
+
+  services:
+    hugo:
+      loadBalancer:
+        servers:
+          - url: http://devsec.local:1313
+        passHostHeader: true

@@ -22,9 +22,9 @@ RUN go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/
 #-------------------------------------------------------------------------------
 
 # syntax=docker/dockerfile:1
-FROM ghcr.io/northwood-labs/lambda-provided-al2023@sha256:2b947c7c1e18392ce6b1b311ba1715a9b043a6fb5bb6572e914764e946321382
-# ghcr.io/northwood-labs/lambda-provided-al2023:latest
-# docker images --digests ghcr.io/northwood-labs/lambda-provided-al2023 --format '{{ .Digest }}'
+FROM public.ecr.aws/lambda/provided@sha256:2accac96d3e2da0efbd64d436c7c938e911842f5a335176b66127595fc0aea4e
+# public.ecr.aws/lambda/provided:al2023
+# docker images --digests public.ecr.aws/lambda/provided:al2023 --format '{{ .Digest }}'
 
 COPY --from=go-installer /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
 COPY --from=go-installer /go/bin/dlv /dlv

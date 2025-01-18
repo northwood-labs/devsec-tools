@@ -79,17 +79,20 @@ services:
     # SECURELY to the Dockerfile.
     image: traefik:3
 
-    # Enables the web UI and tells Traefik to listen to Docker
+    # Enables the web UI and tells Traefik to listen to Docker.
+    # Traefik interprets these CLI options as "static" configuration.
     command:
-      # - "--log.level=DEBUG"
-      - "--api=true"
       - "--api.dashboard=true"
       - "--api.insecure=true"
+      - "--api=true"
       - "--entryPoints.web.address=:80"
+      - "--log.filePath=/logs/traefik.log"
+      - "--log.level=DEBUG"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker=true"
-      - "--providers.file.filename=/traefik.yml"
+      - "--providers.file.filename=/traefik-dynamic.yml"
       - "--providers.file.watch=true"
+      - "--serversTransport.insecureSkipVerify=true"
 
     # Set shared memory limit when using `docker compose`.
     shm_size: 512mb
@@ -107,7 +110,13 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik.yml/:/traefik.yml"
+
+      # Traefik's "dynamic" configuration. Cannot be named `traefik.*`, else it
+      # will be interpreted as "static" configuration.
+      - "./traefik-dynamic.yml:/traefik-dynamic.yml"
+
+      # Store Traefik logs on the host. Log files are gitignore'd.
+      - "./traefik-logs:/logs"
 
     ports:
       - 80:80     # Have Traefik run on port 80; distinguish by /etc/hosts definitions
@@ -142,7 +151,41 @@ services:
     # Inside, the container runs on port 6379. We want to expose the same port
     # number on the host.
     ports:
-      - 6379
+      - 6379:6379
+
+  apiproxy:
+    # Name of the container when it is running.
+    container_name: localdev-apiproxy
+
+    # Instructions which tell BuildKit how to build the image, passing secrets
+    # SECURELY to the Dockerfile.
+    build:
+      context: .
+      dockerfile: Dockerfile-apiproxy
+
+    # Set shared memory limit when using `docker compose`.
+    shm_size: 512mb
+
+    # Stay running. Restart on failure.
+    restart: always
+
+    # Basic Linux-y and permission stuff.
+    privileged: false
+    pid: host
+
+    # Connect persistent volumes to the container.
+    volumes:
+      - ./api-proxy:/api-proxy
+
+    # Inside, the container runs on port 8080. We want to expose the same port
+    # number on the host.
+    ports:
+      - 8080:8080
+
+    # Used by Traefik to route traffic.
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apiproxy.rule=Host(`api.devsec.local`)"
 
 # Create a persistent volume for the cache that will reload on restart, without
 # dumping container files directly into your project directory.
