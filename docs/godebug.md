@@ -10,7 +10,6 @@ So if you are importing these packages into your own project, or performing your
 // go.mod
 godebug (
     default=go1.21
-    tls10server=1
     tls3des=1
     tlsrsakex=1
 )
@@ -19,7 +18,7 @@ godebug (
 Or…
 
 ```bash
-GODEBUG=tls10server=1,tls3des=1,tlsrsakex=1
+GODEBUG=tls3des=1,tlsrsakex=1
 ```
 
 (If you don't know how to apply these, read through “[Go, Backwards Compatibility, and GODEBUG][GODEBUG]” to learn how to apply them to your version of Go.)
