@@ -6,8 +6,14 @@ toolchain go1.23.4
 
 godebug (
 	default=go1.21
-	tls10server=1
+
+	// In Go 1.23 3DES cipher suites were removed from the default list. This will re-enable them.
+	// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=360-365
 	tls3des=1
+
+	// In Go 1.22 RSA key exchange based cipher suites were removed from the
+	// default list. This will re-enable them.
+	// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=348-358
 	tlsrsakex=1
 )
 

@@ -33,12 +33,6 @@ import (
 )
 
 const (
-	// VersionSSL20 represents the SSL v2 protocol version.
-	VersionSSL20 = 0x0002
-
-	// VersionSSL30 represents the SSL v3 protocol version.
-	VersionSSL30 = 0x0300
-
 	// VersionTLS10 represents the TLS 1.0 protocol version.
 	VersionTLS10 = 0x0301
 
@@ -298,8 +292,6 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 	results := make(chan TLSConnection)
 
 	for _, version := range []uint16{
-		VersionSSL20, // SSL v2
-		VersionSSL30, // SSL v3
 		VersionTLS10, // TLS 1.0
 		VersionTLS11, // TLS 1.1
 		VersionTLS12, // TLS 1.2
@@ -316,47 +308,55 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 			cs = maps.Keys(CipherList)
 
 			switch version {
-			case VersionSSL20, VersionSSL30:
-				// https://datatracker.ietf.org/doc/html/rfc6101#appendix-C
-				cs = []uint16{
-					0x0000, // TLS_NULL_WITH_NULL_NULL
-					0x0001, // TLS_RSA_WITH_NULL_MD5
-					0x0002, // TLS_RSA_WITH_NULL_SHA
-					0x0003, // TLS_RSA_EXPORT_WITH_RC4_40_MD5
-					0x0004, // TLS_RSA_WITH_RC4_128_MD5
-					0x0005, // TLS_RSA_WITH_RC4_128_SHA
-					0x0006, // TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
-					0x0007, // TLS_RSA_WITH_IDEA_CBC_SHA
-					0x0008, // TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
-					0x0009, // TLS_RSA_WITH_DES_CBC_SHA
-					0x000A, // TLS_RSA_WITH_3DES_EDE_CBC_SHA
-					0x000B, // TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA
-					0x000C, // TLS_DH_DSS_WITH_DES_CBC_SHA
-					0x000D, // TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA
-					0x000E, // TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA
-					0x000F, // TLS_DH_RSA_WITH_DES_CBC_SHA
-					0x0010, // TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA
-					0x0011, // TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA
-					0x0012, // TLS_DHE_DSS_WITH_DES_CBC_SHA
-					0x0013, // TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA
-					0x0014, // TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
-					0x0015, // TLS_DHE_RSA_WITH_DES_CBC_SHA
-					0x0016, // TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
-					0x0017, // TLS_DH_anon_EXPORT_WITH_RC4_40_MD5
-					0x0018, // TLS_DH_anon_WITH_RC4_128_MD5
-					0x0019, // TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA
-					0x001A, // TLS_DH_anon_WITH_DES_CBC_SHA
-					0x001B, // TLS_DH_anon_WITH_3DES_EDE_CBC_SHA
-					// TLS_FORTEZZA_KEA_WITH_NULL_SHA
-					// TLS_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA
-					// TLS_FORTEZZA_KEA_WITH_RC4_128_SHA
-				}
 			case tls.VersionTLS10, tls.VersionTLS11, tls.VersionTLS12:
+				// Go only supports a very limited set of cipher suites. They are all on the secure end of the spectrum, which is good, but it also means that there are things that we cannot test for.
+				//
+				// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=677-699
 				// https://datatracker.ietf.org/doc/html/rfc2246/#appendix-C
 				// https://datatracker.ietf.org/doc/html/rfc4346/#appendix-C
 				// https://datatracker.ietf.org/doc/html/rfc5246/#appendix-C
-				cs = maps.Keys(CipherList)
+				// cs = maps.Keys(CipherList)
+				cs = []uint16{
+					// Recommended
+					0xC02B, // TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+					0xC02C, // TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+					0xCCA9, // TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+
+					// Strong
+					0xC02F, // TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+					0xC030, // TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+					0xCCA8, // TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+
+					// Weak (CBC)
+					0xC009, // TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+					0xC00A, // TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+					0xC013, // TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+					0xC014, // TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+					0xC023, // TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+					0xC027, // TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+
+					// Insecure
+					// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=73-95
+					0xC007, // TLS_ECDHE_ECDSA_WITH_RC4_128_SHA
+					0xC011, // TLS_ECDHE_RSA_WITH_RC4_128_SHA
+
+					// tlsrsakex=1
+					0x0005, // TLS_RSA_WITH_RC4_128_SHA
+					0x002F, // TLS_RSA_WITH_AES_128_CBC_SHA
+					0x0035, // TLS_RSA_WITH_AES_256_CBC_SHA
+					0x003C, // TLS_RSA_WITH_AES_128_CBC_SHA256
+					0x009C, // TLS_RSA_WITH_AES_128_GCM_SHA256
+					0x009D, // TLS_RSA_WITH_AES_256_GCM_SHA384
+
+					// tls3des=1
+					0x000A, // TLS_RSA_WITH_3DES_EDE_CBC_SHA
+					0xC012, // TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+				}
 			case tls.VersionTLS13:
+				// In Go, the TLS 1.3 cipher suites are non-configurable. For
+				// this reason, we only test one even if all 3 are supported.
+				//
+				// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=701-704
 				// https://datatracker.ietf.org/doc/html/rfc8446/#appendix-B.4
 				cs = []uint16{
 					0x1301, // TLS_AES_128_GCM_SHA256
@@ -418,10 +418,6 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 				versionInt := int(version)
 
 				switch version {
-				case VersionSSL20:
-					versionStr = TLSVersion[VersionSSL20]
-				case VersionSSL30:
-					versionStr = TLSVersion[VersionSSL30]
 				case tls.VersionTLS10:
 					versionStr = TLSVersion[VersionTLS10]
 				case tls.VersionTLS11:
