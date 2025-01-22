@@ -122,6 +122,12 @@ services:
       - 80:80     # Have Traefik run on port 80; distinguish by /etc/hosts definitions
       - 8082:8080 # Traefik's web UI, enabled by --api
 
+    # Enable running containers to communicate with services on the host machine.
+    # Only works in Docker Desktop for local development. Don't do this with
+    # containers you don't trust.
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
   cache:
     # Name of the container when it is running.
     container_name: localdev-valkey

@@ -356,6 +356,7 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 				// In Go, the TLS 1.3 cipher suites are non-configurable. For
 				// this reason, we only test one even if all 3 are supported.
 				//
+				// https://go.dev/blog/tls-cipher-suites
 				// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=701-704
 				// https://datatracker.ietf.org/doc/html/rfc8446/#appendix-B.4
 				cs = []uint16{

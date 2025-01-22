@@ -13,6 +13,14 @@ http:
       middlewares: # Executes in order
         - cors
         - hugo
+    traefikdash:
+      rule: "Host(`traefik.devsec.local`)"
+      priority: 1002
+      entryPoints:
+        - web
+      service: traefikdash
+      middlewares: # Executes in order
+        - traefikdash
 
   middlewares:
     hugo:
@@ -20,6 +28,12 @@ http:
       redirectRegex:
         regex: "^http://devsec.local(.*)"
         replacement: "http://devsec.local:1313${1}"
+        permanent: true
+    traefikdash:
+      # https://doc.traefik.io/traefik/middlewares/http/redirectregex/
+      redirectRegex:
+        regex: "^http://traefik.devsec.local(.*)"
+        replacement: "http://traefik.devsec.local:8082${1}"
         permanent: true
     cors:
       # https://doc.traefik.io/traefik/middlewares/http/headers/#cors-headers
@@ -41,4 +55,9 @@ http:
       loadBalancer:
         servers:
           - url: http://devsec.local:1313
+        passHostHeader: true
+    traefikdash:
+      loadBalancer:
+        servers:
+          - url: http://traefik.devsec.local:8082
         passHostHeader: true

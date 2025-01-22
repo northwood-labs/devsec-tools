@@ -29,6 +29,8 @@
 
 * `lambda.devsec.local` — We'll never touch this directly. Use `api.devsec.local` instead.
 
+* `traefik.devsec.local` — This is the Traefik dashboard which shows how everything is connected.
+
 ### Configure aliases
 
 We will use `devsec.local` and `api.devsec.local` to simulate the real endpoints which run in production.
@@ -40,22 +42,15 @@ cat << EOF | sudo tee -a /etc/hosts
 127.0.0.1 devsec.local
 127.0.0.1 api.devsec.local
 127.0.0.1 lambda.devsec.local
+127.0.0.1 traefik.devsec.local
 EOF
 ```
 
 ## Start backend services
 
-<!--
-1. [Generate a new _Personal Access Token_](https://github.com/settings/tokens/new?description=DevSecTools%20localdev&scopes=read:packages&default_expires_at=90), with `read:packages` scope. Save it to your password manager.
--->
+1. [Generate a new _Personal Access Token_](https://github.com/settings/tokens/new?description=DevSecTools%20localdev&scopes=read:packages&default_expires_at=90), no particular scopes are required. Save it to your password manager.
 
-<!--
-1. Then, login to `ghcr.io`. This token is represented by `GHCR_TOKEN`. Your GitHub username is represented by `GHCR_USER`.
-
-    ```bash
-    echo -n "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
-    ```
--->
+1. Then, set this as an environment variable called `GITHUB_TOKEN`. This value is passed as a _secret_ to Docker Compose for fetching and building everything.
 
 1. The local versions of backend services run as containers. From the root of the repository:
 
@@ -124,6 +119,10 @@ DST_CACHE_HOSTS="cache:6379"
 # Example: production
 DST_CACHE_HOSTS="server1.host.com:6379;server2.host.com:6379;server3.host.com:6379"
 ```
+
+## Traefik Dashboard (:8082)
+
+If you want to see how Traefik routes everything, you can visit <http://traefik.devsec.local> to view a dashboard.
 
 ## Endpoints
 
