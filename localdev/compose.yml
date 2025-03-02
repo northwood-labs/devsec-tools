@@ -86,6 +86,7 @@ services:
       - "--api.insecure=true"
       - "--api=true"
       - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
       - "--log.filePath=/logs/traefik.log"
       - "--log.level=DEBUG"
       - "--providers.docker.exposedbydefault=false"

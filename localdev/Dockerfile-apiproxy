@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-FROM golang@sha256:47d337594bd9e667d35514b241569f95fb6d95727c24b19468813d596d5ae596
-# golang:1.23-alpine
+FROM golang@sha256:2d40d4fc278dad38be0777d5e2a88a2c6dee51b0b29c97a764fc6c6a11ca893c
+# docker.io/golang:1.24-alpine
 
 WORKDIR /api-proxy
 

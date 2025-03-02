@@ -24,6 +24,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/northwood-labs/debug"
 )
 
 type (
@@ -111,6 +112,9 @@ func handleRequest(c *gin.Context) {
 					"error": err.Error(),
 				})
 			}
+
+			pp := debug.GetSpew()
+			pp.Dump(result.Body)
 
 			var body map[string]interface{}
 

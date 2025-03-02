@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
-FROM golang:1-alpine AS go-installer
+FROM golang@sha256:2d40d4fc278dad38be0777d5e2a88a2c6dee51b0b29c97a764fc6c6a11ca893c AS go-installer
+# docker.io/golang:1.24-alpine
 
 # Download the AWS Lambda Runtime Interface Emulator
 RUN go install github.com/northwood-labs/download-asset@latest
@@ -23,7 +24,7 @@ RUN go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/
 
 # syntax=docker/dockerfile:1
 FROM public.ecr.aws/lambda/provided@sha256:2accac96d3e2da0efbd64d436c7c938e911842f5a335176b66127595fc0aea4e
-# public.ecr.aws/lambda/provided:al2023
+# docker pull public.ecr.aws/lambda/provided:al2023
 # docker images --digests public.ecr.aws/lambda/provided:al2023 --format '{{ .Digest }}'
 
 COPY --from=go-installer /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
