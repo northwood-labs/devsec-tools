@@ -281,7 +281,7 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 	options := handleOpts(opts)
 	logger := options.Logger
 
-	httpConn := TLSResult{
+	tlsConn := TLSResult{
 		Hostname: domain,
 	}
 
@@ -309,7 +309,9 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 
 			switch version {
 			case tls.VersionTLS10, tls.VersionTLS11, tls.VersionTLS12:
-				// Go only supports a very limited set of cipher suites. They are all on the secure end of the spectrum, which is good, but it also means that there are things that we cannot test for.
+				// Go only supports a very limited set of cipher suites. They
+				// are all on the secure end of the spectrum, which is good, but
+				// it also means that there are things that we cannot test for.
 				//
 				// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=677-699
 				// https://datatracker.ietf.org/doc/html/rfc2246/#appendix-C
@@ -447,7 +449,7 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 	}
 
 	slices.SortFunc(supportedVersions, func(a, b TLSConnection) int {
-		return cmp.Compare(b.Version, a.Version)
+		return cmp.Compare(b.VersionID, a.VersionID)
 	})
 
 	for i := range supportedVersions {
@@ -459,7 +461,22 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 		})
 	}
 
-	httpConn.TLSConnections = supportedVersions
+	for i := range supportedVersions {
+		supportedVersion := supportedVersions[i]
 
-	return httpConn, nil
+		switch supportedVersion.VersionID {
+		case tls.VersionTLS10:
+			tlsConn.TLSVersions.TLSv10 = len(supportedVersion.CipherSuites) > 0
+		case tls.VersionTLS11:
+			tlsConn.TLSVersions.TLSv11 = len(supportedVersion.CipherSuites) > 0
+		case tls.VersionTLS12:
+			tlsConn.TLSVersions.TLSv12 = len(supportedVersion.CipherSuites) > 0
+		case tls.VersionTLS13:
+			tlsConn.TLSVersions.TLSv13 = len(supportedVersion.CipherSuites) > 0
+		}
+	}
+
+	tlsConn.TLSConnections = supportedVersions
+
+	return tlsConn, nil
 }

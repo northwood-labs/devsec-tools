@@ -51,10 +51,19 @@ type (
 		HTTP3 bool `json:"http3"`
 	}
 
+	TLSVersions struct {
+		TLSv13 bool `json:"tls13"`
+		TLSv12 bool `json:"tls12"`
+		TLSv11 bool `json:"tls11"`
+		TLSv10 bool `json:"tls10"`
+	}
+
 	// TLSResult represents the results of a TLS check.
 	TLSResult struct {
 		// Hostname represents the hostname of the connection.
 		Hostname string `json:"hostname"`
+
+		TLSVersions TLSVersions `json:"tlsVersions"`
 
 		// TLSConnections represents the TLS connections that the connection advertises.
 		TLSConnections []TLSConnection `json:"tlsConnections,omitempty"`

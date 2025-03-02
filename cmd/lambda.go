@@ -160,7 +160,7 @@ func handleLambdaHTTP(input InputRequest) (events.APIGatewayProxyResponse, error
 			}, nil
 		}
 
-		// No results AND ALSO not in quiet mode
+		// No results
 		if !result.HTTP11 && !result.HTTP2 && !result.HTTP3 {
 			e := ErrorResponse{Message: fmt.Sprintf(
 				"The hostname `%s` does not support ANY versions of HTTP. It is probable that "+
@@ -268,6 +268,22 @@ func handleLambdaTLS(input InputRequest) (events.APIGatewayProxyResponse, error)
 
 			return events.APIGatewayProxyResponse{
 				StatusCode: 500,
+				Body:       string(b),
+			}, nil
+		}
+
+		// No results
+		if !result.TLSVersions.TLSv10 && !result.TLSVersions.TLSv11 &&
+			!result.TLSVersions.TLSv12 && !result.TLSVersions.TLSv13 {
+			e := ErrorResponse{Message: fmt.Sprintf(
+				"The hostname `%s` does not support ANY versions of TLS. It is probable that "+
+					"either the hostname is incorrect, or the website is down.",
+				domain,
+			)}
+			b, _ := json.Marshal(e)
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
 				Body:       string(b),
 			}, nil
 		}

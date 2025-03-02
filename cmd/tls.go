@@ -75,6 +75,18 @@ var tlsCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
+		if !result.TLSVersions.TLSv10 &&
+			!result.TLSVersions.TLSv11 &&
+			!result.TLSVersions.TLSv12 &&
+			!result.TLSVersions.TLSv13 &&
+			!fQuiet {
+			logger.Errorf(
+				"The hostname `%s` does not support ANY versions of TLS. It is probable that "+
+					"the hostname is incorrect, the website is down, or the website does not support TLS.",
+				domain,
+			)
+		}
+
 		if fJSON {
 			out, err := json.Marshal(result)
 			if err != nil {
