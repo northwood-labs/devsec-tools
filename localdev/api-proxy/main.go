@@ -65,15 +65,6 @@ func main() {
 	// 	"127.0.0.1",
 	// })
 
-	r.GET("/domain", handleRequest)
-	r.POST("/domain", handleRequest)
-
-	r.GET("/http", handleRequest)
-	r.POST("/http", handleRequest)
-
-	r.GET("/tls", handleRequest)
-	r.POST("/tls", handleRequest)
-
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "OPTIONS", "POST"},
@@ -82,6 +73,15 @@ func main() {
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	r.GET("/domain", handleRequest)
+	r.POST("/domain", handleRequest)
+
+	r.GET("/http", handleRequest)
+	r.POST("/http", handleRequest)
+
+	r.GET("/tls", handleRequest)
+	r.POST("/tls", handleRequest)
 
 	r.Run()
 }
