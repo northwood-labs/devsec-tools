@@ -1,0 +1,242 @@
+{
+  "datasources": [
+    {
+      "name": "domain",
+      "schema": {
+        "attributes": [
+          {
+            "name": "url",
+            "string": {
+              "computed_optional_required": "required",
+              "description": "The hostname (domain) to scan."
+            }
+          },
+          {
+            "name": "hostname",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The hostname (domain) that was parsed from the input."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "http",
+      "schema": {
+        "attributes": [
+          {
+            "name": "url",
+            "string": {
+              "computed_optional_required": "required",
+              "description": "The hostname (domain) to scan."
+            }
+          },
+          {
+            "name": "hostname",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The hostname (domain) that was parsed from the input."
+            }
+          },
+          {
+            "name": "http11",
+            "bool": {
+              "computed_optional_required": "computed",
+              "description": "Whether or not the site supports HTTP/1.1 connections.\n\nA value of `true` means that the site supports HTTP/1.1 connections. A value of `false` means that it does not."
+            }
+          },
+          {
+            "name": "http2",
+            "bool": {
+              "computed_optional_required": "computed",
+              "description": "Whether or not the site supports HTTP/2 connections.\n\nA value of `true` means that the site supports HTTP/2 connections. A value of `false` means that it does not."
+            }
+          },
+          {
+            "name": "http3",
+            "bool": {
+              "computed_optional_required": "computed",
+              "description": "Whether or not the site supports HTTP/3 connections.\n\nA value of `true` means that the site supports HTTP/3 connections. A value of `false` means that it does not."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "tls",
+      "schema": {
+        "attributes": [
+          {
+            "name": "url",
+            "string": {
+              "computed_optional_required": "required",
+              "description": "The hostname (domain) to scan."
+            }
+          },
+          {
+            "name": "hostname",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The hostname (domain) that was parsed from the input."
+            }
+          },
+          {
+            "name": "tls_connections",
+            "list_nested": {
+              "computed_optional_required": "computed",
+              "nested_object": {
+                "attributes": [
+                  {
+                    "name": "cipher_suites",
+                    "list_nested": {
+                      "computed_optional_required": "computed",
+                      "nested_object": {
+                        "attributes": [
+                          {
+                            "name": "authentication",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The authentication signing algorithm that the cipher suite uses."
+                            }
+                          },
+                          {
+                            "name": "encryption",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The encryption algorithm that the cipher suite uses."
+                            }
+                          },
+                          {
+                            "name": "gnutls_name",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The name for the cipher suite in the [GnuTLS](https://www.gnutls.org) library."
+                            }
+                          },
+                          {
+                            "name": "hash",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The hashing algorithm that the cipher suite uses."
+                            }
+                          },
+                          {
+                            "name": "iana_name",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The official IANA name for the cipher suite."
+                            }
+                          },
+                          {
+                            "name": "is_aead",
+                            "bool": {
+                              "computed_optional_required": "computed",
+                              "description": "Whether or not this cipher suite supports [Authenticated Encryption with Associated Data](https://en.wikipedia.org/wiki/Authenticated_encryption). AEAD is useful in cases where the header should be visible for routing, but the payload needs to be confidential, and both need integrity and authenticity.\n\nA value of `true` means that the cipher suite meets the criteria for _AEAD_. A value of `false` means that the cipher suite does NOT meet the criteria."
+                            }
+                          },
+                          {
+                            "name": "is_pfs",
+                            "bool": {
+                              "computed_optional_required": "computed",
+                              "description": "Whether or not this cipher suite supports [Perfect Forward Secrecy](https://en.wikipedia.org/wiki/Forward_secrecy). Forward secrecy protects past sessions against future compromises of keys or passwords.\n\nA value of `true` means that the cipher suite meets the criteria for _forward secrecy_. A value of `false` means that the cipher suite does NOT meet the criteria."
+                            }
+                          },
+                          {
+                            "name": "key_exchange",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The key exchange algorithm that the cipher suite uses."
+                            }
+                          },
+                          {
+                            "name": "openssl_name",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The name for the cipher suite in the [OpenSSL](https://openssl-library.org) library."
+                            }
+                          },
+                          {
+                            "name": "strength",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "The _strength_ of the cipher suite. One of: `recommended`, `strong`, `weak`, or `insecure`."
+                            }
+                          },
+                          {
+                            "name": "url",
+                            "string": {
+                              "computed_optional_required": "computed",
+                              "description": "A URL for learning more about this particular cipher suite."
+                            }
+                          }
+                        ]
+                      },
+                      "description": "An array of cipher suites."
+                    }
+                  },
+                  {
+                    "name": "version",
+                    "string": {
+                      "computed_optional_required": "computed",
+                      "description": "The english representation of the TLS version."
+                    }
+                  },
+                  {
+                    "name": "version_id",
+                    "int64": {
+                      "computed_optional_required": "computed",
+                      "description": "The numeric representation of the TLS version.\n\n\nTLS version | Version ID\n---------|----------\nTLS v1.0  | `0x0301`\nTLS v1.1  | `0x0302`\nTLS v1.2  | `0x0303`\nTLS v1.3  | `0x0304`\n"
+                    }
+                  }
+                ]
+              },
+              "description": "An array of successful TLS connections, one per TLS version. Always sorted from newest TLS to oldest TLS.\n\nIf no TLS connections were successful, this will return an error."
+            }
+          },
+          {
+            "name": "tls_versions",
+            "single_nested": {
+              "computed_optional_required": "computed",
+              "attributes": [
+                {
+                  "name": "tls10",
+                  "bool": {
+                    "computed_optional_required": "computed",
+                    "description": "Whether or not the site supports TLS v1.0.\n\nA value of `true` means that the site supports TLS v1.0. A value of `false` means that it does not."
+                  }
+                },
+                {
+                  "name": "tls11",
+                  "bool": {
+                    "computed_optional_required": "computed",
+                    "description": "Whether or not the site supports TLS v1.1.\n\nA value of `true` means that the site supports TLS v1.1. A value of `false` means that it does not."
+                  }
+                },
+                {
+                  "name": "tls12",
+                  "bool": {
+                    "computed_optional_required": "computed",
+                    "description": "Whether or not the site supports TLS v1.2.\n\nA value of `true` means that the site supports TLS v1.2. A value of `false` means that it does not."
+                  }
+                },
+                {
+                  "name": "tls13",
+                  "bool": {
+                    "computed_optional_required": "computed",
+                    "description": "Whether or not the site supports TLS v1.3.\n\nA value of `true` means that the site supports TLS v1.3. A value of `false` means that it does not."
+                  }
+                }
+              ],
+              "description": "The list of TLS versions that the site supports."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "provider": {
+    "name": "devsectools"
+  },
+  "version": "0.1"
+}

@@ -1,0 +1,1187 @@
+{
+  "openapi": "3.1.0",
+  "x-stoplight": {
+    "id": "zg600r0qi2oet"
+  },
+  "info": {
+    "title": "DevSecTools",
+    "version": "1",
+    "description": "DevSecTools scans websites for security-related information, and includes additional tools which streamline developer productivity.\n\nIt exposes a JSON-over-HTTP interface. Both `GET` and `POST` requests perform the same action.",
+    "contact": {
+      "name": "DevSecTools API",
+      "url": "https://devsec.tools",
+      "email": "api@devsec.tools"
+    },
+    "termsOfService": "https://devsec.tools/terms-of-service",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://opensource.org/license/apache-2-0"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.devsec.tools",
+      "description": "Production"
+    },
+    {
+      "url": "http://api.devsec.local",
+      "description": "Localdev"
+    }
+  ],
+  "paths": {
+    "/domain": {
+      "get": {
+        "summary": "GET domain",
+        "tags": [
+          "security"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/DomainResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse400"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse500"
+          }
+        },
+        "operationId": "get-domain",
+        "x-stoplight": {
+          "id": "f16rgrfm8zgj5"
+        },
+        "security": [],
+        "description": "Parses the hostname (domain) from the input.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/StandardRequest"
+          }
+        ]
+      },
+      "post": {
+        "summary": "POST domain",
+        "tags": [
+          "security"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/DomainResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse400"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse500"
+          }
+        },
+        "operationId": "post-domain",
+        "x-stoplight": {
+          "id": "uyewgwqaxlypn"
+        },
+        "description": "Parses the hostname (domain) from the input.",
+        "security": [],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StandardRequest"
+        }
+      }
+    },
+    "/http": {
+      "get": {
+        "summary": "GET http",
+        "tags": [
+          "security"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/HttpResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse400"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse500"
+          }
+        },
+        "operationId": "get-http",
+        "x-stoplight": {
+          "id": "fphqqkvsw0uis"
+        },
+        "description": "Scans the hostname (domain) for HTTP/1.1, HTTP/2, and HTTP/3 support.",
+        "security": [],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/StandardRequest"
+          }
+        ]
+      },
+      "post": {
+        "summary": "POST http",
+        "tags": [
+          "security"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/HttpResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse400"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse500"
+          }
+        },
+        "operationId": "post-http",
+        "x-stoplight": {
+          "id": "gvqf6zpb9sn57"
+        },
+        "description": "Scans the hostname (domain) for HTTP/1.1, HTTP/2, and HTTP/3 support.",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StandardRequest"
+        }
+      }
+    },
+    "/tls": {
+      "get": {
+        "summary": "GET tls",
+        "tags": [
+          "security"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TlsResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse400"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse500"
+          }
+        },
+        "operationId": "get-tls",
+        "x-stoplight": {
+          "id": "686gi3f7xgqk5"
+        },
+        "description": "Scans the hostname (domain) for supported TLS versions, as well as cipher suites per TLS version.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/StandardRequest"
+          }
+        ]
+      },
+      "post": {
+        "summary": "POST tls",
+        "tags": [
+          "security"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TlsResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse400"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse500"
+          }
+        },
+        "operationId": "post-tls",
+        "x-stoplight": {
+          "id": "8c8uc6pvofyet"
+        },
+        "description": "Scans the hostname (domain) for supported TLS versions, as well as cipher suites per TLS version.   ",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StandardRequest"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CipherSuite": {
+        "type": "object",
+        "x-examples": {
+          "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA": {
+            "authentication": "RSA",
+            "encryption": "AES-128-CBC",
+            "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+            "hash": "SHA-1",
+            "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "isAEAD": false,
+            "isPFS": true,
+            "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+            "opensslName": "ECDHE-RSA-AES128-SHA",
+            "strength": "Weak",
+            "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+          }
+        },
+        "description": "Represents a single cipher suite.",
+        "required": [
+          "authentication",
+          "encryption",
+          "gnutlsName",
+          "hash",
+          "ianaName",
+          "isAEAD",
+          "isPFS",
+          "keyExchange",
+          "opensslName",
+          "strength",
+          "url"
+        ],
+        "properties": {
+          "authentication": {
+            "type": "string",
+            "description": "The authentication signing algorithm that the cipher suite uses."
+          },
+          "encryption": {
+            "type": "string",
+            "description": "The encryption algorithm that the cipher suite uses."
+          },
+          "gnutlsName": {
+            "type": "string",
+            "description": "The name for the cipher suite in the [GnuTLS](https://www.gnutls.org) library."
+          },
+          "hash": {
+            "type": "string",
+            "description": "The hashing algorithm that the cipher suite uses."
+          },
+          "ianaName": {
+            "type": "string",
+            "description": "The official IANA name for the cipher suite."
+          },
+          "isAEAD": {
+            "type": "boolean",
+            "description": "Whether or not this cipher suite supports [Authenticated Encryption with Associated Data](https://en.wikipedia.org/wiki/Authenticated_encryption). AEAD is useful in cases where the header should be visible for routing, but the payload needs to be confidential, and both need integrity and authenticity.\n\nA value of `true` means that the cipher suite meets the criteria for _AEAD_. A value of `false` means that the cipher suite does NOT meet the criteria."
+          },
+          "isPFS": {
+            "type": "boolean",
+            "description": "Whether or not this cipher suite supports [Perfect Forward Secrecy](https://en.wikipedia.org/wiki/Forward_secrecy). Forward secrecy protects past sessions against future compromises of keys or passwords.\n\nA value of `true` means that the cipher suite meets the criteria for _forward secrecy_. A value of `false` means that the cipher suite does NOT meet the criteria."
+          },
+          "keyExchange": {
+            "type": "string",
+            "description": "The key exchange algorithm that the cipher suite uses."
+          },
+          "opensslName": {
+            "type": "string",
+            "description": "The name for the cipher suite in the [OpenSSL](https://openssl-library.org) library."
+          },
+          "strength": {
+            "type": "string",
+            "description": "The _strength_ of the cipher suite. One of: `recommended`, `strong`, `weak`, or `insecure`."
+          },
+          "url": {
+            "type": "string",
+            "description": "A URL for learning more about this particular cipher suite."
+          }
+        }
+      },
+      "DomainResponse": {
+        "type": "object",
+        "x-stoplight": {
+          "id": "e051c7e3c4e49"
+        },
+        "x-examples": {
+          "Hostname": {
+            "hostname": "www.apple.com"
+          }
+        },
+        "description": "The response from a call to the `/domain` endpoint.",
+        "title": "DomainResponse",
+        "required": [
+          "hostname"
+        ],
+        "properties": {
+          "hostname": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "4eg7rp9ibo3rd"
+            },
+            "description": "The hostname (domain) that was parsed from the input."
+          }
+        },
+        "examples": [
+          {
+            "hostname": "example.com"
+          }
+        ]
+      },
+      "HttpResponse": {
+        "type": "object",
+        "x-examples": {
+          "HTTP Response": {
+            "hostname": "https://stripe.com",
+            "http11": true,
+            "http2": true,
+            "http3": false
+          }
+        },
+        "description": "The response from a call to the `/http` endpoint.",
+        "required": [
+          "hostname",
+          "http11",
+          "http2",
+          "http3"
+        ],
+        "properties": {
+          "hostname": {
+            "type": "string",
+            "description": "The hostname (domain) that was parsed from the input."
+          },
+          "http11": {
+            "type": "boolean",
+            "description": "Whether or not the site supports HTTP/1.1 connections.\n\nA value of `true` means that the site supports HTTP/1.1 connections. A value of `false` means that it does not."
+          },
+          "http2": {
+            "type": "boolean",
+            "description": "Whether or not the site supports HTTP/2 connections.\n\nA value of `true` means that the site supports HTTP/2 connections. A value of `false` means that it does not."
+          },
+          "http3": {
+            "type": "boolean",
+            "description": "Whether or not the site supports HTTP/3 connections.\n\nA value of `true` means that the site supports HTTP/3 connections. A value of `false` means that it does not."
+          }
+        },
+        "title": "HttpResponse",
+        "examples": [
+          {
+            "hostname": "example.com",
+            "http11": true,
+            "http2": true,
+            "http3": true
+          }
+        ]
+      },
+      "TlsConnection": {
+        "type": "object",
+        "x-examples": {
+          "TLS Connection": {
+            "cipherSuites": [
+              {
+                "authentication": "RSA",
+                "encryption": "AES-128-CBC",
+                "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+                "hash": "SHA-1",
+                "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "isAEAD": false,
+                "isPFS": true,
+                "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                "opensslName": "ECDHE-RSA-AES128-SHA",
+                "strength": "Weak",
+                "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+              },
+              {
+                "authentication": "RSA",
+                "encryption": "AES-256-CBC",
+                "gnutlsName": "TLS_ECDHE_RSA_AES_256_CBC_SHA1",
+                "hash": "SHA-1",
+                "ianaName": "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                "isAEAD": false,
+                "isPFS": true,
+                "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                "opensslName": "ECDHE-RSA-AES256-SHA",
+                "strength": "Weak",
+                "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
+              },
+              {
+                "authentication": "RSA",
+                "encryption": "AES-128-CBC",
+                "gnutlsName": "TLS_RSA_AES_128_CBC_SHA1",
+                "hash": "SHA-1",
+                "ianaName": "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "isAEAD": false,
+                "isPFS": false,
+                "keyExchange": "RSA",
+                "opensslName": "AES128-SHA",
+                "strength": "Weak",
+                "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_128_CBC_SHA"
+              },
+              {
+                "authentication": "RSA",
+                "encryption": "AES-256-CBC",
+                "gnutlsName": "TLS_RSA_AES_256_CBC_SHA1",
+                "hash": "SHA-1",
+                "ianaName": "TLS_RSA_WITH_AES_256_CBC_SHA",
+                "isAEAD": false,
+                "isPFS": false,
+                "keyExchange": "RSA",
+                "opensslName": "AES256-SHA",
+                "strength": "Weak",
+                "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_256_CBC_SHA"
+              }
+            ],
+            "version": "TLSv1.0",
+            "versionId": 769
+          }
+        },
+        "description": "Represents a single TLS connection.",
+        "examples": [
+          {
+            "cipherSuites": [
+              {
+                "authentication": "RSA",
+                "encryption": "AES-128-CBC",
+                "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+                "hash": "SHA-1",
+                "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "isAEAD": false,
+                "isPFS": true,
+                "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                "opensslName": "ECDHE-RSA-AES128-SHA",
+                "strength": "Weak",
+                "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+              }
+            ],
+            "version": "TLSv1.0",
+            "versionId": 769
+          }
+        ],
+        "required": [
+          "cipherSuites",
+          "version",
+          "versionId"
+        ],
+        "properties": {
+          "cipherSuites": {
+            "type": "array",
+            "description": "An array of cipher suites.",
+            "items": {
+              "$ref": "#/components/schemas/CipherSuite"
+            },
+            "readOnly": true
+          },
+          "version": {
+            "type": "string",
+            "description": "The english representation of the TLS version."
+          },
+          "versionId": {
+            "type": "integer",
+            "description": "The numeric representation of the TLS version.\n\n\nTLS version | Version ID\n---------|----------\nTLS v1.0  | `0x0301`\nTLS v1.1  | `0x0302`\nTLS v1.2  | `0x0303`\nTLS v1.3  | `0x0304`\n"
+          }
+        }
+      },
+      "TlsResponse": {
+        "type": "object",
+        "x-examples": {
+          "TLS Response": {
+            "hostname": "public.ecr.aws",
+            "tlsConnections": [
+              {
+                "cipherSuites": [
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-GCM",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_128_GCM_SHA256",
+                    "hash": "SHA-2, 256 bits",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                    "isAEAD": true,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES128-GCM-SHA256",
+                    "strength": "Secure",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-GCM",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_256_GCM_SHA384",
+                    "hash": "SHA-2, 384 bits",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                    "isAEAD": true,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES256-GCM-SHA384",
+                    "strength": "Secure",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES128-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA256",
+                    "hash": "SHA-2, 256 bits",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES128-SHA256",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_256_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES256-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_RSA_AES_128_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_RSA_WITH_AES_128_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES128-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_128_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_RSA_AES_128_GCM_SHA256",
+                    "hash": "SHA-2, 256 bits",
+                    "ianaName": "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                    "isAEAD": false,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES128-GCM-SHA256",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_128_CBC_SHA256"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-GCM",
+                    "gnutlsName": "TLS_RSA_AES_128_GCM_SHA256",
+                    "hash": "SHA-2, 256 bits",
+                    "ianaName": "TLS_RSA_WITH_AES_128_GCM_SHA256",
+                    "isAEAD": true,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES128-GCM-SHA256",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_128_GCM_SHA256"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-CBC",
+                    "gnutlsName": "TLS_RSA_AES_256_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_RSA_WITH_AES_256_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES256-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_256_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-GCM",
+                    "gnutlsName": "TLS_RSA_AES_256_GCM_SHA384",
+                    "hash": "SHA-2, 384 bits",
+                    "ianaName": "TLS_RSA_WITH_AES_256_GCM_SHA384",
+                    "isAEAD": true,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES256-GCM-SHA384",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_256_GCM_SHA384"
+                  }
+                ],
+                "version": "TLSv1.2",
+                "versionId": 771
+              },
+              {
+                "cipherSuites": [
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES128-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_256_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES256-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_RSA_AES_128_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_RSA_WITH_AES_128_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES128-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_128_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-CBC",
+                    "gnutlsName": "TLS_RSA_AES_256_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_RSA_WITH_AES_256_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES256-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_256_CBC_SHA"
+                  }
+                ],
+                "version": "TLSv1.1",
+                "versionId": 770
+              },
+              {
+                "cipherSuites": [
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES128-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_256_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES256-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_RSA_AES_128_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_RSA_WITH_AES_128_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES128-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_128_CBC_SHA"
+                  },
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-256-CBC",
+                    "gnutlsName": "TLS_RSA_AES_256_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_RSA_WITH_AES_256_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": false,
+                    "keyExchange": "RSA",
+                    "opensslName": "AES256-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_RSA_WITH_AES_256_CBC_SHA"
+                  }
+                ],
+                "version": "TLSv1.0",
+                "versionId": 769
+              }
+            ],
+            "tlsVersions": {
+              "tls10": true,
+              "tls11": true,
+              "tls12": true,
+              "tls13": false
+            }
+          }
+        },
+        "description": "The response from a call to the `/tls` endpoint.",
+        "examples": [
+          {
+            "hostname": "example.com",
+            "tlsConnections": [
+              {
+                "cipherSuites": [
+                  {
+                    "authentication": "RSA",
+                    "encryption": "AES-128-CBC",
+                    "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+                    "hash": "SHA-1",
+                    "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                    "isAEAD": false,
+                    "isPFS": true,
+                    "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                    "opensslName": "ECDHE-RSA-AES128-SHA",
+                    "strength": "Weak",
+                    "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+                  }
+                ],
+                "version": "TLSv1.0",
+                "versionId": 769
+              }
+            ],
+            "tlsVersions": {
+              "tls10": true,
+              "tls11": true,
+              "tls12": true,
+              "tls13": true
+            }
+          }
+        ],
+        "required": [
+          "hostname",
+          "tlsConnections",
+          "tlsVersions"
+        ],
+        "properties": {
+          "hostname": {
+            "type": "string",
+            "description": "The hostname (domain) that was parsed from the input."
+          },
+          "tlsConnections": {
+            "description": "An array of successful TLS connections, one per TLS version. Always sorted from newest TLS to oldest TLS.\n\nIf no TLS connections were successful, this will return an error.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TlsConnection"
+            }
+          },
+          "tlsVersions": {
+            "type": "object",
+            "description": "The list of TLS versions that the site supports.",
+            "required": [
+              "tls10",
+              "tls11",
+              "tls12",
+              "tls13"
+            ],
+            "properties": {
+              "tls10": {
+                "type": "boolean",
+                "description": "Whether or not the site supports TLS v1.0.\n\nA value of `true` means that the site supports TLS v1.0. A value of `false` means that it does not."
+              },
+              "tls11": {
+                "type": "boolean",
+                "description": "Whether or not the site supports TLS v1.1.\n\nA value of `true` means that the site supports TLS v1.1. A value of `false` means that it does not."
+              },
+              "tls12": {
+                "type": "boolean",
+                "description": "Whether or not the site supports TLS v1.2.\n\nA value of `true` means that the site supports TLS v1.2. A value of `false` means that it does not."
+              },
+              "tls13": {
+                "type": "boolean",
+                "description": "Whether or not the site supports TLS v1.3.\n\nA value of `true` means that the site supports TLS v1.3. A value of `false` means that it does not."
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "x-examples": {
+          "Error Response": {
+            "error": "The hostname `https://apple.xxx` does not support ANY versions of TLS. It is probable that either the hostname is incorrect, or the website is down."
+          }
+        },
+        "description": "Returned when there is an error.",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "The error message."
+          }
+        }
+      }
+    },
+    "responses": {
+      "DomainResponse": {
+        "description": "The response from a call to the `/domain` endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DomainResponse"
+            },
+            "examples": {
+              "Example 1": {
+                "value": {
+                  "hostname": "example.com"
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "Access-Control-Allow-Credentials": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Credentials"
+            }
+          },
+          "Access-Control-Allow-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Headers"
+            }
+          },
+          "Access-Control-Allow-Methods": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Methods"
+            }
+          },
+          "Access-Control-Allow-Origin": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Origin"
+            }
+          },
+          "Access-Control-Expose-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Expose-Headers"
+            }
+          },
+          "Access-Control-Max-Age": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Max-Age"
+            }
+          }
+        }
+      },
+      "HttpResponse": {
+        "description": "The response from a call to the `/http` endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HttpResponse"
+            },
+            "examples": {
+              "Example 1": {
+                "value": {
+                  "hostname": "example.com",
+                  "http11": true,
+                  "http2": true,
+                  "http3": true
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "Access-Control-Allow-Credentials": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Credentials"
+            }
+          },
+          "Access-Control-Allow-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Headers"
+            }
+          },
+          "Access-Control-Allow-Methods": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Methods"
+            }
+          },
+          "Access-Control-Allow-Origin": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Origin"
+            }
+          },
+          "Access-Control-Expose-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Expose-Headers"
+            }
+          },
+          "Access-Control-Max-Age": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Max-Age"
+            }
+          }
+        }
+      },
+      "TlsResponse": {
+        "description": "The response from a call to the `/tls` endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TlsResponse"
+            },
+            "examples": {
+              "Example 1": {
+                "value": {
+                  "hostname": "example.com",
+                  "tlsConnections": [
+                    {
+                      "cipherSuites": [
+                        {
+                          "authentication": "RSA",
+                          "encryption": "AES-128-CBC",
+                          "gnutlsName": "TLS_ECDHE_RSA_AES_128_CBC_SHA1",
+                          "hash": "SHA-1",
+                          "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                          "isAEAD": false,
+                          "isPFS": true,
+                          "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+                          "opensslName": "ECDHE-RSA-AES128-SHA",
+                          "strength": "Weak",
+                          "url": "https://ciphersuite.info/cs/TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+                        }
+                      ],
+                      "version": "TLSv1.0",
+                      "versionId": 769
+                    }
+                  ],
+                  "tlsVersions": {
+                    "tls10": true,
+                    "tls11": true,
+                    "tls12": true,
+                    "tls13": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "Access-Control-Allow-Credentials": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Credentials"
+            }
+          },
+          "Access-Control-Allow-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Headers"
+            }
+          },
+          "Access-Control-Allow-Methods": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Methods"
+            }
+          },
+          "Access-Control-Allow-Origin": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Origin"
+            }
+          },
+          "Access-Control-Expose-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Expose-Headers"
+            }
+          },
+          "Access-Control-Max-Age": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Max-Age"
+            }
+          }
+        }
+      },
+      "ErrorResponse400": {
+        "description": "Bad Request: The hostname (domain) provided in the request was invalid, or the website is down.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        },
+        "headers": {
+          "Access-Control-Allow-Credentials": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Credentials"
+            }
+          },
+          "Access-Control-Allow-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Headers"
+            }
+          },
+          "Access-Control-Allow-Methods": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Methods"
+            }
+          },
+          "Access-Control-Allow-Origin": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Origin"
+            }
+          },
+          "Access-Control-Expose-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Expose-Headers"
+            }
+          },
+          "Access-Control-Max-Age": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Max-Age"
+            }
+          }
+        }
+      },
+      "ErrorResponse500": {
+        "description": "Internal Server Error: The server experienced an error in constructing the response.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        },
+        "headers": {
+          "Access-Control-Allow-Credentials": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Credentials"
+            }
+          },
+          "Access-Control-Allow-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Headers"
+            }
+          },
+          "Access-Control-Allow-Methods": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Methods"
+            }
+          },
+          "Access-Control-Allow-Origin": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Allow-Origin"
+            }
+          },
+          "Access-Control-Expose-Headers": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Expose-Headers"
+            }
+          },
+          "Access-Control-Max-Age": {
+            "schema": {
+              "$ref": "#/components/parameters/Access-Control-Max-Age"
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "StandardRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "x-stoplight": {
+                    "id": "pc5qb9w5q9yib"
+                  },
+                  "description": "The URL to scan."
+                }
+              }
+            },
+            "examples": {
+              "Example 1": {
+                "value": {
+                  "url": "example.com"
+                }
+              }
+            }
+          }
+        },
+        "description": "The standard request input that the majority of requests accept."
+      }
+    },
+    "parameters": {
+      "StandardRequest": {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "The hostname (domain) to scan."
+      },
+      "Access-Control-Allow-Origin": {
+        "name": "Access-Control-Allow-Origin",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Standard CORS headers."
+      },
+      "Access-Control-Allow-Methods": {
+        "name": "Access-Control-Allow-Methods",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Standard CORS headers."
+      },
+      "Access-Control-Allow-Headers": {
+        "name": "Access-Control-Allow-Headers",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Standard CORS headers."
+      },
+      "Access-Control-Expose-Headers": {
+        "name": "Access-Control-Expose-Headers",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Standard CORS headers."
+      },
+      "Access-Control-Allow-Credentials": {
+        "name": "Access-Control-Allow-Credentials",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Standard CORS headers."
+      },
+      "Access-Control-Max-Age": {
+        "name": "Access-Control-Max-Age",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Standard CORS headers."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "security",
+      "description": "Endpoints which are related to cybersecurity."
+    }
+  ]
+}

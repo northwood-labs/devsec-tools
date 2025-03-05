@@ -178,21 +178,63 @@ lint: license pre-commit
 ## build: [build]* Builds and installs the binary locally.
 build: tidy
 	@ $(HEADER) "=====> Building and installing locally..."
-	CGO_ENABLED=0 $(GO) install -a -trimpath -ldflags="-s -w" -v .
+	CGO_ENABLED=0 $(GO) install -a -trimpath -ldflags="-s -w" .
+
+.PHONY: build-serve
+## build-serve: [build]* Builds the API proxy server for use with Docker Compose.
+build-serve:
+	@ $(HEADER) "=====> Building API proxy server..."
+	cd localdev/api-proxy && \
+		$(GO) mod tidy && \
+		CGO_ENABLED=0 GOOS=linux $(GO) build -o serve .
+
+.PHONY: build-provider-ir
+## build-provider-ir: [build] Generates Terraform-OpenAPI IR.
+build-provider-ir:
+	@ $(HEADER) "=====> Generating Terraform-OpenAPI IR..."
+	@ tfplugingen-openapi generate \
+		--config internal/generator_config.yml \
+		--output internal/framework_spec.json \
+		openapi.json \
+		;
+
+.PHONY: build-provider-code
+## build-provider-code: [build] Generates Terraform provider code.
+build-provider-code:
+	@ $(HEADER) "=====> Generating Terraform provider code..."
+	@tfplugingen-framework generate all \
+		--input internal/framework_spec.json \
+		--output ./internal/provider \
+		;
+
+	@ tfplugingen-framework scaffold data-source \
+		--name domain \
+		--force \
+		--output-dir ./internal/provider
+
+	@ tfplugingen-framework scaffold data-source \
+		--name http \
+		--force \
+		--output-dir ./internal/provider
+
+	@ tfplugingen-framework scaffold data-source \
+		--name tls \
+		--force \
+		--output-dir ./internal/provider
+
+	@ cd internal/provider && \
+		go mod init github.com/northwood-labs/devsec-tools/internal/provider && \
+		go mod tidy
+
+.PHONY: build-provider
+## build-provider: [build] Builds a Terraform/OpenTofu provider from the OpenAPI spec.
+build-provider: build-provider-ir build-provider-code
 
 .PHONY: build-lambda
 ## build-lambda: [build]* Builds the Lambda function with current ARCH for local development.
 build-lambda: tidy
 	@ $(HEADER) "=====> Building Lambda function..."
 	CGO_ENABLED=0 GOOS=linux $(GO) build -gcflags="all=-N -l" -tags lambda.norpc -o localdev/var-runtime/bootstrap .
-
-.PHONY: build-serve
-## build-serve: [build] Builds the API proxy server for use with Docker Compose.
-build-serve:
-	@ $(HEADER) "=====> Building API proxy server..."
-	cd localdev/api-proxy && \
-		$(GO) mod tidy && \
-		CGO_ENABLED=0 GOOS=linux $(GO) build -o serve .
 
 .PHONY: build-lambda-prod
 ## build-lambda-prod: [build]* Builds the Lambda function for deployment.

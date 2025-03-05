@@ -48,13 +48,17 @@ const (
 
 // ParseDomain parses a URL-like string and returns the domain/hostname with an
 // `https:` scheme.
-func ParseDomain(domain string) (string, error) {
+func ParseDomain(domain string, scheme bool) (string, error) {
 	u, err := urlx.ParseWithDefaultScheme(domain, "https")
 	if err != nil {
 		return "", fmt.Errorf("could not parse the URL: %w", err)
 	}
 
-	return u.Scheme + "://" + u.Host, nil
+	if scheme {
+		return u.Scheme + "://" + u.Host, nil
+	}
+
+	return u.Host, nil
 }
 
 // ParseHostPort parses a domain string and returns the hostname and port. An

@@ -176,32 +176,63 @@ import (
 // <https://github.com/golang/go/wiki/TableDrivenTests>
 func TestParseDomain(t *testing.T) { // lint:allow_complexity
 	for name, tc := range map[string]struct {
+		Scheme   bool
 		Input    string
 		Expected string
 	}{
-		"example.com": {
+		"example.com[true]": {
 			Input:    "example.com",
+			Scheme:   true,
 			Expected: "https://example.com",
 		},
-		"https://example.com": {
+		"https://example.com[true]": {
 			Input:    "https://example.com",
+			Scheme:   true,
 			Expected: "https://example.com",
 		},
-		"http://example.com": {
+		"http://example.com[true]": {
 			Input:    "http://example.com",
+			Scheme:   true,
 			Expected: "http://example.com",
 		},
-		"example.com/path/file.html": {
+		"example.com/path/file.html[true]": {
 			Input:    "example.com/path/file.html",
+			Scheme:   true,
 			Expected: "https://example.com",
 		},
-		"https://example.com/path/file.html": {
+		"https://example.com/path/file.html[true]": {
 			Input:    "https://example.com/path/file.html",
+			Scheme:   true,
 			Expected: "https://example.com",
+		},
+		"example.com[false]": {
+			Input:    "example.com",
+			Scheme:   false,
+			Expected: "example.com",
+		},
+		"https://example.com[false]": {
+			Input:    "https://example.com",
+			Scheme:   false,
+			Expected: "example.com",
+		},
+		"http://example.com[false]": {
+			Input:    "http://example.com",
+			Scheme:   false,
+			Expected: "example.com",
+		},
+		"example.com/path/file.html[false]": {
+			Input:    "example.com/path/file.html",
+			Scheme:   false,
+			Expected: "example.com",
+		},
+		"https://example.com/path/file.html[false]": {
+			Input:    "https://example.com/path/file.html",
+			Scheme:   false,
+			Expected: "example.com",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			actual, err := ParseDomain(tc.Input)
+			actual, err := ParseDomain(tc.Input, tc.Scheme)
 			if err != nil {
 				t.Errorf("Expected no error, got '%#v'", err)
 			}
@@ -269,27 +300,33 @@ func TestParseHostPort(t *testing.T) { // lint:allow_complexity
 }
 
 func ExampleParseDomain() {
-	domain, _ := ParseDomain("example.com")
+	domain, _ := ParseDomain("example.com", true)
 	fmt.Println(domain)
 	// Output: https://example.com
 }
 
 func ExampleParseDomain_scheme() {
-	domain, _ := ParseDomain("http://example.com")
+	domain, _ := ParseDomain("http://example.com", true)
 	fmt.Println(domain)
 	// Output: http://example.com
 }
 
 func ExampleParseDomain_port() {
-	domain, _ := ParseDomain("http://example.com:8080")
+	domain, _ := ParseDomain("http://example.com:8080", true)
 	fmt.Println(domain)
 	// Output: http://example.com:8080
 }
 
 func ExampleParseDomain_path() {
-	domain, _ := ParseDomain("example.com/abc/123")
+	domain, _ := ParseDomain("example.com/abc/123", true)
 	fmt.Println(domain)
 	// Output: https://example.com
+}
+
+func ExampleParseDomain_noScheme() {
+	domain, _ := ParseDomain("https://example.com", false)
+	fmt.Println(domain)
+	// Output: example.com
 }
 
 func ExampleParseHostPort_port() {

@@ -36,6 +36,12 @@ type (
 		ValkeyClient *valkey.Client
 	}
 
+	// DomainResult represents the results of stripping down a domain.
+	DomainResult struct {
+		// Hostname represents the hostname of the connection.
+		Hostname string `json:"hostname"`
+	}
+
 	// HTTPResult represents the results of an HTTP check.
 	HTTPResult struct {
 		// Hostname represents the hostname of the connection.

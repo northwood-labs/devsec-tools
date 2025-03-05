@@ -93,6 +93,18 @@ However, passing payloads directly to AWS Lambda is different from going through
 
 The only thing this does is receive requests from the Hugo frontend, modify them, pass them to the Lambda servers, receive the response, modify the response, and respond back to the Hugo frontend.
 
+When new endpoints are added to the Lambda function, they must also be added to `localdev/api-proxy/main.go`. After adding support to the file, compile the changes and restart the `localdev` Docker environment.
+
+```bash
+make build-serve
+```
+
+```bash
+cd localdev
+docker compose down
+docker compose up --force-recreate
+```
+
 ## Valkey server (:6379)
 
 [Valkey] is an open-source fork of [Redis](https://redis.io/docs/latest/get-started/), which [ceased to be open-source](https://redis.io/legal/licenses/) in March 2024. AWS provides [ElastiCache Serverless](https://aws.amazon.com/elasticache/what-is-valkey/) with Valkey support, which [devsec.tools](https://devsec.tools) uses for caching results.

@@ -45,7 +45,7 @@ var httpCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		domain, err := httptls.ParseDomain(args[0])
+		domain, err := httptls.ParseDomain(args[0], true)
 		if err != nil {
 			logger.Fatal(err)
 		}

@@ -86,6 +86,8 @@ func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 
 	// Handle the correct test
 	switch event.Path {
+	case "/domain":
+		return handleLambdaDomain(input)
 	case "/http":
 		return handleLambdaHTTP(input)
 	case "/tls":
@@ -103,13 +105,50 @@ func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 	}, nil
 }
 
+func handleLambdaDomain(input InputRequest) (events.APIGatewayProxyResponse, error) {
+	domain, err := httptls.ParseDomain(input.URL, false)
+	if err != nil {
+		e := ErrorResponse{Message: "Could not understand given URL."}
+		b, _ := json.Marshal(e)
+
+		logger.Error(err)
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       string(b),
+		}, nil
+	}
+
+	result := httptls.DomainResult{
+		Hostname: domain,
+	}
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		e := ErrorResponse{Message: fmt.Sprintf("Error when preparing results as JSON: %s", err.Error())}
+		b, _ := json.Marshal(e)
+
+		logger.Error(err)
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       string(b),
+		}, nil
+	}
+
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Body:       string(data),
+	}, nil
+}
+
 func handleLambdaHTTP(input InputRequest) (events.APIGatewayProxyResponse, error) {
 	var (
 		e    error
 		err1 error
 	)
 
-	domain, err := httptls.ParseDomain(input.URL)
+	domain, err := httptls.ParseDomain(input.URL, true)
 	if err != nil {
 		e := ErrorResponse{Message: "Could not understand given URL."}
 		b, _ := json.Marshal(e)
@@ -208,7 +247,7 @@ func handleLambdaHTTP(input InputRequest) (events.APIGatewayProxyResponse, error
 func handleLambdaTLS(input InputRequest) (events.APIGatewayProxyResponse, error) {
 	var err1 error
 
-	domain, err := httptls.ParseDomain(input.URL)
+	domain, err := httptls.ParseDomain(input.URL, true)
 	if err != nil {
 		e := ErrorResponse{Message: "Could not understand given URL."}
 		b, _ := json.Marshal(e)

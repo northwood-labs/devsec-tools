@@ -1,0 +1,16 @@
+provider:
+  name: devsectools
+
+data_sources:
+  domain:
+    read:
+      path: /domain
+      method: GET
+  http:
+    read:
+      path: /http
+      method: GET
+  tls:
+    read:
+      path: /tls
+      method: GET
