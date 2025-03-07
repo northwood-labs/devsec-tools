@@ -6,5 +6,6 @@
     "https://json.schemastore.org/traefik-v3-file-provider.json": [
       "traefik-dynamic.yml"
     ]
-  }
+  },
+  "makefile.configureOnOpen": false
 }
