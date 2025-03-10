@@ -55,6 +55,7 @@ var tlsCmd = &cobra.Command{
 		err = spinner.New().
 			Title(fmt.Sprintf("Testing TLS versions for %s...", domain)).
 			Type(spinner.Dots).
+			Output(os.Stderr).
 			Accessible(fQuiet && !fJSON).
 			Action(func(result *httptls.TLSResult) func() {
 				return func() {

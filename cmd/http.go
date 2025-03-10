@@ -55,6 +55,7 @@ var httpCmd = &cobra.Command{
 		err = spinner.New().
 			Title(fmt.Sprintf("Testing HTTP versions for %s...", domain)).
 			Type(spinner.Dots).
+			Output(os.Stderr).
 			Accessible(fQuiet && !fJSON).
 			Action(func(result *httptls.HTTPResult) func() {
 				return func() {
