@@ -38,14 +38,22 @@ var httpCmd = &cobra.Command{
 	hostname and try again. Network timeouts are treated as "NO".
 	`),
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
+		if !fStdin && len(args) < 1 {
 			return errors.New("Please provide a domain to check.\n")
 		}
 
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		domain, err := httptls.ParseDomain(args[0], true)
+		var domain string
+
+		if fStdin && sStdin != "" {
+			domain = sStdin
+		} else if len(args) > 0 {
+			domain = args[0]
+		}
+
+		domain, err = httptls.ParseDomain(domain, true)
 		if err != nil {
 			logger.Fatal(err)
 		}

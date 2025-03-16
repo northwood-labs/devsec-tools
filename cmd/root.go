@@ -15,8 +15,11 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/charmbracelet/log"
@@ -28,12 +31,17 @@ import (
 var (
 	ctx    = context.Background()
 	logger *log.Logger
+	err    error
 
 	fJSON    bool
 	fQuiet   bool
 	fEmoji   bool
+	fStdin   bool
 	fVerbose int
 	fTimeout int
+
+	sStdin string
+	bStdin []byte
 
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{
@@ -50,6 +58,16 @@ var (
 		`),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			logger = GetLogger(fVerbose, fJSON)
+
+			if fStdin {
+				bStdin, err = io.ReadAll(bufio.NewReader(os.Stdin))
+				if err != nil {
+					logger.Error(err)
+					os.Exit(1)
+				}
+
+				sStdin = strings.TrimSpace(string(bStdin))
+			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			// Are we running in a Lambda environment?
@@ -79,6 +97,9 @@ func init() {
 	)
 	rootCmd.PersistentFlags().BoolVarP(
 		&fQuiet, "quiet", "q", false, "Disable all logging output.",
+	)
+	rootCmd.PersistentFlags().BoolVarP(
+		&fStdin, "stdin", "i", false, "Read data from stdin.",
 	)
 	rootCmd.PersistentFlags().CountVarP(
 		&fVerbose, "verbose", "v", "Enable verbose output.",

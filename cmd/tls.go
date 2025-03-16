@@ -35,14 +35,20 @@ var tlsCmd = &cobra.Command{
 	problems with outdated cipher suites that should probably be disabled.
 	`),
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
+		if !fStdin && len(args) < 1 {
 			return errors.New("Please provide a domain to check.\n")
 		}
 
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		domain := args[0]
+		var domain string
+
+		if fStdin && sStdin != "" {
+			domain = sStdin
+		} else if len(args) > 0 {
+			domain = args[0]
+		}
 
 		host, port, err := httptls.ParseHostPort(domain)
 		if err != nil {
