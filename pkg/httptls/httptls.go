@@ -17,6 +17,7 @@ package httptls
 import (
 	"cmp"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net"
 	"net/http"
@@ -433,8 +434,10 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 					)
 
 					if version == VersionTLS13 {
+						rootCAs, _ := x509.SystemCertPool()
 						conf := &tls.Config{
-							InsecureSkipVerify: true,
+							InsecureSkipVerify: false,
+							RootCAs:            rootCAs,
 							MinVersion:         version,
 							MaxVersion:         version,
 							CipherSuites:       []uint16{c},
@@ -453,8 +456,10 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 
 						innerResults <- suite
 					} else {
+						rootCAs, _ := x509.SystemCertPool()
 						conf := &ztls.Config{
-							InsecureSkipVerify: true,
+							InsecureSkipVerify: false,
+							RootCAs:            rootCAs,
 							MinVersion:         version,
 							MaxVersion:         version,
 							CipherSuites:       []uint16{c},
