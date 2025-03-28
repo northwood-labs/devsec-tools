@@ -37,9 +37,9 @@ const (
 	EncryptCamellia256CBC
 	EncryptCamellia256GCM
 	EncryptChaChaPoly
+	EncryptDES40CBC
 	EncryptDESCBC
 	EncryptDESCBC40
-	EncryptDES40CBC
 	EncryptIDEACBC
 	EncryptKuznyechikCTR
 	EncryptKuznyechikMGML
@@ -49,8 +49,10 @@ const (
 	EncryptMagmaMGMS
 	EncryptNULL
 	EncryptRC2CBC40
+	EncryptRC2CBC56
 	EncryptRC4128
 	EncryptRC440
+	EncryptRC456
 	EncryptSEEDCBC
 	EncryptSM4CCM
 	EncryptSM4GCM
@@ -77,9 +79,9 @@ var EncryptionAlgoList = map[EncryptionAlgo]string{
 	EncryptCamellia256CBC: "Camellia-256-CBC",  // Japan, 日本
 	EncryptCamellia256GCM: "Camellia-256-GCM",  // Japan, 日本
 	EncryptChaChaPoly:     "CHACHA20-POLY1305", // International Standard
+	EncryptDES40CBC:       "DES-40-CBC",        // Ancient
 	EncryptDESCBC:         "DES-CBC",           // Ancient
 	EncryptDESCBC40:       "DES-CBC-40",        // Ancient
-	EncryptDES40CBC:       "DES-40-CBC",        // Ancient
 	EncryptIDEACBC:        "IDEA-CBC",          // Ancient
 	EncryptKuznyechikCTR:  "Kuznyechik-CTR",    // Russia; Россия
 	EncryptKuznyechikMGML: "Kuznyechik-MGM-L",  // Russia; Россия
@@ -89,8 +91,10 @@ var EncryptionAlgoList = map[EncryptionAlgo]string{
 	EncryptMagmaMGMS:      "Magma-MGM-S",       // Russia; Россия
 	EncryptNULL:           "NULL",              //
 	EncryptRC2CBC40:       "RC2-CBC-40",        // Ancient
+	EncryptRC2CBC56:       "RC2-CBC-56",        // Ancient
 	EncryptRC4128:         "RC4-128",           // Ancient
 	EncryptRC440:          "RC4-40",            // Ancient
+	EncryptRC456:          "RC4-56",            // Ancient
 	EncryptSEEDCBC:        "SEED-CBC",          // Ancient
 	EncryptSM4CCM:         "SM4-CCM",           // China; 中国
 	EncryptSM4GCM:         "SM4-GCM",           // China; 中国

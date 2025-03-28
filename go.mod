@@ -1,8 +1,8 @@
 module github.com/northwood-labs/devsec-tools
 
-go 1.23.0
+go 1.24
 
-toolchain go1.23.4
+toolchain go1.24.1
 
 godebug (
 	default=go1.21
@@ -71,7 +71,7 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/weppos/publicsuffix-go v0.40.3-0.20250127173806-e489a31678ca // indirect
+	github.com/weppos/publicsuffix-go v0.40.3-0.20250311103038-7794c8c0723b // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zmap/rc2 v0.0.0-20190804163417-abaa70531248 // indirect
 	go.uber.org/mock v0.5.0 // indirect

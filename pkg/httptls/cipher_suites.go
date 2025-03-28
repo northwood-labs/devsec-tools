@@ -64,10 +64,8 @@ type CipherData struct {
 }
 
 // CipherList is a map of all IANA-identified cipher suites to their respective
-// data.
-//
-// https://ciphersuite.info/cs/?singlepage=true provides a list of all cipher
-// suites.
+// data. The blocks that are commented-out are the ones that are not supported
+// by our underlying library.
 //
 // https://www.iana.org/assignments/tls-parameters/tls-parameters.xml is the
 // official source for this information.
@@ -753,6 +751,76 @@ var CipherList = map[uint16]CipherData{
 	// 0x0059-0x005C   Reserved to avoid conflicts with deployed implementations
 	// 0x005D-0x005F   Unassigned
 	// 0x0060-0x0066   Reserved to avoid conflicts with widely deployed implementations
+	0x0060: {
+		// Unofficial, but (at one point) widely-deployed.
+		IANAName: "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexRSA,
+		authentication: SigRSA,
+		encryptionAlgo: EncryptRC456,
+		hash:           HashMD5,
+	},
+	0x0061: {
+		// Unofficial, but (at one point) widely-deployed.
+		IANAName: "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexRSA,
+		authentication: SigRSA,
+		encryptionAlgo: EncryptRC2CBC56,
+		hash:           HashMD5,
+	},
+	0x0062: {
+		// Unofficial, but (at one point) widely-deployed.
+		IANAName: "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexRSA,
+		authentication: SigRSA,
+		encryptionAlgo: EncryptDESCBC,
+		hash:           HashSHA1,
+	},
+	0x0063: {
+		// Unofficial, but (at one point) widely-deployed.
+		IANAName: "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexDHE,
+		authentication: SigDSA,
+		encryptionAlgo: EncryptDESCBC,
+		hash:           HashSHA1,
+	},
+	0x0064: {
+		// Unofficial, but (at one point) widely-deployed.
+		IANAName: "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexRSA,
+		authentication: SigRSA,
+		encryptionAlgo: EncryptRC456,
+		hash:           HashSHA1,
+	},
+	0x0065: {
+		// Unofficial, but (at one point) widely-deployed.
+		IANAName: "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexDHE,
+		authentication: SigDSA,
+		encryptionAlgo: EncryptRC456,
+		hash:           HashSHA1,
+	},
+	0x0066: {
+		// Unofficial, but (at one point) widely-deployed.
+		IANAName: "TLS_DHE_DSS_WITH_RC4_128_SHA",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexDHE,
+		authentication: SigDSA,
+		encryptionAlgo: EncryptRC4128,
+		hash:           HashSHA1,
+	},
 	0x0067: {
 		IANAName:    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
 		OpenSSLName: "DHE-RSA-AES128-SHA256",
@@ -827,6 +895,50 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSHA256,
 	},
 	// 0x006E-0x0083   Unassigned
+	0x0080: {
+		// Unassigned
+		IANAName:    "TLS_GOSTR341094_WITH_28147_CNT_IMIT",
+		OpenSSLName: "GOST94-GOST89-GOST89",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexGOSTR341094,
+		authentication: SigGOSTR341094,
+		encryptionAlgo: EncryptMagmaCTR,
+		hash:           HashGOSTR,
+	},
+	0x0081: {
+		// Unassigned
+		IANAName:    "TLS_GOSTR341001_WITH_28147_CNT_IMIT",
+		OpenSSLName: "GOST2001-GOST89-GOST89",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexGOSTR341001,
+		authentication: SigGOSTR341001,
+		encryptionAlgo: EncryptMagmaCTR,
+		hash:           HashGOSTR,
+	},
+	0x0082: {
+		// Unassigned
+		IANAName:    "TLS_GOSTR341094_WITH_NULL_GOSTR3411",
+		OpenSSLName: "GOST94-NULL-GOST94",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexGOSTR341094,
+		authentication: SigGOSTR341094,
+		encryptionAlgo: EncryptNULL,
+		hash:           HashGOSTR,
+	},
+	0x0083: {
+		// Unassigned
+		IANAName:    "TLS_GOSTR341001_WITH_NULL_GOSTR3411",
+		OpenSSLName: "GOST2001-NULL-GOST94",
+
+		strength:       StrengthInsecure,
+		keyExchange:    KexGOSTR341001,
+		authentication: SigGOSTR341001,
+		encryptionAlgo: EncryptNULL,
+		hash:           HashGOSTR,
+	},
 	0x0084: {
 		IANAName:    "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA",
 		OpenSSLName: "CAMELLIA256-SHA",
@@ -1541,7 +1653,7 @@ var CipherList = map[uint16]CipherData{
 		hash:           HashSM3,
 	},
 	// 0x00C8-0x00FE   Unassigned
-	0x00FF: {IANAName: "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"},
+	0x00FF: {IANAName: "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"}, // TLS_RENEGO_PROTECTION_REQUEST
 	// 0x0100-0x0900   Unassigned
 	// 0x0A00-0x0A09   Unassigned
 	// 0x0A0A          Reserved
@@ -1577,27 +1689,27 @@ var CipherList = map[uint16]CipherData{
 		encryptionAlgo: EncryptChaChaPoly,
 		hash:           HashSHA256,
 	},
-	0x1304: {
-		IANAName:    "TLS_AES_128_CCM_SHA256",
-		OpenSSLName: "TLS_AES_128_CCM_SHA256",
+	// 0x1304: {
+	// 	IANAName:    "TLS_AES_128_CCM_SHA256",
+	// 	OpenSSLName: "TLS_AES_128_CCM_SHA256",
 
-		strength:       StrengthSecure,
-		keyExchange:    KexECDHE,
-		authentication: SigECDSA,
-		encryptionAlgo: EncryptAES128CCM,
-		hash:           HashSHA256,
-	},
-	0x1305: {
-		IANAName: "TLS_AES_128_CCM_8_SHA256",
+	// 	strength:       StrengthSecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigECDSA,
+	// 	encryptionAlgo: EncryptAES128CCM,
+	// 	hash:           HashSHA256,
+	// },
+	// 0x1305: {
+	// 	IANAName: "TLS_AES_128_CCM_8_SHA256",
 
-		strength:       StrengthSecure,
-		keyExchange:    KexECDHE,
-		authentication: SigECDSA,
-		encryptionAlgo: EncryptAES128CCM8,
-		hash:           HashSHA256,
-	},
-	0x1306: {IANAName: "TLS_AEGIS_256_SHA512"},
-	0x1307: {IANAName: "TLS_AEGIS_128L_SHA256"},
+	// 	strength:       StrengthSecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigECDSA,
+	// 	encryptionAlgo: EncryptAES128CCM8,
+	// 	hash:           HashSHA256,
+	// },
+	// 0x1306: {IANAName: "TLS_AEGIS_256_SHA512"},
+	// 0x1307: {IANAName: "TLS_AEGIS_128L_SHA256"},
 	// 0x1308-0x13FF   Unassigned
 	// 0x1400-0x19FF   Unassigned
 	// 0x1A00-0x1A19   Unassigned
@@ -3383,131 +3495,162 @@ var CipherList = map[uint16]CipherData{
 		encryptionAlgo: EncryptAES256CCM8,
 		hash:           HashSHA256,
 	},
-	0xC0B0: {
-		IANAName: "TLS_ECCPWD_WITH_AES_128_GCM_SHA256",
+	// 0xC0B0: {
+	// 	IANAName: "TLS_ECCPWD_WITH_AES_128_GCM_SHA256",
 
-		strength:       StrengthRecommended,
-		keyExchange:    KexECCPWD,
-		authentication: SigECCPWD,
-		encryptionAlgo: EncryptAES128GCM,
-		hash:           HashSHA256,
-	},
-	0xC0B1: {
-		IANAName: "TLS_ECCPWD_WITH_AES_256_GCM_SHA384",
+	// 	strength:       StrengthRecommended,
+	// 	keyExchange:    KexECCPWD,
+	// 	authentication: SigECCPWD,
+	// 	encryptionAlgo: EncryptAES128GCM,
+	// 	hash:           HashSHA256,
+	// },
+	// 0xC0B1: {
+	// 	IANAName: "TLS_ECCPWD_WITH_AES_256_GCM_SHA384",
 
-		strength:       StrengthRecommended,
-		keyExchange:    KexECCPWD,
-		authentication: SigECCPWD,
-		encryptionAlgo: EncryptAES256GCM,
-		hash:           HashSHA384,
-	},
-	0xC0B2: {
-		IANAName: "TLS_ECCPWD_WITH_AES_128_CCM_SHA256",
+	// 	strength:       StrengthRecommended,
+	// 	keyExchange:    KexECCPWD,
+	// 	authentication: SigECCPWD,
+	// 	encryptionAlgo: EncryptAES256GCM,
+	// 	hash:           HashSHA384,
+	// },
+	// 0xC0B2: {
+	// 	IANAName: "TLS_ECCPWD_WITH_AES_128_CCM_SHA256",
 
-		strength:       StrengthSecure,
-		keyExchange:    KexECCPWD,
-		authentication: SigECCPWD,
-		encryptionAlgo: EncryptAES128CCM,
-		hash:           HashSHA256,
-	},
-	0xC0B3: {
-		IANAName: "TLS_ECCPWD_WITH_AES_256_CCM_SHA384",
+	// 	strength:       StrengthSecure,
+	// 	keyExchange:    KexECCPWD,
+	// 	authentication: SigECCPWD,
+	// 	encryptionAlgo: EncryptAES128CCM,
+	// 	hash:           HashSHA256,
+	// },
+	// 0xC0B3: {
+	// 	IANAName: "TLS_ECCPWD_WITH_AES_256_CCM_SHA384",
 
-		strength:       StrengthSecure,
-		keyExchange:    KexECCPWD,
-		authentication: SigECCPWD,
-		encryptionAlgo: EncryptAES256CCM,
-		hash:           HashSHA384,
-	},
-	0xC0B4: {
-		IANAName: "TLS_SHA256_SHA256",
+	// 	strength:       StrengthSecure,
+	// 	keyExchange:    KexECCPWD,
+	// 	authentication: SigECCPWD,
+	// 	encryptionAlgo: EncryptAES256CCM,
+	// 	hash:           HashSHA384,
+	// },
+	// 0xC0B4: {
+	// 	IANAName: "TLS_SHA256_SHA256",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexNone,
-		authentication: SigSHA256,
-		encryptionAlgo: EncryptNULL,
-		hash:           HashSHA256,
-	},
-	0xC0B5: {
-		IANAName: "TLS_SHA384_SHA384",
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexNone,
+	// 	authentication: SigSHA256,
+	// 	encryptionAlgo: EncryptNULL,
+	// 	hash:           HashSHA256,
+	// },
+	// 0xC0B5: {
+	// 	IANAName: "TLS_SHA384_SHA384",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexNone,
-		authentication: SigSHA384,
-		encryptionAlgo: EncryptNULL,
-		hash:           HashSHA384,
-	},
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexNone,
+	// 	authentication: SigSHA384,
+	// 	encryptionAlgo: EncryptNULL,
+	// 	hash:           HashSHA384,
+	// },
 	// 0xC0B6-0xC0FF   Unassigned
-	0xC100: {
-		IANAName: "TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC",
+	// 0xC100: {
+	// 	IANAName: "TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexGOST256,
-		authentication: SigGOST256,
-		encryptionAlgo: EncryptKuznyechikCTR,
-		hash:           HashGOSTR,
-	},
-	0xC101: {
-		IANAName: "TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC",
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexGOST256,
+	// 	authentication: SigGOST256,
+	// 	encryptionAlgo: EncryptKuznyechikCTR,
+	// 	hash:           HashGOSTR,
+	// },
+	// 0xC101: {
+	// 	IANAName: "TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexGOST256,
-		authentication: SigGOST256,
-		encryptionAlgo: EncryptMagmaCTR,
-		hash:           HashGOSTR,
-	},
-	0xC102: {
-		IANAName: "TLS_GOSTR341112_256_WITH_28147_CNT_IMIT",
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexGOST256,
+	// 	authentication: SigGOST256,
+	// 	encryptionAlgo: EncryptMagmaCTR,
+	// 	hash:           HashGOSTR,
+	// },
+	// 0xC102: {
+	// 	IANAName: "TLS_GOSTR341112_256_WITH_28147_CNT_IMIT",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexGOST256,
-		authentication: SigGOST256,
-		encryptionAlgo: Encrypt28147CNT,
-		hash:           HashGOSTR,
-	},
-	0xC103: {
-		IANAName: "TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L",
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexGOST256,
+	// 	authentication: SigGOST256,
+	// 	encryptionAlgo: Encrypt28147CNT,
+	// 	hash:           HashGOSTR,
+	// },
+	// 0xC103: {
+	// 	IANAName: "TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexECDHE,
-		authentication: SigNULL,
-		encryptionAlgo: EncryptKuznyechikMGML,
-		hash:           HashNone,
-	},
-	0xC104: {
-		IANAName: "TLS_GOSTR341112_256_WITH_MAGMA_MGM_L",
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigNULL,
+	// 	encryptionAlgo: EncryptKuznyechikMGML,
+	// 	hash:           HashNone,
+	// },
+	// 0xC104: {
+	// 	IANAName: "TLS_GOSTR341112_256_WITH_MAGMA_MGM_L",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexECDHE,
-		authentication: SigNULL,
-		encryptionAlgo: EncryptMagmaMGML,
-		hash:           HashNone,
-	},
-	0xC105: {
-		IANAName: "TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S",
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigNULL,
+	// 	encryptionAlgo: EncryptMagmaMGML,
+	// 	hash:           HashNone,
+	// },
+	// 0xC105: {
+	// 	IANAName: "TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexECDHE,
-		authentication: SigNULL,
-		encryptionAlgo: EncryptKuznyechikMGMS,
-		hash:           HashNone,
-	},
-	0xC106: {
-		IANAName: "TLS_GOSTR341112_256_WITH_MAGMA_MGM_S",
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigNULL,
+	// 	encryptionAlgo: EncryptKuznyechikMGMS,
+	// 	hash:           HashNone,
+	// },
+	// 0xC106: {
+	// 	IANAName: "TLS_GOSTR341112_256_WITH_MAGMA_MGM_S",
 
-		strength:       StrengthInsecure,
-		keyExchange:    KexECDHE,
-		authentication: SigNULL,
-		encryptionAlgo: EncryptMagmaMGMS,
-		hash:           HashNone,
-	},
+	// 	strength:       StrengthInsecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigNULL,
+	// 	encryptionAlgo: EncryptMagmaMGMS,
+	// 	hash:           HashNone,
+	// },
 	// 0xC107-0xC1FF   Unassigned
 	// 0xC200-0xC9FF   Unassigned
 	// 0xCA00-0xCAC9   Unassigned
 	// 0xCACA          Reserved
 	// 0xCACB-0xCAFF   Unassigned
 	// 0xCB00-0xCBFF   Unassigned
-	// 0xCC00-0xCCA7   Unassigned
+	// 0xCC00-0xCC12   Unassigned
+	0xCC13: {
+		// Unassigned
+		IANAName: "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256_OLD", // Now 0xCCA8
+
+		strength:       StrengthSecure,
+		keyExchange:    KexECDHE,
+		authentication: SigRSA,
+		encryptionAlgo: EncryptChaChaPoly,
+		hash:           HashSHA256,
+	},
+	0xCC14: {
+		// Unassigned
+		IANAName: "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256_OLD", // Now 0xCCA9
+
+		strength:       StrengthRecommended,
+		keyExchange:    KexECDHE,
+		authentication: SigECDSA,
+		encryptionAlgo: EncryptChaChaPoly,
+		hash:           HashSHA256,
+	},
+	0xCC15: {
+		// Unassigned
+		IANAName: "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256_OLD", // Now 0xCCAA
+
+		strength:       StrengthWeak,
+		keyExchange:    KexDHE,
+		authentication: SigRSA,
+		encryptionAlgo: EncryptChaChaPoly,
+		hash:           HashSHA256,
+	},
+	// 0xCC16-0xCCA7   Unassigned
 	0xCCA8: {
 		IANAName:    "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
 		OpenSSLName: "ECDHE-RSA-CHACHA20-POLY1305",
@@ -3541,50 +3684,50 @@ var CipherList = map[uint16]CipherData{
 		encryptionAlgo: EncryptChaChaPoly,
 		hash:           HashSHA256,
 	},
-	0xCCAB: {
-		IANAName:    "TLS_PSK_WITH_CHACHA20_POLY1305_SHA256",
-		OpenSSLName: "PSK-CHACHA20-POLY1305",
-		GNUTLSName:  "TLS_PSK_CHACHA20_POLY1305",
+	// 0xCCAB: {
+	// 	IANAName:    "TLS_PSK_WITH_CHACHA20_POLY1305_SHA256",
+	// 	OpenSSLName: "PSK-CHACHA20-POLY1305",
+	// 	GNUTLSName:  "TLS_PSK_CHACHA20_POLY1305",
 
-		strength:       StrengthWeak,
-		keyExchange:    KexPSK,
-		authentication: SigPSK,
-		encryptionAlgo: EncryptChaChaPoly,
-		hash:           HashSHA256,
-	},
-	0xCCAC: {
-		IANAName:    "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256",
-		OpenSSLName: "ECDHE-PSK-CHACHA20-POLY1305",
-		GNUTLSName:  "TLS_ECDHE_PSK_CHACHA20_POLY1305",
+	// 	strength:       StrengthWeak,
+	// 	keyExchange:    KexPSK,
+	// 	authentication: SigPSK,
+	// 	encryptionAlgo: EncryptChaChaPoly,
+	// 	hash:           HashSHA256,
+	// },
+	// 0xCCAC: {
+	// 	IANAName:    "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256",
+	// 	OpenSSLName: "ECDHE-PSK-CHACHA20-POLY1305",
+	// 	GNUTLSName:  "TLS_ECDHE_PSK_CHACHA20_POLY1305",
 
-		strength:       StrengthRecommended,
-		keyExchange:    KexECDHE,
-		authentication: SigPSK,
-		encryptionAlgo: EncryptChaChaPoly,
-		hash:           HashSHA256,
-	},
-	0xCCAD: {
-		IANAName:    "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256",
-		OpenSSLName: "DHE-PSK-CHACHA20-POLY1305",
-		GNUTLSName:  "TLS_DHE_PSK_CHACHA20_POLY1305",
+	// 	strength:       StrengthRecommended,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigPSK,
+	// 	encryptionAlgo: EncryptChaChaPoly,
+	// 	hash:           HashSHA256,
+	// },
+	// 0xCCAD: {
+	// 	IANAName:    "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256",
+	// 	OpenSSLName: "DHE-PSK-CHACHA20-POLY1305",
+	// 	GNUTLSName:  "TLS_DHE_PSK_CHACHA20_POLY1305",
 
-		strength:       StrengthWeak,
-		keyExchange:    KexDHE,
-		authentication: SigPSK,
-		encryptionAlgo: EncryptChaChaPoly,
-		hash:           HashSHA256,
-	},
-	0xCCAE: {
-		IANAName:    "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256",
-		OpenSSLName: "RSA-PSK-CHACHA20-POLY1305",
-		GNUTLSName:  "TLS_RSA_PSK_CHACHA20_POLY1305",
+	// 	strength:       StrengthWeak,
+	// 	keyExchange:    KexDHE,
+	// 	authentication: SigPSK,
+	// 	encryptionAlgo: EncryptChaChaPoly,
+	// 	hash:           HashSHA256,
+	// },
+	// 0xCCAE: {
+	// 	IANAName:    "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256",
+	// 	OpenSSLName: "RSA-PSK-CHACHA20-POLY1305",
+	// 	GNUTLSName:  "TLS_RSA_PSK_CHACHA20_POLY1305",
 
-		strength:       StrengthWeak,
-		keyExchange:    KexRSA,
-		authentication: SigPSK,
-		encryptionAlgo: EncryptChaChaPoly,
-		hash:           HashSHA256,
-	},
+	// 	strength:       StrengthWeak,
+	// 	keyExchange:    KexRSA,
+	// 	authentication: SigPSK,
+	// 	encryptionAlgo: EncryptChaChaPoly,
+	// 	hash:           HashSHA256,
+	// },
 	// 0xCCAF-0xCCFF	Unassigned
 	// 0xCD00-0xCFFF	Unassigned
 	// 0xD000           Unassigned
@@ -3597,34 +3740,34 @@ var CipherList = map[uint16]CipherData{
 		encryptionAlgo: EncryptAES128GCM,
 		hash:           HashSHA256,
 	},
-	0xD002: {
-		IANAName: "TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384",
+	// 0xD002: {
+	// 	IANAName: "TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384",
 
-		strength:       StrengthRecommended,
-		keyExchange:    KexECDHE,
-		authentication: SigPSK,
-		encryptionAlgo: EncryptAES256GCM,
-		hash:           HashSHA384,
-	},
-	0xD003: {
-		IANAName: "TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256",
+	// 	strength:       StrengthRecommended,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigPSK,
+	// 	encryptionAlgo: EncryptAES256GCM,
+	// 	hash:           HashSHA384,
+	// },
+	// 0xD003: {
+	// 	IANAName: "TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256",
 
-		strength:       StrengthSecure,
-		keyExchange:    KexECDHE,
-		authentication: SigPSK,
-		encryptionAlgo: EncryptAES128CCM8,
-		hash:           HashSHA256,
-	},
-	// 0xD004           Unassigned
-	0xD005: {
-		IANAName: "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256",
+	// 	strength:       StrengthSecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigPSK,
+	// 	encryptionAlgo: EncryptAES128CCM8,
+	// 	hash:           HashSHA256,
+	// },
+	// // 0xD004           Unassigned
+	// 0xD005: {
+	// 	IANAName: "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256",
 
-		strength:       StrengthSecure,
-		keyExchange:    KexECDHE,
-		authentication: SigPSK,
-		encryptionAlgo: EncryptAES128CCM,
-		hash:           HashSHA256,
-	},
+	// 	strength:       StrengthSecure,
+	// 	keyExchange:    KexECDHE,
+	// 	authentication: SigPSK,
+	// 	encryptionAlgo: EncryptAES128CCM,
+	// 	hash:           HashSHA256,
+	// },
 	// 0xD006-0xD0FF    Unassigned
 	// 0xD100-0xD9FF    Unassigned
 	// 0xDA00-0xDAD9    Unassigned

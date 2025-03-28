@@ -45,7 +45,7 @@ var HashList = map[Hash]string{
 	HashSHA256: "SHA-2, 256 bits",
 	HashSHA384: "SHA-2, 384 bits",
 	HashSHA512: "SHA-2, 512 bits",
-	HashGOSTR:  "GOST R 34.10-2012",
+	HashGOSTR:  "GOST R 34.10-2012 (Imitovstavka)",
 	HashNULL:   "NULL",
 	HashSM3:    "ShangMi-3 (SM3)",
 }

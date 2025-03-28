@@ -147,8 +147,9 @@ github.com/valkey-io/valkey-go/mock v1.0.55/go.mod h1:ii9JXh/bnNz9tiiL7QhlEq+Zm4
 github.com/valkey-io/valkey-go/valkeycompat v1.0.55 h1:K6Op35BE6+qDS3zc4Am50OT5h7RgGZ9KF19fDOu5oig=
 github.com/valkey-io/valkey-go/valkeycompat v1.0.55/go.mod h1:4FSXGFDsz6rnSb/5bTHTyETiMKDKSSEvlpGAJe53Mdk=
 github.com/weppos/publicsuffix-go v0.13.0/go.mod h1:z3LCPQ38eedDQSwmsSRW4Y7t2L8Ln16JPQ02lHAdn5k=
-github.com/weppos/publicsuffix-go v0.40.3-0.20250127173806-e489a31678ca h1:Cno+VZU+XBPscI/pEMZPlzAB21kjo00dy8OWpxa3ECo=
 github.com/weppos/publicsuffix-go v0.40.3-0.20250127173806-e489a31678ca/go.mod h1:43Dfyxu2dpmLg56at26Q4k9gwf3yWSUiwk8kGnwzULk=
+github.com/weppos/publicsuffix-go v0.40.3-0.20250311103038-7794c8c0723b h1:PFOWooJRLwIuZk9i3ihzKzZffPrAVyOCzPInvLbn140=
+github.com/weppos/publicsuffix-go v0.40.3-0.20250311103038-7794c8c0723b/go.mod h1:EACzvcFHnxqmDapI/oqMjtpXz+mtjNzJe7r1zhRczZ0=
 github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e h1:JVG44RsyaB9T2KIHavMF/ppJZNG9ZpyihvCd0w101no=
 github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e/go.mod h1:RbqR21r5mrJuqunuUZ/Dhy/avygyECGrLceyNeo4LiM=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

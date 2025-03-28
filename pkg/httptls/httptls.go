@@ -17,7 +17,6 @@ package httptls
 import (
 	"cmp"
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"net"
 	"net/http"
@@ -284,8 +283,8 @@ func GetSupportedHTTPVersions(domain string, opts ...Options) (HTTPResult, error
 	return httpConn, nil
 }
 
-// GetSupportedTLSVersions checks a domain for supported TLS versions. SSL v2,
-// SSL v3, TLS 1.0, TLS 1.1, TLS 1.2, and TLS 1.3 are checked.
+// GetSupportedTLSVersions checks a domain for supported TLS versions. TLS 1.0,
+// TLS 1.1, TLS 1.2, and TLS 1.3 are checked.
 //
 // Goroutines are used to check each version and ciphersuite concurrently. The
 // results are then collected and returned.
@@ -319,54 +318,15 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 				suites []CipherData
 			)
 
-			cs = maps.Keys(CipherList)
-
 			switch version {
-			// case VersionSSL20, VersionSSL30:
-			// 	// https://datatracker.ietf.org/doc/html/rfc6101#appendix-C
-			// 	cs = []uint16{
-			// 		0x0000, // TLS_NULL_WITH_NULL_NULL
-			// 		0x0001, // TLS_RSA_WITH_NULL_MD5
-			// 		0x0002, // TLS_RSA_WITH_NULL_SHA
-			// 		0x0003, // TLS_RSA_EXPORT_WITH_RC4_40_MD5
-			// 		0x0004, // TLS_RSA_WITH_RC4_128_MD5
-			// 		0x0005, // TLS_RSA_WITH_RC4_128_SHA
-			// 		0x0006, // TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
-			// 		0x0007, // TLS_RSA_WITH_IDEA_CBC_SHA
-			// 		0x0008, // TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
-			// 		0x0009, // TLS_RSA_WITH_DES_CBC_SHA
-			// 		0x000A, // TLS_RSA_WITH_3DES_EDE_CBC_SHA
-			// 		0x000B, // TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA
-			// 		0x000C, // TLS_DH_DSS_WITH_DES_CBC_SHA
-			// 		0x000D, // TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA
-			// 		0x000E, // TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA
-			// 		0x000F, // TLS_DH_RSA_WITH_DES_CBC_SHA
-			// 		0x0010, // TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA
-			// 		0x0011, // TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA
-			// 		0x0012, // TLS_DHE_DSS_WITH_DES_CBC_SHA
-			// 		0x0013, // TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA
-			// 		0x0014, // TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
-			// 		0x0015, // TLS_DHE_RSA_WITH_DES_CBC_SHA
-			// 		0x0016, // TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
-			// 		0x0017, // TLS_DH_anon_EXPORT_WITH_RC4_40_MD5
-			// 		0x0018, // TLS_DH_anon_WITH_RC4_128_MD5
-			// 		0x0019, // TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA
-			// 		0x001A, // TLS_DH_anon_WITH_DES_CBC_SHA
-			// 		0x001B, // TLS_DH_anon_WITH_3DES_EDE_CBC_SHA
-			// 		// TLS_FORTEZZA_KEA_WITH_NULL_SHA
-			// 		// TLS_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA
-			// 		// TLS_FORTEZZA_KEA_WITH_RC4_128_SHA
-			// 	}
 			case tls.VersionTLS10, tls.VersionTLS11, tls.VersionTLS12:
-				// Go only supports a very limited set of cipher suites. They
-				// are all on the secure end of the spectrum, which is good, but
-				// it also means that there are things that we cannot test for.
-				//
-				// https://cs.opensource.google/go/go/+/refs/tags/go1.23.5:src/crypto/tls/cipher_suites.go;l=677-699
+				// https://github.com/northwood-labs/zcrypto/blob/6576108785b216362aabbd0a7ab5eadee003cc8f/tls/cipher_suites.go#L645-L1005
 				// https://datatracker.ietf.org/doc/html/rfc2246/#appendix-C
 				// https://datatracker.ietf.org/doc/html/rfc4346/#appendix-C
 				// https://datatracker.ietf.org/doc/html/rfc5246/#appendix-C
 				cs = maps.Keys(CipherList)
+
+				// The commented ones below are supported by Go's standard crypto/tls package.
 				// cs = []uint16{
 				// 	// Recommended
 				// 	0xC02B, // TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
@@ -434,10 +394,8 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 					)
 
 					if version == VersionTLS13 {
-						rootCAs, _ := x509.SystemCertPool()
 						conf := &tls.Config{
-							InsecureSkipVerify: false,
-							RootCAs:            rootCAs,
+							InsecureSkipVerify: true,
 							MinVersion:         version,
 							MaxVersion:         version,
 							CipherSuites:       []uint16{c},
@@ -445,7 +403,7 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 
 						conn, err := tls.Dial("tcp", ipPort, conf)
 						if err != nil {
-							return
+							return // Should this return CipherData{}?
 						}
 
 						state := conn.ConnectionState()
@@ -456,13 +414,13 @@ func GetSupportedTLSVersions(domain, port string, opts ...Options) (TLSResult, e
 
 						innerResults <- suite
 					} else {
-						rootCAs, _ := x509.SystemCertPool()
 						conf := &ztls.Config{
-							InsecureSkipVerify: false,
-							RootCAs:            rootCAs,
+							InsecureSkipVerify: true, // Intentional
 							MinVersion:         version,
 							MaxVersion:         version,
 							CipherSuites:       []uint16{c},
+							ClientDSAEnabled:   true,
+							// PreferServerCipherSuites: true,
 						}
 
 						conn, err := ztls.Dial("tcp", ipPort, conf)

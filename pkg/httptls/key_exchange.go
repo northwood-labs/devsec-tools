@@ -24,7 +24,8 @@ const (
 	KexECCPWD
 	KexECDH
 	KexECDHE
-	KexGOST256
+	KexGOSTR341094
+	KexGOSTR341001
 	KexKRB5
 	KexNULL
 	KexPSK
@@ -35,19 +36,20 @@ const (
 
 // KeyExchangeList is a map of key exchange algorithms to their human-readable names.
 var KeyExchangeList = map[KeyExchange]string{
-	KexNone:    "None",
-	KexDH:      "Diffie-Hellman (Non-Ephemeral) (ECDH)",
-	KexDHE:     "Diffie-Hellman (Ephemeral) (ECDHE)",
-	KexECCPWD:  "ECCPWD",
-	KexECDH:    "Elliptic Curve Diffie-Hellman (Non-Ephemeral) (ECDH)",
-	KexECDHE:   "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
-	KexGOST256: "Russian GOST 256-bit",
-	KexKRB5:    "Kerberos (KRB5)",
-	KexNULL:    "NULL",
-	KexPSK:     "Pre-Shared Keys (PSK)",
-	KexRSA:     "RSA",
-	KexSRP:     "Secure Remote Password (SRP)",
-	KexSM2:     "ShangMi-2 (SM2)",
+	KexNone:        "None",
+	KexDH:          "Diffie-Hellman (Non-Ephemeral) (ECDH)",
+	KexDHE:         "Diffie-Hellman (Ephemeral) (ECDHE)",
+	KexECCPWD:      "ECCPWD",
+	KexECDH:        "Elliptic Curve Diffie-Hellman (Non-Ephemeral) (ECDH)",
+	KexECDHE:       "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+	KexGOSTR341094: "GOST R 34.10-1994",
+	KexGOSTR341001: "GOST R 34.10-2001",
+	KexKRB5:        "Kerberos (KRB5)",
+	KexNULL:        "NULL",
+	KexPSK:         "Pre-Shared Keys (PSK)",
+	KexRSA:         "RSA",
+	KexSRP:         "Secure Remote Password (SRP)",
+	KexSM2:         "ShangMi-2 (SM2)",
 }
 
 // PFSList is a map of key exchange algorithms which fall under the definition
