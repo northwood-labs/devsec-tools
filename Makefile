@@ -34,6 +34,9 @@ godeps:
 	@ $(HEADER) "=====> Upgrade the minor versions of Go dependencies..."
 	find . -type f -name "go.mod" | xargs -I% dirname "%" | xargs -I@ bash -c 'cd "@" && $(GO) mod tidy -go=$(GO_VER) && $(GO) get -u -t -v ./...'
 
+	@ $(HEADER) "=====> Keep zcrypto@03c45d0bae98..."
+	$(GO) get github.com/zmap/zcrypto@03c45d0bae98
+
 	@ echo ""
 	@ $(YELLOW) "Run 'make tidy' to clean up the go.mod file."
 

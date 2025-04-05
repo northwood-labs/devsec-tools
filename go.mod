@@ -30,7 +30,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/valkey-io/valkey-go v1.0.56
 	github.com/valkey-io/valkey-go/valkeycompat v1.0.56
-	github.com/zmap/zcrypto v0.0.0-20250324021606-4f0ea0eaccac
+	github.com/zmap/zcrypto v0.0.0-20250129210703-03c45d0bae98
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
 	golang.org/x/net v0.38.0
 )
@@ -73,6 +73,7 @@ require (
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/weppos/publicsuffix-go v0.40.3-0.20250311103038-7794c8c0723b // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	github.com/zmap/rc2 v0.0.0-20190804163417-abaa70531248 // indirect
 	go.uber.org/mock v0.5.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
