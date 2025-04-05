@@ -19,20 +19,20 @@ godebug (
 
 require (
 	github.com/aws/aws-lambda-go v1.47.0
-	github.com/charmbracelet/huh/spinner v0.0.0-20250315225456-0761ac7eb2e8
+	github.com/charmbracelet/huh/spinner v0.0.0-20250404222243-039c3ae6c42c
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.1
 	github.com/eko/gocache/lib/v4 v4.2.0
 	github.com/goware/urlx v0.3.2
 	github.com/northwood-labs/cli-helpers v0.0.0-20250313234017-bb9541ea3817
 	github.com/northwood-labs/gocache-valkey/v4 v4.0.0-20241219051326-219069e441d4
-	github.com/quic-go/quic-go v0.50.0
+	github.com/quic-go/quic-go v0.50.1
 	github.com/spf13/cobra v1.9.1
-	github.com/valkey-io/valkey-go v1.0.55
-	github.com/valkey-io/valkey-go/valkeycompat v1.0.55
-	github.com/zmap/zcrypto v0.0.0-20250129210703-03c45d0bae98
+	github.com/valkey-io/valkey-go v1.0.56
+	github.com/valkey-io/valkey-go/valkeycompat v1.0.56
+	github.com/zmap/zcrypto v0.0.0-20250324021606-4f0ea0eaccac
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
-	golang.org/x/net v0.37.0
+	golang.org/x/net v0.38.0
 )
 
 require (
@@ -40,9 +40,9 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/charmbracelet/bubbles v0.20.0 // indirect
+	github.com/charmbracelet/bubbles v0.20.1-0.20250320170029-54f28b650198 // indirect
 	github.com/charmbracelet/bubbletea v1.3.4 // indirect
-	github.com/charmbracelet/colorprofile v0.2.3-0.20250311203215-f60798e515dc // indirect
+	github.com/charmbracelet/colorprofile v0.3.0 // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
@@ -50,7 +50,7 @@ require (
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/google/pprof v0.0.0-20250315033105-103756e64e1d // indirect
+	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/lithammer/dedent v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -62,27 +62,26 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/northwood-labs/archstring v0.0.0-20240514202917-e9357b4b91c8 // indirect
-	github.com/onsi/ginkgo/v2 v2.23.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.23.3 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.21.1 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.63.0 // indirect
-	github.com/prometheus/procfs v0.15.1 // indirect
+	github.com/prometheus/procfs v0.16.0 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/weppos/publicsuffix-go v0.40.3-0.20250311103038-7794c8c0723b // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	github.com/zmap/rc2 v0.0.0-20190804163417-abaa70531248 // indirect
 	go.uber.org/mock v0.5.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/time v0.7.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )
 
 replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.9.3
