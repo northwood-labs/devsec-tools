@@ -103,9 +103,36 @@ func (c *CipherData) Populate() {
 		c.IsPFS = true
 	}
 
+	// Apply FIPS-186 settings
+	if _, ok := FIPS186List[c.authentication]; ok {
+		c.IsFIPS186 = true
+	}
+
 	// Apply AEAD settings
 	if _, ok := AEADList[c.encryptionAlgo]; ok {
 		c.IsAEAD = true
+	}
+
+	// Apply NIST_SP_800_52 settings
+	if _, kexOk := NIST_SP_800_52KexList[c.keyExchange]; kexOk {
+		if _, sigOk := NIST_SP_800_52AuthList[c.authentication]; sigOk {
+			if _, encOk := NIST_SP_800_52EncList[c.encryptionAlgo]; encOk {
+				if _, hashOk := NIST_SP_800_52HashList[c.hash]; hashOk {
+					c.IsNIST_SP_800_52 = true
+				}
+			}
+		}
+	}
+
+	// Opt-in NIST_SP_800_52 exceptions
+	switch c.IANAName {
+	case "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+		"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+		"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+		"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+		"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+		"TLS_DHE_RSA_WITH_AES_256_CBC_SHA":
+		c.IsNIST_SP_800_52 = true
 	}
 }
 

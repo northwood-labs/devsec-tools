@@ -55,6 +55,19 @@ type CipherData struct {
 	// IsAEAD is a boolean indicating whether the cipher suite provides AEAD.
 	IsAEAD bool `json:"isAEAD"`
 
+	// IsNIST_SP_800_52 is a boolean indicating whether the cipher suite is
+	// permitted by NIST SP 800-52.
+	//
+	// https://doi.org/10.6028/NIST.SP.800-52r2
+	IsNIST_SP_800_52 bool `json:"isNISTSP80052"`
+
+	// IsFIPS186 is a boolean indicating whether the cipher suite is permitted
+	// by NIST FIPS 186 Digital Signature Standard.
+	//
+	// https://doi.org/10.6028/NIST.FIPS.186-5
+	// https://doi.org/10.6028/NIST.SP.800-186
+	IsFIPS186 bool `json:"isFIPS186"`
+
 	// Private
 	strength       CipherStrength
 	keyExchange    KeyExchange

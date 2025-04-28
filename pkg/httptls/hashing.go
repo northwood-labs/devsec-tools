@@ -36,16 +36,30 @@ const (
 	HashSM3   Hash = 0x0102
 )
 
-// HashList is a map of hashing functions to their human-readable names.
-var HashList = map[Hash]string{
-	HashNone:   "None",
-	HashMD5:    "MD5",
-	HashSHA1:   "SHA-1",
-	HashSHA224: "SHA-2, 224 bits",
-	HashSHA256: "SHA-2, 256 bits",
-	HashSHA384: "SHA-2, 384 bits",
-	HashSHA512: "SHA-2, 512 bits",
-	HashGOSTR:  "GOST R 34.10-2012 (Imitovstavka)",
-	HashNULL:   "NULL",
-	HashSM3:    "ShangMi-3 (SM3)",
-}
+var (
+	// HashList is a map of hashing functions to their human-readable names.
+	HashList = map[Hash]string{
+		HashNone:   "None",
+		HashMD5:    "MD5",
+		HashSHA1:   "SHA-1",
+		HashSHA224: "SHA-2, 224 bits",
+		HashSHA256: "SHA-2, 256 bits",
+		HashSHA384: "SHA-2, 384 bits",
+		HashSHA512: "SHA-2, 512 bits",
+		HashGOSTR:  "GOST R 34.10-2012 (Imitovstavka)",
+		HashNULL:   "NULL",
+		HashSM3:    "ShangMi-3 (SM3)",
+	}
+
+	// NIST_SP_800_52HashList is oddly-named, but more understandable in this
+	// format. As opposed to AEAD or PFS, the NIST SP 800-52 list requires
+	// cipher suites which are a combination of cipher suites sections (key
+	// exchange + auth sig + encryption + hash).
+	//
+	// See §3.3.1.1.1 Cipher Suites for ECDSA Certificates
+	// See §3.3.1.1.2 Cipher Suites for RSA Certificates
+	NIST_SP_800_52HashList = map[Hash]bool{
+		HashSHA256: true,
+		HashSHA384: true,
+	}
+)

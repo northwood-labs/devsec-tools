@@ -34,29 +34,43 @@ const (
 	KexSM2
 )
 
-// KeyExchangeList is a map of key exchange algorithms to their human-readable names.
-var KeyExchangeList = map[KeyExchange]string{
-	KexNone:        "None",
-	KexDH:          "Diffie-Hellman (Non-Ephemeral) (ECDH)",
-	KexDHE:         "Diffie-Hellman (Ephemeral) (ECDHE)",
-	KexECCPWD:      "ECCPWD",
-	KexECDH:        "Elliptic Curve Diffie-Hellman (Non-Ephemeral) (ECDH)",
-	KexECDHE:       "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
-	KexGOSTR341094: "GOST R 34.10-1994",
-	KexGOSTR341001: "GOST R 34.10-2001",
-	KexKRB5:        "Kerberos (KRB5)",
-	KexNULL:        "NULL",
-	KexPSK:         "Pre-Shared Keys (PSK)",
-	KexRSA:         "RSA",
-	KexSRP:         "Secure Remote Password (SRP)",
-	KexSM2:         "ShangMi-2 (SM2)",
-}
+var (
+	// KeyExchangeList is a map of key exchange algorithms to their human-readable names.
+	KeyExchangeList = map[KeyExchange]string{
+		KexNone:        "None",
+		KexDH:          "Diffie-Hellman (Non-Ephemeral) (ECDH)",
+		KexDHE:         "Diffie-Hellman (Ephemeral) (ECDHE)",
+		KexECCPWD:      "ECCPWD",
+		KexECDH:        "Elliptic Curve Diffie-Hellman (Non-Ephemeral) (ECDH)",
+		KexECDHE:       "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
+		KexGOSTR341094: "GOST R 34.10-1994",
+		KexGOSTR341001: "GOST R 34.10-2001",
+		KexKRB5:        "Kerberos (KRB5)",
+		KexNULL:        "NULL",
+		KexPSK:         "Pre-Shared Keys (PSK)",
+		KexRSA:         "RSA",
+		KexSRP:         "Secure Remote Password (SRP)",
+		KexSM2:         "ShangMi-2 (SM2)",
+	}
 
-// PFSList is a map of key exchange algorithms which fall under the definition
-// of Perfect Forward Secrecy (PFS). Perfect Forward Secrecy (PFS) is a property
-// of secure communication protocols in which compromise of long-term keys does
-// not compromise past session keys.
-var PFSList = map[KeyExchange]bool{
-	KexDHE:   true,
-	KexECDHE: true,
-}
+	// PFSList is a map of key exchange algorithms which fall under the definition
+	// of Perfect Forward Secrecy (PFS). Perfect Forward Secrecy (PFS) is a property
+	// of secure communication protocols in which compromise of long-term keys does
+	// not compromise past session keys.
+	PFSList = map[KeyExchange]bool{
+		KexDHE:   true,
+		KexECDHE: true,
+	}
+
+	// NIST_SP_800_52KexList is oddly-named, but more understandable in this
+	// format. As opposed to AEAD or PFS, the NIST SP 800-52 list requires
+	// cipher suites which are a combination of cipher suites sections (key
+	// exchange + auth sig + encryption + hash).
+	//
+	// See §3.3.1.1.1 Cipher Suites for ECDSA Certificates
+	// See §3.3.1.1.2 Cipher Suites for RSA Certificates
+	NIST_SP_800_52KexList = map[KeyExchange]bool{
+		KexDHE:   true,
+		KexECDHE: true,
+	}
+)

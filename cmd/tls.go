@@ -33,6 +33,21 @@ var tlsCmd = &cobra.Command{
 	Long: clihelpers.LongHelpText(`
 	Check supported TLS versions and ciphers for a website, including potential
 	problems with outdated cipher suites that should probably be disabled.
+
+	Recommended cipher suites:
+		https://devsec.tools/learning/recommended-cipher-suites/
+
+	Perfect Forward Secrecy (PFS):
+		https://devsec.tools/learning/standards/pfs/
+
+	Authenticated Encryption with Associated Data (AEAD):
+		https://devsec.tools/learning/standards/aead/
+
+	U.S. NIST SP 800-52 (NIST):
+		https://devsec.tools/learning/standards/nist-sp-800-52/
+
+	U.S. NIST FIPS 186 (FIPS):
+		https://devsec.tools/learning/standards/nist-fips-186/
 	`),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if !fStdin && len(args) < 1 {
@@ -105,7 +120,7 @@ var tlsCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		t := NewTable("TLS Version", "Cipher Suites", "Strength", "PFS", "AEAD")
+		t := NewTable("TLS Version", "Cipher Suites", "Strength", "PFS", "AEAD", "NIST", "FIPS")
 
 		for i := range result.TLSConnections {
 			tlsConnection := result.TLSConnections[i]
@@ -113,9 +128,9 @@ var tlsCmd = &cobra.Command{
 			for j := range tlsConnection.CipherSuites {
 				cipher := tlsConnection.CipherSuites[j]
 
-				// if tlsConnection.VersionID == httptls.VersionTLS13 {
-				// 	cipher.IANAName = "(Standardized 1.3 suites)"
-				// }
+				if tlsConnection.VersionID == httptls.VersionTLS13 {
+					cipher.IANAName = "Standard 1.3 cipher suite"
+				}
 
 				if j == 0 && i == 0 {
 					t.Row(
@@ -124,6 +139,8 @@ var tlsCmd = &cobra.Command{
 						cipher.Strength,
 						displayBool(cipher.IsPFS, fEmoji),
 						displayBool(cipher.IsAEAD, fEmoji),
+						displayBool(cipher.IsNIST_SP_800_52, fEmoji),
+						displayBool(cipher.IsFIPS186, fEmoji),
 					)
 				} else if j == 0 {
 					t.Row("", "", "")
@@ -133,6 +150,8 @@ var tlsCmd = &cobra.Command{
 						cipher.Strength,
 						displayBool(cipher.IsPFS, fEmoji),
 						displayBool(cipher.IsAEAD, fEmoji),
+						displayBool(cipher.IsNIST_SP_800_52, fEmoji),
+						displayBool(cipher.IsFIPS186, fEmoji),
 					)
 				} else {
 					t.Row(
@@ -141,6 +160,8 @@ var tlsCmd = &cobra.Command{
 						cipher.Strength,
 						displayBool(cipher.IsPFS, fEmoji),
 						displayBool(cipher.IsAEAD, fEmoji),
+						displayBool(cipher.IsNIST_SP_800_52, fEmoji),
+						displayBool(cipher.IsFIPS186, fEmoji),
 					)
 				}
 			}

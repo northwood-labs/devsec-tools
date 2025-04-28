@@ -207,6 +207,8 @@
             "hash": "SHA-1",
             "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
             "isAEAD": false,
+            "isFIPS186": true,
+            "isNISTSP80052": true,
             "isPFS": true,
             "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
             "opensslName": "ECDHE-RSA-AES128-SHA",
@@ -218,60 +220,81 @@
         "required": [
           "authentication",
           "encryption",
-          "gnutlsName",
           "hash",
           "ianaName",
           "isAEAD",
+          "isFIPS186",
+          "isNISTSP80052",
           "isPFS",
           "keyExchange",
-          "opensslName",
           "strength",
           "url"
         ],
         "properties": {
           "authentication": {
             "type": "string",
-            "description": "The authentication signing algorithm that the cipher suite uses."
+            "description": "The authentication signing algorithm that the cipher suite uses.",
+            "readOnly": true
           },
           "encryption": {
             "type": "string",
-            "description": "The encryption algorithm that the cipher suite uses."
+            "description": "The encryption algorithm that the cipher suite uses.",
+            "readOnly": true
           },
           "gnutlsName": {
             "type": "string",
-            "description": "The name for the cipher suite in the [GnuTLS](https://www.gnutls.org) library."
+            "description": "The name for the cipher suite in the [GnuTLS](https://www.gnutls.org) library.",
+            "readOnly": true
           },
           "hash": {
             "type": "string",
-            "description": "The hashing algorithm that the cipher suite uses."
+            "description": "The hashing algorithm that the cipher suite uses.",
+            "readOnly": true
           },
           "ianaName": {
             "type": "string",
-            "description": "The official IANA name for the cipher suite."
+            "description": "The official IANA name for the cipher suite.",
+            "readOnly": true
           },
           "isAEAD": {
             "type": "boolean",
-            "description": "Whether or not this cipher suite supports [Authenticated Encryption with Associated Data](https://en.wikipedia.org/wiki/Authenticated_encryption). AEAD is useful in cases where the header should be visible for routing, but the payload needs to be confidential, and both need integrity and authenticity.\n\nA value of `true` means that the cipher suite meets the criteria for _AEAD_. A value of `false` means that the cipher suite does NOT meet the criteria."
+            "description": "Whether or not this cipher suite supports [Authenticated Encryption with Associated Data](https://devsec.tools/learning/standards/aead/). AEAD is useful in cases where the header should be visible for routing, but the payload needs to be confidential, and both need integrity and authenticity.\n\nA value of `true` means that the cipher suite meets the criteria for _AEAD_. A value of `false` means that the cipher suite does NOT meet the criteria.",
+            "readOnly": true
+          },
+          "isFIPS186": {
+            "type": "boolean",
+            "description": "Whether or not this cipher suite supports [U.S. NIST FIPS-186](https://devsec.tools/learning/standards/nist-fips-186/). FIPS-186 is a set of requirements defined by the U.S. government for government websites.\n\nA value of `true` means that the cipher suite meets the criteria for _FIPS-186_. A value of `false` means that the cipher suite does NOT meet the criteria.",
+            "readOnly": true
+          },
+          "isNISTSP80052": {
+            "type": "boolean",
+            "description": "Whether or not this cipher suite supports [U.S. NIST SP 800-53](https://devsec.tools/learning/standards/nist-sp-800-52/). NIST SP 800-53 is a set of requirements defined by the U.S. government for government websites.\n\nA value of `true` means that the cipher suite meets the criteria for _NIST SP 800-53_. A value of `false` means that the cipher suite does NOT meet the criteria.",
+            "readOnly": true
           },
           "isPFS": {
             "type": "boolean",
-            "description": "Whether or not this cipher suite supports [Perfect Forward Secrecy](https://en.wikipedia.org/wiki/Forward_secrecy). Forward secrecy protects past sessions against future compromises of keys or passwords.\n\nA value of `true` means that the cipher suite meets the criteria for _forward secrecy_. A value of `false` means that the cipher suite does NOT meet the criteria."
+            "description": "Whether or not this cipher suite supports [Perfect Forward Secrecy](https://devsec.tools/learning/standards/pfs/). Forward secrecy protects past sessions against future compromises of keys or passwords.\n\nA value of `true` means that the cipher suite meets the criteria for _forward secrecy_. A value of `false` means that the cipher suite does NOT meet the criteria.",
+            "readOnly": true
           },
           "keyExchange": {
             "type": "string",
-            "description": "The key exchange algorithm that the cipher suite uses."
+            "description": "The key exchange algorithm that the cipher suite uses.",
+            "readOnly": true
           },
           "opensslName": {
             "type": "string",
-            "description": "The name for the cipher suite in the [OpenSSL](https://openssl-library.org) library."
+            "description": "The name for the cipher suite in the [OpenSSL](https://openssl-library.org) library.",
+            "readOnly": true
           },
           "strength": {
             "type": "string",
-            "description": "The _strength_ of the cipher suite. One of: `recommended`, `strong`, `weak`, or `insecure`."
+            "description": "The _strength_ of the cipher suite. One of: `recommended`, `strong`, `weak`, or `insecure`.",
+            "readOnly": true
           },
           "url": {
             "type": "string",
-            "description": "A URL for learning more about this particular cipher suite."
+            "description": "A URL for learning more about this particular cipher suite.",
+            "readOnly": true
           }
         }
       },
@@ -287,6 +310,11 @@
         },
         "description": "The response from a call to the `/domain` endpoint.",
         "title": "DomainResponse",
+        "examples": [
+          {
+            "hostname": "example.com"
+          }
+        ],
         "required": [
           "hostname"
         ],
@@ -296,14 +324,10 @@
             "x-stoplight": {
               "id": "4eg7rp9ibo3rd"
             },
-            "description": "The hostname (domain) that was parsed from the input."
+            "description": "The hostname (domain) that was parsed from the input.",
+            "readOnly": true
           }
-        },
-        "examples": [
-          {
-            "hostname": "example.com"
-          }
-        ]
+        }
       },
       "HttpResponse": {
         "type": "object",
@@ -316,6 +340,15 @@
           }
         },
         "description": "The response from a call to the `/http` endpoint.",
+        "title": "HttpResponse",
+        "examples": [
+          {
+            "hostname": "example.com",
+            "http11": true,
+            "http2": true,
+            "http3": true
+          }
+        ],
         "required": [
           "hostname",
           "http11",
@@ -325,30 +358,25 @@
         "properties": {
           "hostname": {
             "type": "string",
-            "description": "The hostname (domain) that was parsed from the input."
+            "description": "The hostname (domain) that was parsed from the input.",
+            "readOnly": true
           },
           "http11": {
             "type": "boolean",
-            "description": "Whether or not the site supports HTTP/1.1 connections.\n\nA value of `true` means that the site supports HTTP/1.1 connections. A value of `false` means that it does not."
+            "description": "Whether or not the site supports HTTP/1.1 connections.\n\nA value of `true` means that the site supports HTTP/1.1 connections. A value of `false` means that it does not.",
+            "readOnly": true
           },
           "http2": {
             "type": "boolean",
-            "description": "Whether or not the site supports HTTP/2 connections.\n\nA value of `true` means that the site supports HTTP/2 connections. A value of `false` means that it does not."
+            "description": "Whether or not the site supports HTTP/2 connections.\n\nA value of `true` means that the site supports HTTP/2 connections. A value of `false` means that it does not.",
+            "readOnly": true
           },
           "http3": {
             "type": "boolean",
-            "description": "Whether or not the site supports HTTP/3 connections.\n\nA value of `true` means that the site supports HTTP/3 connections. A value of `false` means that it does not."
+            "description": "Whether or not the site supports HTTP/3 connections.\n\nA value of `true` means that the site supports HTTP/3 connections. A value of `false` means that it does not.",
+            "readOnly": true
           }
-        },
-        "title": "HttpResponse",
-        "examples": [
-          {
-            "hostname": "example.com",
-            "http11": true,
-            "http2": true,
-            "http3": true
-          }
-        ]
+        }
       },
       "TlsConnection": {
         "type": "object",
@@ -450,11 +478,13 @@
           },
           "version": {
             "type": "string",
-            "description": "The english representation of the TLS version."
+            "description": "The english representation of the TLS version.",
+            "readOnly": true
           },
           "versionId": {
             "type": "integer",
-            "description": "The numeric representation of the TLS version.\n\n\nTLS version | Version ID\n---------|----------\nTLS v1.0  | `0x0301`\nTLS v1.1  | `0x0302`\nTLS v1.2  | `0x0303`\nTLS v1.3  | `0x0304`\n"
+            "description": "The numeric representation of the TLS version.\n\n\nTLS version | Version ID\n---------|----------\nTLS v1.0  | `0x0301`\nTLS v1.1  | `0x0302`\nTLS v1.2  | `0x0303`\nTLS v1.3  | `0x0304`\n",
+            "readOnly": true
           }
         }
       },
@@ -739,6 +769,8 @@
                     "hash": "SHA-1",
                     "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
                     "isAEAD": false,
+                    "isFIPS186": true,
+                    "isNISTSP80052": true,
                     "isPFS": true,
                     "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
                     "opensslName": "ECDHE-RSA-AES128-SHA",
@@ -766,7 +798,8 @@
         "properties": {
           "hostname": {
             "type": "string",
-            "description": "The hostname (domain) that was parsed from the input."
+            "description": "The hostname (domain) that was parsed from the input.",
+            "readOnly": true
           },
           "tlsConnections": {
             "description": "An array of successful TLS connections, one per TLS version. Always sorted from newest TLS to oldest TLS.\n\nIf no TLS connections were successful, this will return an error.",
@@ -787,19 +820,23 @@
             "properties": {
               "tls10": {
                 "type": "boolean",
-                "description": "Whether or not the site supports TLS v1.0.\n\nA value of `true` means that the site supports TLS v1.0. A value of `false` means that it does not."
+                "description": "Whether or not the site supports TLS v1.0.\n\nA value of `true` means that the site supports TLS v1.0. A value of `false` means that it does not.",
+                "readOnly": true
               },
               "tls11": {
                 "type": "boolean",
-                "description": "Whether or not the site supports TLS v1.1.\n\nA value of `true` means that the site supports TLS v1.1. A value of `false` means that it does not."
+                "description": "Whether or not the site supports TLS v1.1.\n\nA value of `true` means that the site supports TLS v1.1. A value of `false` means that it does not.",
+                "readOnly": true
               },
               "tls12": {
                 "type": "boolean",
-                "description": "Whether or not the site supports TLS v1.2.\n\nA value of `true` means that the site supports TLS v1.2. A value of `false` means that it does not."
+                "description": "Whether or not the site supports TLS v1.2.\n\nA value of `true` means that the site supports TLS v1.2. A value of `false` means that it does not.",
+                "readOnly": true
               },
               "tls13": {
                 "type": "boolean",
-                "description": "Whether or not the site supports TLS v1.3.\n\nA value of `true` means that the site supports TLS v1.3. A value of `false` means that it does not."
+                "description": "Whether or not the site supports TLS v1.3.\n\nA value of `true` means that the site supports TLS v1.3. A value of `false` means that it does not.",
+                "readOnly": true
               }
             }
           }
@@ -816,7 +853,8 @@
         "properties": {
           "error": {
             "type": "string",
-            "description": "The error message."
+            "description": "The error message.",
+            "readOnly": true
           }
         }
       }
@@ -944,6 +982,8 @@
                           "hash": "SHA-1",
                           "ianaName": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
                           "isAEAD": false,
+                          "isFIPS186": true,
+                          "isNISTSP80052": true,
                           "isPFS": true,
                           "keyExchange": "Elliptic Curve Diffie-Hellman (Ephemeral) (ECDHE)",
                           "opensslName": "ECDHE-RSA-AES128-SHA",

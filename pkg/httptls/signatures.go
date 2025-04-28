@@ -47,26 +47,46 @@ const (
 	SigGOSTR341001 Signature = 0x0111
 )
 
-// AuthenticationList is a map of signature algorithms to their human-readable names.
-var AuthenticationList = map[Signature]string{
-	SigAnonymous:   "Anonymous",
-	SigDSA:         "NIST Digital Signature (DSA)",
-	SigECCPWD:      "ECCPWD",
-	SigECDSA:       "Elliptic Curve Digital Signature (ECDSA)",
-	SigED25519:     "Edwards-curve Digital Signature (ED25519)",
-	SigED448:       "Edwards-curve Digital Signature (ED448)",
-	SigGOST256:     "Russian GOST 256-bit",
-	SigGOST512:     "Russian GOST 512-bit",
-	SigGOSTR341001: "GOST R 34.10-2001 (GOSTR341001)",
-	SigGOSTR341094: "GOST R 34.10-1994 (GOSTR341094)",
-	SigKRB5:        "Kerberos",
-	SigNULL:        "NULL",
-	SigPSK:         "Pre-Shared Keys (PSK)",
-	SigRSA:         "RSA",
-	SigSHA1:        "Secure Hash Algorithm 1 (SHA-1)",
-	SigSHA1DSS:     "Secure Hash Algorithm 1 (SHA-1) with NIST DSS (SHA-1 DSS)",
-	SigSHA1RSA:     "Secure Hash Algorithm 1 (SHA-1) with RSA (SHA-1 RSA)",
-	SigSHA256:      "Secure Hash Algorithm 256 (SHA-256)",
-	SigSHA384:      "Secure Hash Algorithm 384 (SHA-384)",
-	SigSM2:         "ShangMi-2 (SM2)",
-}
+var (
+	// AuthenticationList is a map of signature algorithms to their human-readable names.
+	AuthenticationList = map[Signature]string{
+		SigAnonymous:   "Anonymous",
+		SigDSA:         "NIST Digital Signature (DSA)",
+		SigECCPWD:      "ECCPWD",
+		SigECDSA:       "Elliptic Curve Digital Signature (ECDSA)",
+		SigED25519:     "Edwards-curve Digital Signature (ED25519)",
+		SigED448:       "Edwards-curve Digital Signature (ED448)",
+		SigGOST256:     "Russian GOST 256-bit",
+		SigGOST512:     "Russian GOST 512-bit",
+		SigGOSTR341001: "GOST R 34.10-2001 (GOSTR341001)",
+		SigGOSTR341094: "GOST R 34.10-1994 (GOSTR341094)",
+		SigKRB5:        "Kerberos",
+		SigNULL:        "NULL",
+		SigPSK:         "Pre-Shared Keys (PSK)",
+		SigRSA:         "RSA",
+		SigSHA1:        "Secure Hash Algorithm 1 (SHA-1)",
+		SigSHA1DSS:     "Secure Hash Algorithm 1 (SHA-1) with NIST DSS (SHA-1 DSS)",
+		SigSHA1RSA:     "Secure Hash Algorithm 1 (SHA-1) with RSA (SHA-1 RSA)",
+		SigSHA256:      "Secure Hash Algorithm 256 (SHA-256)",
+		SigSHA384:      "Secure Hash Algorithm 384 (SHA-384)",
+		SigSM2:         "ShangMi-2 (SM2)",
+	}
+
+	// NIST_SP_800_52AuthList is oddly-named, but more understandable in this
+	// format. As opposed to AEAD or PFS, the NIST SP 800-52 list requires
+	// cipher suites which are a combination of cipher suites sections (key
+	// exchange + auth sig + encryption + hash).
+	//
+	// See §3.3.1.1.1 Cipher Suites for ECDSA Certificates
+	// See §3.3.1.1.2 Cipher Suites for RSA Certificates
+	NIST_SP_800_52AuthList = map[Signature]bool{
+		SigECDSA: true,
+		SigRSA:   true,
+	}
+
+	// FIPS-186 defines an allowed set of signature authentication algorithms.
+	FIPS186List = map[Signature]bool{
+		SigECDSA: true,
+		SigRSA:   true,
+	}
+)
