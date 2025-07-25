@@ -6,7 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/gin-contrib/cors v1.7.5
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/northwood-labs/debug v0.0.0-20240514204655-f938e2fa11e9
 )
 
