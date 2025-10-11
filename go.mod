@@ -18,7 +18,7 @@ godebug (
 )
 
 require (
-	github.com/aws/aws-lambda-go v1.48.0
+	github.com/aws/aws-lambda-go v1.50.0
 	github.com/charmbracelet/huh/spinner v0.0.0-20250429230548-d7a782d3da44
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.1
