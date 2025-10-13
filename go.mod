@@ -27,7 +27,7 @@ require (
 	github.com/northwood-labs/cli-helpers v0.0.0-20250409233632-b1f9923abea7
 	github.com/northwood-labs/gocache-valkey/v4 v4.0.0-20241219051326-219069e441d4
 	github.com/quic-go/quic-go v0.55.0
-	github.com/spf13/cobra v1.9.1
+	github.com/spf13/cobra v1.10.1
 	github.com/valkey-io/valkey-go v1.0.66
 	github.com/valkey-io/valkey-go/valkeycompat v1.0.59
 	github.com/zmap/zcrypto v0.0.0-20250129210703-03c45d0bae98
@@ -70,7 +70,7 @@ require (
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/weppos/publicsuffix-go v0.40.3-0.20250408071509-6074bbe7fd39 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zmap/rc2 v0.0.0-20190804163417-abaa70531248 // indirect
