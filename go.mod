@@ -1,8 +1,6 @@
 module github.com/northwood-labs/devsec-tools
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.25
 
 godebug (
 	default=go1.21
@@ -22,7 +20,7 @@ require (
 	github.com/charmbracelet/huh/spinner v0.0.0-20250429230548-d7a782d3da44
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.1
-	github.com/eko/gocache/lib/v4 v4.2.0
+	github.com/eko/gocache/lib/v4 v4.2.2
 	github.com/goware/urlx v0.3.2
 	github.com/northwood-labs/cli-helpers v0.0.0-20250409233632-b1f9923abea7
 	github.com/northwood-labs/gocache-valkey/v4 v4.0.0-20241219051326-219069e441d4
