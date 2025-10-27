@@ -3,20 +3,6 @@ include ./standard.mk
 # go install golang.org/dl/go{VERSION}@latest
 # go{VERSION} download
 GO=$(shell which go)
-HOMEBREW_PACKAGES=bash coreutils editorconfig-checker findutils git git-cliff git-lfs go grep jq k1LoW/tap/tbls nodejs pre-commit python@3.11 trivy trufflesecurity/trufflehog/trufflehog
-
-#-------------------------------------------------------------------------------
-# Environment
-
-.PHONY: install-hooks
-## install-hooks: [tools] Install/upgrade the Git hooks used for ensuring consistency.
-install-hooks:
-	@ $(HEADER) "=====> Installing Git hooks..."
-	cp -vf .githooks/commit-msg.sh .git/hooks/commit-msg
-	chmod +x .git/hooks/*
-	pre-commit install
-
-	@ $(BORDER) "Learn more about 'pre-commit' at:" "  https://pre-commit.com" " " "Learn more about 'gommit' at:" "  https://github.com/antham/gommit"
 
 # goplicate-start:golang
 #-------------------------------------------------------------------------------
@@ -314,34 +300,39 @@ bench:
 #-------------------------------------------------------------------------------
 # Installation
 
+.PHONY: install-tools
+## install-tools: [tools]* Install/upgrade the required dependencies.
+install-tools: install-tools-mac install-tools-go install-tools-py
+
+.PHONY: install-tools-py
+## install-tools-py: [tools] Install/upgrade the required Go packages.
+install-tools-py:
+	@ $(HEADER) "=====> Installing Python tools..."
+	poetry lock && poetry install
+
 .PHONY: install-tools-go
-## install-tools-go: [tools]* Install/upgrade the required Go packages.
+## install-tools-go: [tools] Install/upgrade the required Go packages.
 install-tools-go:
-	@ $(HEADER) "=====> Installing Go packages..."
-	$(GO) install github.com/antham/gommit@latest
-	$(GO) install github.com/google/osv-scanner/cmd/osv-scanner@v1
-	$(GO) install github.com/google/yamlfmt/cmd/yamlfmt@latest
-	$(GO) install github.com/goph/licensei/cmd/licensei@latest
-	$(GO) install github.com/mdempsky/unconvert@latest
-	$(GO) install github.com/nikolaydubina/go-binsize-treemap@latest
-	$(GO) install github.com/nikolaydubina/go-cover-treemap@latest
-	$(GO) install github.com/nikolaydubina/smrcptr@latest
-	$(GO) install github.com/orlangure/gocovsh@latest
-	$(GO) install github.com/pelletier/go-toml/v2/cmd/tomljson@latest
-	$(GO) install github.com/quasilyte/go-consistent@latest
-	$(GO) install github.com/securego/gosec/v2/cmd/gosec@latest
-	$(GO) install github.com/spf13/cobra-cli@latest
-	$(GO) install golang.org/x/perf/cmd/benchstat@latest
-	$(GO) install golang.org/x/tools/cmd/godoc@latest
-	$(GO) install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
-	$(GO) install golang.org/x/vuln/cmd/govulncheck@latest
-	$(GO) install gotest.tools/gotestsum@latest
+	@ $(HEADER) "=====> Installing Go tools..."
+	$(GO) get -modfile=go.tools.mod tool
 
 .PHONY: install-tools-mac
-## install-tools-mac: [tools]* Install/upgrade the required tools for macOS, including Go packages.
-install-tools-mac: install-tools-go
+## install-tools-mac: [tools] Install/upgrade the required tools for macOS.
+install-tools-mac:
 	@ $(HEADER) "=====> Installing required packages for macOS (Homebrew)..."
-	brew update && brew install $(HOMEBREW_PACKAGES) && brew upgrade $(HOMEBREW_PACKAGES)
+	brew bundle install --upgrade
+
+	@ $(HEADER) "=====> Installing Chag (may require password)..."
 	curl -sSLf https://raw.githubusercontent.com/mtdowling/chag/master/install.sh | sudo bash
 
-	@ $(BORDER) "To update to the latest versions, run:" "    brew update && brew upgrade"
+	@ $(BORDER) "To update to the latest versions, run:" "  make install-tools-mac"
+
+.PHONY: install-hooks
+## install-hooks: [tools]* Install/upgrade the Git hooks used for ensuring consistency.
+install-hooks:
+	@ $(HEADER) "=====> Installing Git hooks..."
+	cp -vf .githooks/commit-msg.sh .git/hooks/commit-msg
+	chmod +x .git/hooks/*
+	pre-commit install
+
+	@ $(BORDER) "Learn more about 'pre-commit' at:" "  https://pre-commit.com" " " "Learn more about 'gommit' at:" "  https://github.com/antham/gommit"
