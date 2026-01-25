@@ -41,10 +41,10 @@ services:
     # https://github.com/aws/aws-lambda-runtime-interface-emulator
     environment:
       _LAMBDA_SERVER_PORT: 8080
-      AWS_LAMBDA_FUNCTION_TIMEOUT: 30        # Web timeout
-      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128   # Lambda function memory limit (logged; not enforced)
+      AWS_LAMBDA_FUNCTION_TIMEOUT: 30 # Web timeout
+      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 128 # Lambda function memory limit (logged; not enforced)
       AWS_LAMBDA_FUNCTION_NAME: devsec-tools
-      LOG_LEVEL: DEBUG                       # Logging for the Runtime Interface Emulator
+      LOG_LEVEL: DEBUG # Logging for the Runtime Interface Emulator
 
       # Configure devsec-tools
       DST_CACHE_HOSTS: "cache:6379"
@@ -120,7 +120,7 @@ services:
       - "./traefik-logs:/logs"
 
     ports:
-      - 80:80     # Have Traefik run on port 80; distinguish by /etc/hosts definitions
+      - 80:80 # Have Traefik run on port 80; distinguish by /etc/hosts definitions
       - 8082:8080 # Traefik's web UI, enabled by --api
 
     # Enable running containers to communicate with services on the host machine.
@@ -206,7 +206,6 @@ secrets:
   github_token:
     name: GITHUB_TOKEN
     environment: GITHUB_TOKEN
-
 
 # Configure a bridge network to connect this (and other containers inside this
 # file) together.

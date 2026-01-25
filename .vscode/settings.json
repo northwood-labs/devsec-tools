@@ -7,5 +7,7 @@
       "traefik-dynamic.yml"
     ]
   },
-  "makefile.configureOnOpen": false
+  "makefile.configureOnOpen": false,
+  "snyk.advanced.organization": "4ab86aa7-4405-4282-ad24-26f6e61addaf",
+  "snyk.advanced.autoSelectOrganization": true
 }
