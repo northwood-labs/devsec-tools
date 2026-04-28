@@ -19,7 +19,7 @@ require (
 	github.com/aws/aws-lambda-go v1.52.0
 	github.com/charmbracelet/huh/spinner v0.0.0-20251215014908-6f7d32faaff3
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
-	github.com/charmbracelet/log v0.4.2
+	github.com/charmbracelet/log v1.0.0
 	github.com/eko/gocache/lib/v4 v4.2.3
 	github.com/goware/urlx v0.3.2
 	github.com/northwood-labs/cli-helpers v0.0.0-20251204230858-4e677c65594c
