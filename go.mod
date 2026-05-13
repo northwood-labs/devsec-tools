@@ -26,8 +26,8 @@ require (
 	github.com/northwood-labs/gocache-valkey/v4 v4.0.0-20241219051326-219069e441d4
 	github.com/quic-go/quic-go v0.59.0
 	github.com/spf13/cobra v1.10.2
-	github.com/valkey-io/valkey-go v1.0.74
-	github.com/valkey-io/valkey-go/valkeycompat v1.0.74
+	github.com/valkey-io/valkey-go v1.0.75
+	github.com/valkey-io/valkey-go/valkeycompat v1.0.75
 	github.com/zmap/zcrypto v0.0.0-20250129210703-03c45d0bae98
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96
 	golang.org/x/net v0.54.0
@@ -76,7 +76,6 @@ require (
 	github.com/prometheus/procfs v0.19.2 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/weppos/publicsuffix-go v0.50.3-0.20260108123922-15eaa75052c0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
