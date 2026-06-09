@@ -24,7 +24,7 @@ require (
 	github.com/goware/urlx v0.3.2
 	github.com/northwood-labs/cli-helpers v0.0.0-20251204230858-4e677c65594c
 	github.com/northwood-labs/gocache-valkey/v4 v4.0.0-20241219051326-219069e441d4
-	github.com/quic-go/quic-go v0.59.1
+	github.com/quic-go/quic-go v0.60.0
 	github.com/spf13/cobra v1.10.2
 	github.com/valkey-io/valkey-go v1.0.75
 	github.com/valkey-io/valkey-go/valkeycompat v1.0.75
