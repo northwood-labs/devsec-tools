@@ -26,8 +26,8 @@ require (
 	github.com/northwood-labs/gocache-valkey/v4 v4.0.0-20241219051326-219069e441d4
 	github.com/quic-go/quic-go v0.59.1
 	github.com/spf13/cobra v1.10.2
-	github.com/valkey-io/valkey-go v1.0.75
-	github.com/valkey-io/valkey-go/valkeycompat v1.0.75
+	github.com/valkey-io/valkey-go v1.0.76
+	github.com/valkey-io/valkey-go/valkeycompat v1.0.76
 	github.com/zmap/zcrypto v0.0.0-20250129210703-03c45d0bae98
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96
 	golang.org/x/net v0.55.0
